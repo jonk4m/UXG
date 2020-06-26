@@ -7,9 +7,8 @@
 #include "QMessageBox"
 #include "QTime"
 #include "QThread"
-#include <QtNetwork/QNetworkAccessManager>
-#include <QtNetwork/QNetworkReply>
-#include <QtNetwork/QNetworkRequest>
+#include <QtNetwork>
+#include <QNetworkReply>
 #include <QUrl>
 
 
@@ -63,11 +62,11 @@ private slots:
 
     void on_how_many_different_phase_or_freq_spin_box_valueChanged(int arg1);
 
-    void MainWindow::update_pattern_table();
+    void update_pattern_table();
 
     void on_phase_freq_pattern_entry_table_cellChanged(int row, int column);
 
-    void MainWindow::add_button_in_pattern_table_setup(int row);
+    void add_button_in_pattern_table_setup(int row);
 
     void on_phase_freq_pattern_entry_table_cellClicked(int row, int column);
 
@@ -77,13 +76,26 @@ private slots:
 
     void on_batch_pattern_entry_push_button_clicked();
 
-    void output_to_command_line_text_editor();
+   // void output_to_command_line_text_editor();
+
+    void fn(QNetworkReply* reply);
+
+
 
 private:
 
-   // void uploadProgress(qint64 bytesSent, qint64 bytesTotal);  // Upload progress slot
+    //void uploadProgress(qint64 bytesSent, qint64 bytesTotal);  // Upload progress slot
 
-   //void uploadFinished(QNetworkReply *reply);  // Upload finish slot
+    void uploadComplete(QNetworkReply *reply);  // Upload finish slot
+
+    void auth();
+
+    void rr();
+
+    void po();
+    void er();
+    int looper = 0;
+
 
 };
 #endif // MAINWINDOW_H
