@@ -2,15 +2,15 @@
 #include "ui_mainwindow.h"
 #include "QDebug"
 
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
     MainWindow::fpcs_setup();
-    m_manager = new QNetworkAccessManager();
-    if(!connect(m_manager,SIGNAL(finished(QNetworkReply*)),this,SLOT(fn(QNetworkReply*))))
-        qDebug() << "issue with slot 0";
+    QTcpSocket *socket = new QTcpSocket(this);
+    window_ftpManager = new FtpManager();
 }
 
 MainWindow::~MainWindow()
@@ -403,119 +403,10 @@ void MainWindow::on_remove_last_entry_pushbutton_clicked()
 
 void MainWindow::on_upload_table_to_uxg_pushbutton_clicked()
 {
-   //if(window_fpcs.settings.fileInPlay){ UNCOMMENT ME
-        QUrl *url = new QUrl("ftp://");
-        url->setHost("K-N5193A-90114");//169.254.24.85 K-N5193A-90114
-        url->setPort(21);
-        url->setPath("/BIN/PQEXPORT.CSV");
-        url->setUserName("user");
-        url->setPassword("keysight");
-        qDebug() << "URL is : " + url->toString();
-        //if(!connect(m_manager, &QNetworkAccessManager::finished, this, &MainWindow::uploadComplete,Qt::DirectConnection))
-        //     qDebug() << "1.1";
-        if(!connect(m_manager, &QNetworkAccessManager::authenticationRequired, this, &MainWindow::auth, Qt::DirectConnection))
-             qDebug() << "1.2";
-        if(!connect(m_manager, &QNetworkAccessManager::sslErrors, this, &MainWindow::auth, Qt::DirectConnection))
-             qDebug() << "1.2";
-        if(!connect(m_manager, &QNetworkAccessManager::proxyAuthenticationRequired, this, &MainWindow::auth, Qt::DirectConnection))
-             qDebug() << "1.2";
-        if(!connect(m_manager, &QNetworkAccessManager::encrypted, this, &MainWindow::auth, Qt::DirectConnection))
-             qDebug() << "1.2";
-        if(!connect(m_manager, &QNetworkAccessManager::preSharedKeyAuthenticationRequired, this, &MainWindow::auth, Qt::DirectConnection))
-             qDebug() << "1.2";
-
-        QNetworkReply *reply = m_manager->get(QNetworkRequest(*url));
-
-        if(!connect(reply,&QNetworkReply::readyRead, this, &MainWindow::rr))
-            qDebug() << "1";
-        if(!connect(reply,&QNetworkReply::errorOccurred, this, &MainWindow::po))
-                 qDebug() << "3";
-        if(!connect(reply,&QNetworkReply::preSharedKeyAuthenticationRequired, this, &MainWindow::er))
-                 qDebug() << "4";
-        if(!connect(reply,&QNetworkReply::redirected, this, &MainWindow::er))
-                 qDebug() << "5";
-
-    /*}else{
-        qDebug() << "No Table Currently Selected for uploading to the UXG.";
-        return;
-    }*/
-
+    window_ftpManager->upload_table();
 }
 
-void MainWindow::fn(QNetworkReply* reply){
-    qDebug() << "finished reply";
-    QString read = reply->readAll();
-    qDebug() << read;
-    qDebug() << "entering second process";
 
-    if(looper == 1)
-        return;
-
-    QUrl *url = new QUrl("ftp://");
-    url->setHost("K-N5193A-90114");//169.254.24.85 K-N5193A-90114
-    url->setPort(21);
-    url->setPath("/USER/BIN/PQEXPORT.CSV");
-    url->setUserName("user");
-    url->setPassword("keysight");
-    qDebug() << "URL2 is : " + url->toString();
-    QNetworkRequest *request = new QNetworkRequest();
-
-    QNetworkReply *reply2 = m_manager->get(*request);
-
-    if(!connect(reply2,&QNetworkReply::readyRead, this, &MainWindow::rr))
-        qDebug() << "1";
-    if(!connect(reply2,&QNetworkReply::errorOccurred, this, &MainWindow::po))
-             qDebug() << "3";
-    if(!connect(reply2,&QNetworkReply::preSharedKeyAuthenticationRequired, this, &MainWindow::er))
-             qDebug() << "4";
-    if(!connect(reply2,&QNetworkReply::redirected, this, &MainWindow::er))
-             qDebug() << "5";
-    looper++;
-
-    //send a custom command "get /USER/BIN/BIGTABLE.CSV"
-
-}
-
-void MainWindow::po(){
-    qDebug() << "error occured reply --------------------";
-}
-
-void MainWindow::er(){
-    qDebug() << "preshare auth required reply";
-}
-
-void MainWindow::rr(){
-    qDebug() << "ready for reading reply ------------------";
-}
-
-void MainWindow::auth(){
-    qDebug() << "needs authentification manager";
-}
-
-void MainWindow::uploadComplete(QNetworkReply *reply)
-{
-    // If the upload was successful without errors
-    if (!reply->error())
-    {
-
-        //window_fpcs.workingFile.close();
-        //window_fpcs.workingFile.deleteLater();  // delete object of file
-
-        /*QFile *testFile = new QFile("C:/Users/abms1/Desktop/downloadedFile.txt");
-        if(testFile->open(QFile::ReadWrite)){
-            testFile->write(reply->readAll());
-            testFile->close();
-        }*/
-        qDebug() << "from file: ";
-        qDebug() << reply->isFinished();
-        //qDebug() << reply->readAll();
-        reply->deleteLater();   // delete object of reply
-        window_fpcs.settings.fileInPlay = false;
-    }else{
-        qDebug() << "ERROR : ";
-        qDebug() << reply->errorString();
-    }
-}
 
 /*void MainWindow::uploadProgress(qint64 bytesSent, qint64 bytesTotal)
 {
@@ -560,3 +451,8 @@ void MainWindow::on_batch_pattern_entry_push_button_clicked()
 
 }
 
+
+void MainWindow::on_qprocess_upload_push_button_clicked()
+{
+    window_ftpManager->start_upload_process();
+}

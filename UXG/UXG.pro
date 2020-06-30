@@ -18,11 +18,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     fpcs.cpp \
+    ftpmanager.cpp \
     main.cpp \
     mainwindow.cpp \
 
 HEADERS += \
     fpcs.h \
+    ftpmanager.h \
     mainwindow.h
 
 FORMS += \

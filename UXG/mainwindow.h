@@ -10,7 +10,8 @@
 #include <QtNetwork>
 #include <QNetworkReply>
 #include <QUrl>
-
+#include "QTcpSocket"
+#include "ftpmanager.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -26,7 +27,8 @@ public:
     void fpcs_setup();
     Ui::MainWindow *ui;
     Fpcs window_fpcs; //each fpcs also has it's own fpcs_settings struct titled "settings"
-    QNetworkAccessManager *m_manager;
+    FtpManager *window_ftpManager;
+    QTcpSocket *socket;
 
 private slots:
 
@@ -78,24 +80,9 @@ private slots:
 
    // void output_to_command_line_text_editor();
 
-    void fn(QNetworkReply* reply);
-
-
+    void on_qprocess_upload_push_button_clicked();
 
 private:
-
-    //void uploadProgress(qint64 bytesSent, qint64 bytesTotal);  // Upload progress slot
-
-    void uploadComplete(QNetworkReply *reply);  // Upload finish slot
-
-    void auth();
-
-    void rr();
-
-    void po();
-    void er();
-    int looper = 0;
-
 
 };
 #endif // MAINWINDOW_H
