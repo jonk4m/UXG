@@ -9,8 +9,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     MainWindow::fpcs_setup();
-    QTcpSocket *socket = new QTcpSocket(this);
-    window_ftpManager = new FtpManager();
+    window_ftpManager = new FtpManager(this);
 }
 
 MainWindow::~MainWindow()
@@ -105,6 +104,8 @@ void MainWindow::on_create_new_table_button_box_accepted()
             QThread::msleep(10);
         }
         ui->current_table_line_edit->setText(window_fpcs.workingFile.fileName());
+    }else{
+        qDebug() << "File unable to initialize";
     }
 }
 
@@ -135,12 +136,12 @@ void MainWindow::on_select_existing_table_button_box_helpRequested()
 //------------------------------------------------------------------------------
 
 
-//allow the user to select a preexisting file (the header is checked when the "Open" button calls on Fpcs::initialize_workingFile() to check it)
+//allow the user to select a preexisting file (TODO the header is checked when the "Open" button calls on Fpcs::initialize_workingFile() to check it)
 void MainWindow::on_select_file_push_button_clicked()
 {
     //prompt the user to select a folder
     QString filePath = QFileDialog::getOpenFileName(this, tr("Open File"),
-                QString(), tr("CSV Files (*.csv);;Text Files (*.txt)"));
+                "/fileFolder/downloads", tr("CSV Files (*.csv);;Text Files (*.txt)"));
 
     window_fpcs.settings.existingTableFilePath = filePath; //set the filePath
 
@@ -398,15 +399,7 @@ void MainWindow::on_remove_last_entry_pushbutton_clicked()
 
     //remove last part of the binaryPattern on the binary text editor
     ui->pattern_binary_pattern_shown_text_editor->setText(window_fpcs.workingEntry.bitPattern);
-
 }
-
-void MainWindow::on_upload_table_to_uxg_pushbutton_clicked()
-{
-    window_ftpManager->upload_table();
-}
-
-
 
 /*void MainWindow::uploadProgress(qint64 bytesSent, qint64 bytesTotal)
 {
@@ -414,45 +407,30 @@ void MainWindow::on_upload_table_to_uxg_pushbutton_clicked()
     ui->progressBar->setValue(100 * bytesSent/bytesTotal);
 }*/
 
-/*void MainWindow::output_to_command_line_text_editor(){
-    //output all messages from cmd to the text editor for the user to view
-    QProcess* ftpProcess = (QProcess*) sender();
-
-    QByteArray o = ftpProcess->readAll();
-    QByteArray output = ftpProcess->readAllStandardOutput();
-    QByteArray errorOutput = ftpProcess->readAllStandardError();
-
-    QStringList oL = QString(o).split("\n");
-    QStringList outputList = QString(output).split("\n");
-    QStringList outputErrorList = QString(errorOutput).split("\n");
-
-    qDebug() << "readAll: \n";
-    foreach(QString line, oL){
-        qDebug() << line;
-    }
-    qDebug() << "Output: \n";
-    foreach(QString line, outputErrorList){
-        qDebug() << line;
-    }
-    qDebug() << "Error: \n";
-    foreach(QString line, outputList){
-        qDebug() << line;
-    }
-    //ui->command_line_edit_text_editor->append()
-}*/
-
 void MainWindow::on_batch_pattern_entry_push_button_clicked()
 {
     //prompt the user to select a folder
     QString filePath = QFileDialog::getOpenFileName(this, tr("Open File"),
-                QString(), tr("Text Files (*.txt);;CSV Files (*.csv)"));
-
+                "/fileFolder", tr("Text Files (*.txt);;CSV Files (*.csv)"));
     //TODO setup a temp qTextStreamer to read in the file and basically create a table out of this text file input assuming all patterns follow the current settings
 
 }
 
-
 void MainWindow::on_qprocess_upload_push_button_clicked()
 {
-    window_ftpManager->start_upload_process();
+    if(window_fpcs.settings.fileInPlay == true){
+        window_ftpManager->current_state = FtpManager::state::uploading;
+        QString filename = window_fpcs.workingFile.fileName();
+        //then feed it into the process
+        window_ftpManager->start_process(&filename);
+    }else{
+        qDebug() << "Cannot upload to UXG without selecting a file";
+    }
+}
+
+void MainWindow::on_download_all_files_from_uxg_push_button_clicked()
+{
+    window_ftpManager->current_state = FtpManager::state::downloading;
+    QString folderName = QDir::currentPath() + "/fileFolder/downloadFtpCommands.txt"; //note that the downloads folder must be added upon deployment
+    window_ftpManager->start_process(&folderName);
 }

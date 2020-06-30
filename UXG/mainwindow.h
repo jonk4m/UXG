@@ -28,7 +28,6 @@ public:
     Ui::MainWindow *ui;
     Fpcs window_fpcs; //each fpcs also has it's own fpcs_settings struct titled "settings"
     FtpManager *window_ftpManager;
-    QTcpSocket *socket;
 
 private slots:
 
@@ -74,13 +73,13 @@ private slots:
 
     void on_remove_last_entry_pushbutton_clicked();
 
-    void on_upload_table_to_uxg_pushbutton_clicked();
-
     void on_batch_pattern_entry_push_button_clicked();
 
    // void output_to_command_line_text_editor();
 
     void on_qprocess_upload_push_button_clicked();
+
+    void on_download_all_files_from_uxg_push_button_clicked();
 
 private:
 

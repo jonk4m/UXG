@@ -11,42 +11,41 @@
 #include <QtNetwork>
 #include <QDebug>
 #include <QtCore>
-
+#include <QFile>
 #include <QProcess>
+#include <QFileDialog>
+#include <QTcpSocket>
 
 class FtpManager: public QObject
 {
     Q_OBJECT
 public:
 
-    FtpManager();
-
-    QUrl *url;
-    QNetworkAccessManager *m_manager;
-
-    void upload_table();
-    void download_table();
-    void send_SCPI();
+    FtpManager(QMainWindow *window);
 
     QProcess *process;
-    void start_upload_process();
-    int step = 0;
+    QTcpSocket *tcpSocket;
+
+    enum state{
+        initialized = 0,
+        uploading = 1,
+        downloading = 2,
+        sending_scpi = 3
+    };
+
+    state current_state;
+    void start_process(QString*);
+    void send_SPCI(QString*);
 
 private slots:
-
-    void manager_finished(QNetworkReply*);
-    void auth();
-    void reply_ready_read();
-    void reply_error_occured();
-    void reply_preshare_auth_required();
-    void reply_redirected();
-    void reply_finished();
-
     void process_started();
     void process_finished();
     void process_error_occured();
     void process_ready_read_error();
     void process_ready_read_output();
+
+    void displayError(QAbstractSocket::SocketError socketError);
+
 };
 
 #endif // FTPMANAGER_H

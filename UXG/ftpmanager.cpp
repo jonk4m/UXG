@@ -1,15 +1,11 @@
 #include "ftpmanager.h"
 #include <QNetworkAccessManager>
 
-FtpManager::FtpManager()
+FtpManager::FtpManager(QMainWindow *window)
 {
-    url = new QUrl("ftp://");
-    m_manager = new QNetworkAccessManager();
-    if(!connect(m_manager,&QNetworkAccessManager::finished,this,&FtpManager::manager_finished,Qt::DirectConnection)) //note this connection is invalid if FtpManager class was not a Q_OBJECT
-        qDebug() << "issue with slot 0";
-
-
     process = new QProcess(this);
+    current_state = state::initialized;
+    tcpSocket = new QTcpSocket(window);
 }
 
 /*
@@ -19,101 +15,39 @@ FtpManager::FtpManager()
  * Making FtpManager a Q_Object simplifies connections
  */
 
-void FtpManager::upload_table(){
-    url->setHost("K-N5193A-90114");//169.254.24.85 K-N5193A-90114
-    url->setPort(21);
-    url->setPath("/BIN/PQEXPORT.CSV");
-    url->setUserName("user");
-    url->setPassword("keysight");
-    qDebug() << "URL is : " + url->toString();
-    if(!connect(m_manager, &QNetworkAccessManager::authenticationRequired, this, &FtpManager::auth))
-         qDebug() << "1.1";
-    if(!connect(m_manager, &QNetworkAccessManager::sslErrors, this, &FtpManager::auth))
-         qDebug() << "1.2";
-    if(!connect(m_manager, &QNetworkAccessManager::proxyAuthenticationRequired, this, &FtpManager::auth))
-         qDebug() << "1.3";
-    if(!connect(m_manager, &QNetworkAccessManager::encrypted, this, &FtpManager::auth))
-         qDebug() << "1.4";
-    if(!connect(m_manager, &QNetworkAccessManager::preSharedKeyAuthenticationRequired, this, &FtpManager::auth))
-         qDebug() << "1.5";
-
-    QNetworkReply *reply = m_manager->get(QNetworkRequest(*url));
-
-    if(!connect(reply,&QNetworkReply::readyRead, this, &FtpManager::reply_ready_read))
-        qDebug() << "1";
-    if(!connect(reply,&QNetworkReply::errorOccurred, this, &FtpManager::reply_error_occured))
-             qDebug() << "3";
-    if(!connect(reply,&QNetworkReply::preSharedKeyAuthenticationRequired, this, &FtpManager::reply_preshare_auth_required))
-             qDebug() << "4";
-    if(!connect(reply,&QNetworkReply::redirected, this, &FtpManager::reply_redirected))
-             qDebug() << "5";
-    if(!connect(reply,&QNetworkReply::finished, this, &FtpManager::reply_finished))
-             qDebug() << "6";
-}
-
-void FtpManager::reply_finished(){
-    qDebug() << "reply finished";
-    //qDebug() << sender()->readAll();
-}
-
-void FtpManager::manager_finished(QNetworkReply *reply){
-    qDebug() << "manager finished";
-    if (!reply->error())
-    {
-        /*window_fpcs.workingFile.close();
-        window_fpcs.workingFile.deleteLater();  // delete object of file
-        QFile *testFile = new QFile("C:/Users/abms1/Desktop/downloadedFile.txt");
-        if(testFile->open(QFile::ReadWrite)){
-            testFile->write(reply->readAll());
-            testFile->close();
-        }*/
-        qDebug() << reply->readAll();
-        reply->deleteLater();   // delete object of reply
-
-    }else{
-        qDebug() << "ERROR : ";
-        qDebug() << reply->errorString();
-    }
-}
-
-void FtpManager::reply_ready_read(){
-    qDebug() << "reply ready read";
-}
-
-void FtpManager::reply_error_occured(){
-     qDebug() << "reply error occured";
-}
-
-void FtpManager::reply_preshare_auth_required(){
-     qDebug() << "reply preshare authentification required";
-}
-
-void FtpManager::reply_redirected(){
-     qDebug() << "reply redirected";
-}
-
-void FtpManager::auth(){
-     qDebug() << "NetworkAccessManager auth";
-}
-
-void FtpManager::download_table(){
-     qDebug() << "downloading table";
-}
-
-void FtpManager::send_SCPI(){
-     qDebug() << "sending SCPI";
-}
-
-
-
-
-
-
-void FtpManager::start_upload_process(){
+void FtpManager::start_process(QString *fileOrFolderName){
     qDebug() << "Starting upload process";
     QStringList arguments;
-    arguments << "-d" << "-i" << "-s:C:\\Users\\abms1\\Desktop\\ftpCommands2.txt" << "K-N5193A-90114";
     QString program = "ftp";
+
+    if(current_state == state::uploading){
+        qDebug() << "Name is : ";
+        qDebug() << *fileOrFolderName;
+        //TODO set the filename in the text document of the ftp commands to match the input parameter
+        QString commandPath = QDir::currentPath() + "/fileFolder/uploadFtpCommands.txt";
+        QFile commandFile(commandPath);
+        if(!commandFile.open(QIODevice::ReadWrite | QIODevice::Text))
+            qDebug() << "Failed to open uploadFtpCommands.txt";
+        qDebug() << commandFile.readLine();
+        qDebug() << commandFile.readLine();
+        qDebug() << commandFile.readLine();
+        qDebug() << commandFile.readLine();
+        QString textLine = "mput " + *fileOrFolderName + "\n";
+        commandFile.write(textLine.toUtf8());
+        commandFile.write("bye");
+        commandFile.flush();
+        commandFile.close();
+
+        QString commandArg = "-s:" + commandPath; //note that the uploads folder must be added upon deployment
+        arguments << "-d" << "-i" << commandArg << "K-N5193A-90114";   //C:\\Users\\abms1\\Desktop\\uploadFtpCommands.txt
+        //Make sure to copy FTP instruction text files to the deployed version folder next to the executable
+    }else if(current_state == state::downloading){
+        //Download all files from the UXG
+        QString commandArg = "-s:" + QDir::currentPath() + "/fileFolder/downloadFtpCommands.txt"; //note that the downloads folder must be added upon deployment
+        arguments << "-d" << "-i" << commandArg << "K-N5193A-90114";
+    }else{
+        qDebug() << "Error in FtpManager state, should be either uploading or downloading";
+    }
     process->start(program,arguments);
     connect(process,SIGNAL(started()),this,SLOT(process_started()));
     connect(process,SIGNAL(finished(int,QProcess::ExitStatus)),this,SLOT(process_finished()));
@@ -143,31 +77,24 @@ void FtpManager::process_ready_read_error(){
 }
 
 void FtpManager::process_ready_read_output(){
-    qDebug() << "Process output ---------------------------------------------------------------------:";
+    qDebug() << "Process output -----------------:";
     QString allRead = process->readAllStandardOutput();
     QStringList allReadParsed = allRead.split(QRegExp("[\r\n]"), Qt::SkipEmptyParts);
     for(QString item : allReadParsed){
         qDebug() << item;
     }
     qDebug() << "\n";
-    /*switch(step){
-    case 0:
-        qDebug() << "reached step 0";
-        //process->write("USER user\r\n"); //   \r\r\n ; \r\n ; \r ; \n ; \r\r ; nothing ; USER user ; user
-        process->write("PASS keysight\r\n");
-        process->closeWriteChannel();
-        break;
-    case 1:
-        qDebug() << "reached step 1";
-        process->write("bye");
-        break;
-    default:
-        qDebug() << "Unknown step reached";
-        break;
-    }*/
 }
 
 
+void FtpManager::send_SPCI(QString *message, QString *host, quint16 *port){
+    if(tcpSocket->state() != QAbstractSocket::ConnectedState){
+        //connect to server
+
+    }else{
+        qDebug() << "Socket connection is either busy or not connected";
+    }
+}
 
 
 
