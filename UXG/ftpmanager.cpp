@@ -3,26 +3,19 @@
 
 FtpManager::FtpManager(QMainWindow *window)
 {
-    process = new QProcess(this);
+    process = new QProcess(window);
     current_state = state::initialized;
     tcpSocket = new QTcpSocket(window);
 }
 
-/*
- * NOTES
- * when I use the keysight command expert to send "*IDN?\n" over TCP, it says it sent to port 4880 even though the manual says to use port 5025
- * when I use packet sender with port 5025 I get the proper response with "*IDN?\n" so it turns out I was missing the "\n" the whole time
- * Making FtpManager a Q_Object simplifies connections
- */
-
-void FtpManager::start_process(QString *fileOrFolderName){
+void FtpManager::start_process(QString fileOrFolderName){
     qDebug() << "Starting upload process";
     QStringList arguments;
     QString program = "ftp";
 
     if(current_state == state::uploading){
         qDebug() << "Name is : ";
-        qDebug() << *fileOrFolderName;
+        qDebug() << fileOrFolderName;
         //TODO set the filename in the text document of the ftp commands to match the input parameter
         QString commandPath = QDir::currentPath() + "/fileFolder/uploadFtpCommands.txt";
         QFile commandFile(commandPath);
@@ -32,15 +25,15 @@ void FtpManager::start_process(QString *fileOrFolderName){
         qDebug() << commandFile.readLine();
         qDebug() << commandFile.readLine();
         qDebug() << commandFile.readLine();
-        QString textLine = "mput " + *fileOrFolderName + "\n";
+        QString textLine = "mput " + fileOrFolderName + "\n";
         commandFile.write(textLine.toUtf8());
         commandFile.write("bye");
         commandFile.flush();
         commandFile.close();
 
-        QString commandArg = "-s:" + commandPath; //note that the uploads folder must be added upon deployment
-        arguments << "-d" << "-i" << commandArg << "K-N5193A-90114";   //C:\\Users\\abms1\\Desktop\\uploadFtpCommands.txt
-        //Make sure to copy FTP instruction text files to the deployed version folder next to the executable
+        QString commandArg = "-s:" + commandPath;
+        arguments << "-d" << "-i" << commandArg << "K-N5193A-90114";
+
     }else if(current_state == state::downloading){
         //Download all files from the UXG
         QString commandArg = "-s:" + QDir::currentPath() + "/fileFolder/downloadFtpCommands.txt"; //note that the downloads folder must be added upon deployment
@@ -49,11 +42,11 @@ void FtpManager::start_process(QString *fileOrFolderName){
         qDebug() << "Error in FtpManager state, should be either uploading or downloading";
     }
     process->start(program,arguments);
-    connect(process,SIGNAL(started()),this,SLOT(process_started()));
-    connect(process,SIGNAL(finished(int,QProcess::ExitStatus)),this,SLOT(process_finished()));
-    connect(process,SIGNAL(errorOccurred(QProcess::ProcessError)),this,SLOT(process_finished()));
-    connect(process,SIGNAL(readyReadStandardError()),this,SLOT(process_ready_read_error()));
-    connect(process,SIGNAL(readyReadStandardOutput()),this,SLOT(process_ready_read_output()));
+    QProcess::connect(process,SIGNAL(started()),this,SLOT(process_started()));
+    QProcess::connect(process,SIGNAL(finished(int,QProcess::ExitStatus)),this,SLOT(process_finished()));
+    QProcess::connect(process,SIGNAL(errorOccurred(QProcess::ProcessError)),this,SLOT(process_finished()));
+    QProcess::connect(process,SIGNAL(readyReadStandardError()),this,SLOT(process_ready_read_error()));
+    QProcess::connect(process,SIGNAL(readyReadStandardOutput()),this,SLOT(process_ready_read_output()));
     qDebug() << "finished adding connections";
 }
 
@@ -83,20 +76,62 @@ void FtpManager::process_ready_read_output(){
     for(QString item : allReadParsed){
         qDebug() << item;
     }
-    qDebug() << "\n";
 }
 
-
-void FtpManager::send_SPCI(QString *message, QString *host, quint16 *port){
-    if(tcpSocket->state() != QAbstractSocket::ConnectedState){
-        //connect to server
-
-    }else{
-        qDebug() << "Socket connection is either busy or not connected";
+void FtpManager::send_SPCI(QString message){
+    if(tcpSocket->state() == QAbstractSocket::ConnectedState){
+        QString str = message + "\n";
+        tcpSocket->write(str.toUtf8());
+    }else if(tcpSocket->state() == QAbstractSocket::HostLookupState){
+        qDebug() << "Socket cannot send command because it is in the host lookup state";
+    }else if(tcpSocket->state() == QAbstractSocket::ListeningState){
+        qDebug() << "Socket cannot send command because it is currently listening to the connection";
+    }else if(tcpSocket->state() == QAbstractSocket::UnconnectedState){
+        qDebug() << "Socket cannot send command because it is unconnected";
+    }else if(tcpSocket->state() == QAbstractSocket::ClosingState){
+        qDebug() << "Socket cannot send command because it is in the process of closing it's connection";
+    }else if(tcpSocket->state() == QAbstractSocket::ConnectingState){
+        qDebug() << "Socket cannot send command because it is currently in the process of connecting";
     }
 }
 
+void FtpManager::connect(QString host, quint16 port){
+    if(tcpSocket->state() == QAbstractSocket::ConnectedState){
+        qDebug() << "Socket already connected";
+    }else{
+        tcpSocket->connectToHost(host,port,QIODevice::ReadWrite);
+        QAbstractSocket::connect(tcpSocket,SIGNAL(connected()),this,SLOT(socket_connected()));
+        QAbstractSocket::connect(tcpSocket,SIGNAL(disconnected()),this,SLOT(socket_disconnected()));
+        QAbstractSocket::connect(tcpSocket,SIGNAL(readyRead()),this,SLOT(socket_readyRead()));
+        QAbstractSocket::connect(tcpSocket,SIGNAL(errorOccurred(QAbstractSocket::SocketError*)),this,SLOT(socket_errorOccurred(QAbstractSocket::SocketError*)));
+    }
+}
 
+void FtpManager::closeTcpSocket(){
+    tcpSocket->close();
+}
+
+void FtpManager::socket_connected(){
+    qDebug() << "Socket connected";
+}
+
+void FtpManager::socket_disconnected(){
+    qDebug() << "Socket disconnected";
+}
+
+void FtpManager::socket_readyRead(){
+    qDebug() << "Socket readyRead";
+    QString allRead = tcpSocket->readAll();
+    QStringList allReadParsed = allRead.split(QRegExp("[\r\n]"), Qt::SkipEmptyParts);
+    for(QString item : allReadParsed){
+        qDebug() << item;
+    }
+}
+
+void FtpManager::socket_errorOccurred(QAbstractSocket::SocketError *error){
+    qDebug() << "Socket error occurred : ";
+    qDebug() << error;
+}
 
 
 

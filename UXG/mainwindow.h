@@ -81,6 +81,10 @@ private slots:
 
     void on_download_all_files_from_uxg_push_button_clicked();
 
+    void on_pushButton_clicked();
+
+    void on_pushButton_2_clicked();
+
 private:
 
 };

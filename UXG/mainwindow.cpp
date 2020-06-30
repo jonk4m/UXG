@@ -91,7 +91,7 @@ void MainWindow::on_use_default_file_directory_check_box_stateChanged(int arg1)
     ui->loaded_table_progress_bar->reset();
 }
 
-//Dialog Buttons for Creating for Loading Table ------------------------------
+//Dialog Buttons for Creating Table
 void MainWindow::on_create_new_table_button_box_accepted()
 {
     window_fpcs.settings.usingExistingTable = false;
@@ -109,6 +109,7 @@ void MainWindow::on_create_new_table_button_box_accepted()
     }
 }
 
+//Dialog Buttons for loading Table
 void MainWindow::on_select_existing_table_button_box_accepted()
 {
     window_fpcs.settings.usingExistingTable = true;
@@ -133,8 +134,6 @@ void MainWindow::on_select_existing_table_button_box_helpRequested()
 {
     //TODO open a help pop-up
 }
-//------------------------------------------------------------------------------
-
 
 //allow the user to select a preexisting file (TODO the header is checked when the "Open" button calls on Fpcs::initialize_workingFile() to check it)
 void MainWindow::on_select_file_push_button_clicked()
@@ -401,6 +400,7 @@ void MainWindow::on_remove_last_entry_pushbutton_clicked()
     ui->pattern_binary_pattern_shown_text_editor->setText(window_fpcs.workingEntry.bitPattern);
 }
 
+//TODO
 /*void MainWindow::uploadProgress(qint64 bytesSent, qint64 bytesTotal)
 {
     // Display the progress of the upload
@@ -422,7 +422,7 @@ void MainWindow::on_qprocess_upload_push_button_clicked()
         window_ftpManager->current_state = FtpManager::state::uploading;
         QString filename = window_fpcs.workingFile.fileName();
         //then feed it into the process
-        window_ftpManager->start_process(&filename);
+        window_ftpManager->start_process(filename);
     }else{
         qDebug() << "Cannot upload to UXG without selecting a file";
     }
@@ -432,5 +432,17 @@ void MainWindow::on_download_all_files_from_uxg_push_button_clicked()
 {
     window_ftpManager->current_state = FtpManager::state::downloading;
     QString folderName = QDir::currentPath() + "/fileFolder/downloadFtpCommands.txt"; //note that the downloads folder must be added upon deployment
-    window_ftpManager->start_process(&folderName);
+    window_ftpManager->start_process(folderName);
+}
+
+void MainWindow::on_pushButton_clicked()
+{
+    QString host = "169.254.24.85";
+    window_ftpManager->connect(host, 5025);  //K-N5193A-90114 or 169.254.24.85
+}
+
+void MainWindow::on_pushButton_2_clicked()
+{
+    QString message = "*IDN?";
+    window_ftpManager->send_SPCI(message);
 }

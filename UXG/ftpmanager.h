@@ -34,8 +34,11 @@ public:
     };
 
     state current_state;
-    void start_process(QString*);
-    void send_SPCI(QString*);
+    void start_process(QString);
+
+    void send_SPCI(QString);
+    void connect(QString,quint16);
+    void closeTcpSocket();
 
 private slots:
     void process_started();
@@ -44,7 +47,10 @@ private slots:
     void process_ready_read_error();
     void process_ready_read_output();
 
-    void displayError(QAbstractSocket::SocketError socketError);
+    void socket_connected();
+    void socket_disconnected();
+    void socket_errorOccurred(QAbstractSocket::SocketError*);
+    void socket_readyRead();
 
 };
 
