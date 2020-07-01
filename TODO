@@ -1,0 +1,64 @@
+include in the manual that the user must create the fpcs prior to creating the signals or else they won't be able to select the pattern that each signal corresponds to 
+
+
+implement "delete table from UXG" button 
+Add barker codes as an option
+add batch text file
+create "connect to uxg" tab
+decide on what to do about signal creator tab
+go through todo's in the code
+add functionailty to edit previous patterns in a table
+meet with Jeremy and Dave
+Make table visualization 
+add "clear" button for pattern editing so the current pattern is cleared
+add "clear all entries" button for a table probably under the table visualizer
+figure out why uniform noise doesn't just happen at the one specified freq
+double check that freq entries are relative not absolute
+make the state of the first pattern be "off"
+fix the hex conversion so it doesn't chop off bits? 
+increment default table name
+add in code that lets the user know the max phase value allowed is 180
+add in code that tells the user if they've reached the 512 max patterns
+figure out how to get the comment in increment correctly if you are opening an existing table
+add a "delete all pdw files on uxg" and "delete all Freq/Phase Tables on UXG" buttons to the connect to UXG tab
+figure out how to retrieve and parse diagnostic info from the UXG (prolly using status register) to know how it's doing as well as knowing when a file is finished playing for the rotor to know
+allow user to select a file from the UXG to edit, then add functionality so when they upload it first deletes the old one of that name
+Add these SCPI commands to happen after the ftp process uploads a file:
+  //This step imports the csv table values into the current table but does not create a file from those values
+  MEMory:IMPort:ASCii:FPCSetup TestTable.csv
+  //store and export both use the SCPI command EXPort. The way it knows to export as a CSV or FPCS and put it in the correct file location accordingly is you have to specify in the file name either .csv or .fpcs
+  //This step takes the data of the current table and exports it into a FPCS file on the UXG so it can be used later
+  MEMory:EXPort:ASCii:FPCSetup TestTable.fpcs
+  //this step sets the current table to the exported FPCS file we just made
+  SOURce:PULM:STReam:FPCSetup:SELect TestTable.fpcs
+Allow user to choose from list of hostnames or IP's in the "connect to UXG" tab for choosing the current UXG
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

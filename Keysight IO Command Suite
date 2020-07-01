@@ -1,0 +1,12 @@
+The absolute best way to do it is to download the "Keysight Instrument Control Bundle Download" and install each of the programs from there starting with the Command Suite.
+Then download the Command Expert by clicking the install and lastly the Benchview
+
+^^^^ Don't do that, when I tried it didn't install the files to the correct directories. Instead do it the hard way:
+
+Install Keysight Connection Expert 2020
+https://www.keysight.com/main/software.jspx%3Fcc%3DUS%26lc%3Deng%26nid%3D-33330.977662%26id%3D2175637%26pageMode%3DPV?&cc=US&lc=eng
+
+After opening it, connect to your UXG by hitting the "+ADD" button. Then click the tab "Command Expert".
+When prompted, hit the link to download it, and on that webpage click the tab that says "trials & Licenses".
+Click the download button, and don't worry it's not a trial or license it's free to use. 
+

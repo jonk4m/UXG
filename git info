@@ -1,0 +1,25 @@
+How to setup github for QT Creator:
+Download Git (you can check if you have it already by typing "git --version" in the cmd) 
+Create a repo making sure to initialize it with a README and to add a Qt .gitignore BEFORE creating the repository. To add the .gitignore, click “Add .gitignore” and type in “Qt” which should be an option in the dropdown menu
+download the repo folder to whatever directory you want by opening git bash, cd'ing to that directory, then do "git clone <cloning link>" where the cloning link you get by copying the link to clone the repo on github.com
+Create a QT project
+Make sure the directory for the project is the same repo folder you downloaded earlier
+when you click "Configure" on the version control part of the project setup, go to the "git" tab
+Where it says "Prepend to PATH:" put your git bin file. Mine was C:\Program Files\Git\bin then click OK
+Now you're done. 
+for commiting:  Tools >> Git >> Local Repository >> Commit
+for pushing:  Tool >> Git >> Remote Repository >> Push
+for pulling:  Tools >> Git >> Remote Repository >> Pull
+
+git for VS:
+I made a repo on Github
+I cloned it on VS
+I created a project on VS and specified the directory to be that repo
+I went to file->add->new project
+I clicked on the project so it was highlighted
+I went to file->new->File..
+Then on the left hand column I clicked VisualC++, then in the column to the right, I clicked C++ File(.cpp)
+When it opened a blank file, I hit CTR+S and saved it in the folder of the PROJECT that I had made. Then everything worked. 
+When you commit and push always sync first.
+if it says it doesn't has access or is unable to find a certain file, right click that file in the window that shows all the files to be commited and click ignore this local file. Chances are it doesn't exist but it thinks it should
+VERY IMPORTANT: when you click "Changes" within the Team Explorer view, it will show you a window with your file directory for the files you've made changes on. Click the very top most file (usually the project directory) THEN click the drop down next to the "commit" button to do commit and push. Otherwise it doesn't know what to try to commit and push. 

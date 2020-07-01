@@ -1,0 +1,22 @@
+For remote operation, turn off updating the display so the signal generator is even faster (doesn’t specify exactly what it means by faster) by using the SCPI command “:DISPlay:REMote ON|OFF|1|0”
+
+*IDN? For it to send back its identification 
+
+make a method that just polls the UXG for the status register and opens a pop-up with all the parsed information
+
+
+:MEMory:CATalog:PDW?    Makes the UXG output a list of all the PDW files on it
+:MEMory:CATalog:FPCSetup?  Displays only frequency/phase coding setup files.
+:MEMory:DELete:PDW  deletes all PDW files in memory 
+:MEMory:DELete[:NAME] "<filename>"
+:DISPlay:REMote ON|OFF|1|0  Turns off or on the display
+:INSTrument[:SELect] NORMal|LIST|FCWSwitching|STReaming|VLO  sets the instrument mode
+:MEMory:DELete:ALL  This command deletes all non–volatile user-files including binary, list, scenario, state, and frequency/phase coding files along with any saved setups that use the front- panel table editors.
+:MEMory:DELete:FPCSetup This command deletes all of the frequency/phase coding setup files.
+:MEMory:DELete[:NAME] TestTable.csv  This deletes the csv file on the UXG
+:MEMory:DELete[:NAME] TestTable.fpcs  This deletes the FPCS file on the UXG
+
+
+
+
+

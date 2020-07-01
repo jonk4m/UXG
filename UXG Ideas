@@ -1,0 +1,65 @@
+You can manually (typing or Copy paste) enter a bit pattern or import it from text file. 
+You can import bit pattern in batch from a text file. 
+for multiple bits, it will display how the freq/phases are by default just like the UXG screen shows, but then you can modify each of them
+have all the barker codes as a drop-down menu available which will auto-populate the bit pattern
+you can duplicate the pattern you just made with a few options of differentiating it in minor ways without having to make a whole new one
+Build the FPCS in the GUI or have it be able to import an already existing csv to the UXG 
+
+
+
+PROCEEDURE 
+
+//This step adds the CSV file to the UXG's BIN file using the command line
+ftp K-N5193A-90114
+enter
+keysight enter
+cd /USER/BIN enter
+ls enter
+send C:/Users/abms1/Documents/TestTable.csv
+
+//This step imports the csv table values into the current table but does not create a file from those values
+MEMory:IMPort:ASCii:FPCSetup TestTable.csv
+
+//store and export both use the SCPI command EXPort. The way it knows to export as a CSV or FPCS and put it in the correct file location accordingly is you have to specify in the file name either .csv or .fpcs
+//This step takes the data of the current table and exports it into a FPCS file on the UXG so it can be used later
+MEMory:EXPort:ASCii:FPCSetup TestTable.fpcs
+
+//this step sets the current table to the exported FPCS file we just made
+SOURce:PULM:STReam:FPCSetup:SELect TestTable.fpcs
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	ftp://169.254.24.85/BIN/BIGTABLE.CSV
+	ftp://:keysight@169.254.24.85:21/BIN/BIGTABLE.CSV
+	
+	
+	
+	
+	for packet sender I used the IP address and port 21 for tcp
+	alternatively port 5025 for SCPI
+	
+	
+	:INSTrument[:SELect] NORMal
+	
+	:INSTrument[:SELect] NORMal|LIST|FCWSwitching|STReaming|VLO|RPTEST|EMFCp
+	
+	(Connect "N5193A", "TCPIP0::169.254.24.85::hislip0::INSTR", "UXG Agile Signal Generator / A.01.60")
+
