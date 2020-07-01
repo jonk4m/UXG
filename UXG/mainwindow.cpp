@@ -154,7 +154,7 @@ void MainWindow::on_select_file_push_button_clicked()
 void MainWindow::on_update_current_table_with_pattern_push_button_clicked()
 {
     window_fpcs.add_entry();
-    ui->table_or_pattern_toolbox->setCurrentIndex(0); //this then opens the part of the toolbox that is used for visualizing the table
+    ui->table_or_pattern_toolbox->setCurrentIndex(0); //this then opens the part of the GUI toolbox that is used for visualizing the table
 }
 
 /*
@@ -165,7 +165,7 @@ void MainWindow::on_add_another_pattern_to_this_table_push_button_clicked()
 {
     if(window_fpcs.settings.fileInPlay){
         window_fpcs.streamer.readAll(); // this will cause the position to be set to the end of the file.
-        ui->table_or_pattern_toolbox->setCurrentIndex(1); //this then opens the part of the toolbox that is used for editing the pattern
+        ui->table_or_pattern_toolbox->setCurrentIndex(1); //this then opens the part of the GUI toolbox that is used for editing the pattern
         update_pattern_table();
     }else{
         qDebug() << "No Table Currently Selected to Add a Pattern to.";
@@ -445,4 +445,9 @@ void MainWindow::on_pushButton_2_clicked()
 {
     QString message = "*IDN?";
     window_ftpManager->send_SPCI(message);
+}
+
+void MainWindow::on_download_all_files_from_uxg_push_button_2_clicked()
+{
+    MainWindow::on_download_all_files_from_uxg_push_button_clicked();
 }

@@ -229,7 +229,6 @@ bool Fpcs::add_entry(){
 
         //enhanced for loop going through the array of freq values
         for(int i = 0; i < 16; i++){
-
             unsigned long long int tempMultiplier = 1;
             if(workingEntry.freqUnits == QString("G") || workingEntry.freqUnits == QString("g")){
                 tempMultiplier = 1000000000;
@@ -252,6 +251,8 @@ bool Fpcs::add_entry(){
         streamer << "#h" + workingEntry.hexPattern;
 
         streamer << "\n"; //end of entry, new line for next entry
+
+        streamer.flush();
 
     }else{
         qDebug() << "No File is currently selected for the entry to be added to.";

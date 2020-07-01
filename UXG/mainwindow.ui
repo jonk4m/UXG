@@ -279,7 +279,7 @@
            </rect>
           </property>
           <property name="standardButtons">
-           <set>QDialogButtonBox::Help|QDialogButtonBox::Save</set>
+           <set>QDialogButtonBox::Help|QDialogButtonBox::Ok</set>
           </property>
          </widget>
          <widget class="QProgressBar" name="create_progress_bar">
@@ -310,7 +310,7 @@
           <property name="geometry">
            <rect>
             <x>10</x>
-            <y>10</y>
+            <y>50</y>
             <width>281</width>
             <height>51</height>
            </rect>
@@ -319,7 +319,7 @@
            <item>
             <widget class="QPushButton" name="select_file_push_button">
              <property name="text">
-              <string>Select File Local</string>
+              <string>Select File</string>
              </property>
             </widget>
            </item>
@@ -357,6 +357,35 @@
           <property name="value">
            <number>0</number>
           </property>
+         </widget>
+         <widget class="QWidget" name="horizontalLayoutWidget_3">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>10</y>
+            <width>231</width>
+            <height>31</height>
+           </rect>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <item>
+            <widget class="QRadioButton" name="select_local_file_radio_button">
+             <property name="text">
+              <string>Select Local File</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="select_file_from_uxg_radio_button">
+             <property name="text">
+              <string>Select File from UXG</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </widget>
         </widget>
        </widget>
@@ -1212,6 +1241,32 @@
       </property>
       <property name="text">
        <string>send *IDN?</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="download_all_files_from_uxg_push_button_2">
+      <property name="geometry">
+       <rect>
+        <x>330</x>
+        <y>90</y>
+        <width>301</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Download All Files Available on UXG</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_3">
+      <property name="geometry">
+       <rect>
+        <x>330</x>
+        <y>140</y>
+        <width>301</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Delete All Files on UXG</string>
       </property>
      </widget>
     </widget>
