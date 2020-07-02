@@ -77,9 +77,9 @@
         <widget class="QLineEdit" name="current_table_line_edit">
          <property name="geometry">
           <rect>
-           <x>180</x>
+           <x>100</x>
            <y>20</y>
-           <width>281</width>
+           <width>221</width>
            <height>20</height>
           </rect>
          </property>
@@ -90,7 +90,7 @@
         <widget class="QLabel" name="current_table_label">
          <property name="geometry">
           <rect>
-           <x>100</x>
+           <x>20</x>
            <y>20</y>
            <width>81</width>
            <height>16</height>
@@ -112,18 +112,37 @@
          <property name="text">
           <string>Add Another Pattern to this Table</string>
          </property>
+         <property name="default">
+          <bool>true</bool>
+         </property>
         </widget>
-        <widget class="QLabel" name="label_5">
+        <widget class="QTableView" name="table_visualization_table_view">
          <property name="geometry">
           <rect>
-           <x>120</x>
-           <y>160</y>
-           <width>251</width>
-           <height>16</height>
+           <x>10</x>
+           <y>50</y>
+           <width>451</width>
+           <height>371</height>
+          </rect>
+         </property>
+         <property name="alternatingRowColors">
+          <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QRadioButton" name="binary_data_view_push_button">
+         <property name="geometry">
+          <rect>
+           <x>330</x>
+           <y>20</y>
+           <width>111</width>
+           <height>17</height>
           </rect>
          </property>
          <property name="text">
-          <string>Table Visualization Under Construction</string>
+          <string>Binary Data View</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
          </property>
         </widget>
        </widget>
@@ -306,32 +325,6 @@
          <attribute name="title">
           <string>Select An Existing Table</string>
          </attribute>
-         <widget class="QWidget" name="horizontalLayoutWidget">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>50</y>
-            <width>281</width>
-            <height>51</height>
-           </rect>
-          </property>
-          <layout class="QHBoxLayout" name="horizontalLayout">
-           <item>
-            <widget class="QPushButton" name="select_file_push_button">
-             <property name="text">
-              <string>Select File</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLineEdit" name="select_file_line_edit">
-             <property name="readOnly">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
          <widget class="QDialogButtonBox" name="select_existing_table_button_box">
           <property name="geometry">
            <rect>
@@ -387,6 +380,51 @@
            </item>
           </layout>
          </widget>
+         <widget class="QComboBox" name="uxg_fpcs_files_combo_box">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>50</y>
+            <width>281</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="autoFillBackground">
+           <bool>false</bool>
+          </property>
+          <property name="frame">
+           <bool>true</bool>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="select_file_push_button">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>50</y>
+            <width>75</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Select File</string>
+          </property>
+         </widget>
+         <widget class="QLineEdit" name="select_file_line_edit">
+          <property name="geometry">
+           <rect>
+            <x>100</x>
+            <y>50</y>
+            <width>191</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
         </widget>
        </widget>
        <widget class="QPushButton" name="qprocess_upload_push_button">
@@ -431,9 +469,9 @@
        <widget class="QWidget" name="gridLayoutWidget">
         <property name="geometry">
          <rect>
-          <x>410</x>
+          <x>340</x>
           <y>10</y>
-          <width>381</width>
+          <width>451</width>
           <height>101</height>
          </rect>
         </property>
@@ -573,9 +611,9 @@
         <property name="geometry">
          <rect>
           <x>710</x>
-          <y>440</y>
+          <y>430</y>
           <width>81</width>
-          <height>23</height>
+          <height>26</height>
          </rect>
         </property>
         <property name="text">
@@ -585,9 +623,9 @@
        <widget class="QTextEdit" name="pattern_binary_pattern_shown_text_editor">
         <property name="geometry">
          <rect>
-          <x>410</x>
-          <y>360</y>
-          <width>381</width>
+          <x>340</x>
+          <y>350</y>
+          <width>451</width>
           <height>71</height>
          </rect>
         </property>
@@ -600,7 +638,7 @@
          <rect>
           <x>10</x>
           <y>10</y>
-          <width>391</width>
+          <width>321</width>
           <height>451</height>
          </rect>
         </property>
@@ -626,7 +664,7 @@
          <number>16</number>
         </property>
         <property name="columnCount">
-         <number>5</number>
+         <number>4</number>
         </property>
         <attribute name="horizontalHeaderVisible">
          <bool>false</bool>
@@ -660,428 +698,410 @@
         <column/>
         <column/>
         <column/>
-        <column/>
         <item row="0" column="0">
          <property name="text">
-          <string>0</string>
+          <string>0°</string>
          </property>
         </item>
         <item row="0" column="1">
          <property name="text">
-          <string>degrees</string>
+          <string>10</string>
          </property>
         </item>
         <item row="0" column="2">
          <property name="text">
-          <string>10</string>
+          <string>Mhz</string>
          </property>
         </item>
         <item row="0" column="3">
          <property name="text">
-          <string>M</string>
-         </property>
-        </item>
-        <item row="0" column="4">
-         <property name="text">
           <string>ADD</string>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsDragEnabled|ItemIsDropEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
          </property>
         </item>
         <item row="1" column="0">
          <property name="text">
-          <string>180</string>
+          <string>180°</string>
          </property>
         </item>
         <item row="1" column="1">
          <property name="text">
-          <string>degrees</string>
+          <string>20</string>
          </property>
         </item>
         <item row="1" column="2">
          <property name="text">
-          <string>20</string>
+          <string>khz</string>
          </property>
         </item>
         <item row="1" column="3">
          <property name="text">
-          <string>k</string>
-         </property>
-        </item>
-        <item row="1" column="4">
-         <property name="text">
           <string>ADD</string>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsDragEnabled|ItemIsDropEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
          </property>
         </item>
         <item row="2" column="0">
          <property name="text">
-          <string>0</string>
+          <string>0°</string>
          </property>
         </item>
         <item row="2" column="1">
          <property name="text">
-          <string>degrees</string>
+          <string>30</string>
          </property>
         </item>
         <item row="2" column="2">
          <property name="text">
-          <string>30</string>
+          <string>Mhz</string>
          </property>
         </item>
         <item row="2" column="3">
          <property name="text">
-          <string>M</string>
-         </property>
-        </item>
-        <item row="2" column="4">
-         <property name="text">
           <string>ADD</string>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsDragEnabled|ItemIsDropEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
          </property>
         </item>
         <item row="3" column="0">
          <property name="text">
-          <string>0</string>
+          <string>0°</string>
          </property>
         </item>
         <item row="3" column="1">
          <property name="text">
-          <string>degrees</string>
+          <string>40</string>
          </property>
         </item>
         <item row="3" column="2">
          <property name="text">
-          <string>40</string>
+          <string>Mhz</string>
          </property>
         </item>
         <item row="3" column="3">
          <property name="text">
-          <string>M</string>
-         </property>
-        </item>
-        <item row="3" column="4">
-         <property name="text">
           <string>ADD</string>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsDragEnabled|ItemIsDropEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
          </property>
         </item>
         <item row="4" column="0">
          <property name="text">
-          <string>0</string>
+          <string>0°</string>
          </property>
         </item>
         <item row="4" column="1">
          <property name="text">
-          <string>degrees</string>
+          <string>50</string>
          </property>
         </item>
         <item row="4" column="2">
          <property name="text">
-          <string>50</string>
+          <string>Mhz</string>
          </property>
         </item>
         <item row="4" column="3">
          <property name="text">
-          <string>M</string>
-         </property>
-        </item>
-        <item row="4" column="4">
-         <property name="text">
           <string>ADD</string>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsDragEnabled|ItemIsDropEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
          </property>
         </item>
         <item row="5" column="0">
          <property name="text">
-          <string>0</string>
+          <string>0°</string>
          </property>
         </item>
         <item row="5" column="1">
          <property name="text">
-          <string>degrees</string>
+          <string>0</string>
          </property>
         </item>
         <item row="5" column="2">
          <property name="text">
-          <string>0</string>
+          <string>Mhz</string>
          </property>
         </item>
         <item row="5" column="3">
          <property name="text">
-          <string>M</string>
-         </property>
-        </item>
-        <item row="5" column="4">
-         <property name="text">
           <string>ADD</string>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsDragEnabled|ItemIsDropEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
          </property>
         </item>
         <item row="6" column="0">
          <property name="text">
-          <string>0</string>
+          <string>0°</string>
          </property>
         </item>
         <item row="6" column="1">
          <property name="text">
-          <string>degrees</string>
+          <string>0</string>
          </property>
         </item>
         <item row="6" column="2">
          <property name="text">
-          <string>0</string>
+          <string>Mhz</string>
          </property>
         </item>
         <item row="6" column="3">
          <property name="text">
-          <string>M</string>
-         </property>
-        </item>
-        <item row="6" column="4">
-         <property name="text">
           <string>ADD</string>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsDragEnabled|ItemIsDropEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
          </property>
         </item>
         <item row="7" column="0">
          <property name="text">
-          <string>0</string>
+          <string>0°</string>
          </property>
         </item>
         <item row="7" column="1">
          <property name="text">
-          <string>degrees</string>
+          <string>0</string>
          </property>
         </item>
         <item row="7" column="2">
          <property name="text">
-          <string>0</string>
+          <string>Mhz</string>
          </property>
         </item>
         <item row="7" column="3">
          <property name="text">
-          <string>M</string>
-         </property>
-        </item>
-        <item row="7" column="4">
-         <property name="text">
           <string>ADD</string>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsDragEnabled|ItemIsDropEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
          </property>
         </item>
         <item row="8" column="0">
          <property name="text">
-          <string>0</string>
+          <string>0°</string>
          </property>
         </item>
         <item row="8" column="1">
          <property name="text">
-          <string>degrees</string>
+          <string>0</string>
          </property>
         </item>
         <item row="8" column="2">
          <property name="text">
-          <string>0</string>
+          <string>Mhz</string>
          </property>
         </item>
         <item row="8" column="3">
          <property name="text">
-          <string>M</string>
-         </property>
-        </item>
-        <item row="8" column="4">
-         <property name="text">
           <string>ADD</string>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsDragEnabled|ItemIsDropEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
          </property>
         </item>
         <item row="9" column="0">
          <property name="text">
-          <string>0</string>
+          <string>0°</string>
          </property>
         </item>
         <item row="9" column="1">
          <property name="text">
-          <string>degrees</string>
+          <string>0</string>
          </property>
         </item>
         <item row="9" column="2">
          <property name="text">
-          <string>0</string>
+          <string>Mhz</string>
          </property>
         </item>
         <item row="9" column="3">
          <property name="text">
-          <string>M</string>
-         </property>
-        </item>
-        <item row="9" column="4">
-         <property name="text">
           <string>ADD</string>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsDragEnabled|ItemIsDropEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
          </property>
         </item>
         <item row="10" column="0">
          <property name="text">
-          <string>0</string>
+          <string>0°</string>
          </property>
         </item>
         <item row="10" column="1">
          <property name="text">
-          <string>degrees</string>
+          <string>0</string>
          </property>
         </item>
         <item row="10" column="2">
          <property name="text">
-          <string>0</string>
+          <string>Mhz</string>
          </property>
         </item>
         <item row="10" column="3">
          <property name="text">
-          <string>M</string>
-         </property>
-        </item>
-        <item row="10" column="4">
-         <property name="text">
           <string>ADD</string>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsDragEnabled|ItemIsDropEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
          </property>
         </item>
         <item row="11" column="0">
          <property name="text">
-          <string>0</string>
+          <string>0°</string>
          </property>
         </item>
         <item row="11" column="1">
          <property name="text">
-          <string>degrees</string>
+          <string>0</string>
          </property>
         </item>
         <item row="11" column="2">
          <property name="text">
-          <string>0</string>
+          <string>Mhz</string>
          </property>
         </item>
         <item row="11" column="3">
          <property name="text">
-          <string>M</string>
-         </property>
-        </item>
-        <item row="11" column="4">
-         <property name="text">
           <string>ADD</string>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsDragEnabled|ItemIsDropEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
          </property>
         </item>
         <item row="12" column="0">
          <property name="text">
-          <string>0</string>
+          <string>0°</string>
          </property>
         </item>
         <item row="12" column="1">
          <property name="text">
-          <string>degrees</string>
+          <string>0</string>
          </property>
         </item>
         <item row="12" column="2">
          <property name="text">
-          <string>0</string>
+          <string>Mhz</string>
          </property>
         </item>
         <item row="12" column="3">
          <property name="text">
-          <string>M</string>
-         </property>
-        </item>
-        <item row="12" column="4">
-         <property name="text">
           <string>ADD</string>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsDragEnabled|ItemIsDropEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
          </property>
         </item>
         <item row="13" column="0">
          <property name="text">
-          <string>0</string>
+          <string>0°</string>
          </property>
         </item>
         <item row="13" column="1">
          <property name="text">
-          <string>degrees</string>
+          <string>0</string>
          </property>
         </item>
         <item row="13" column="2">
          <property name="text">
-          <string>0</string>
+          <string>Mhz</string>
          </property>
         </item>
         <item row="13" column="3">
          <property name="text">
-          <string>M</string>
-         </property>
-        </item>
-        <item row="13" column="4">
-         <property name="text">
           <string>ADD</string>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsDragEnabled|ItemIsDropEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
          </property>
         </item>
         <item row="14" column="0">
          <property name="text">
-          <string>0</string>
+          <string>0°</string>
          </property>
         </item>
         <item row="14" column="1">
          <property name="text">
-          <string>degrees</string>
+          <string>0</string>
          </property>
         </item>
         <item row="14" column="2">
          <property name="text">
-          <string>0</string>
+          <string>Mhz</string>
          </property>
         </item>
         <item row="14" column="3">
          <property name="text">
-          <string>M</string>
-         </property>
-        </item>
-        <item row="14" column="4">
-         <property name="text">
           <string>ADD</string>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsDragEnabled|ItemIsDropEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
          </property>
         </item>
         <item row="15" column="0">
          <property name="text">
-          <string>0</string>
+          <string>0°</string>
          </property>
         </item>
         <item row="15" column="1">
          <property name="text">
-          <string>degrees</string>
+          <string>0</string>
          </property>
         </item>
         <item row="15" column="2">
          <property name="text">
-          <string>0</string>
+          <string>Mhz</string>
          </property>
         </item>
         <item row="15" column="3">
          <property name="text">
-          <string>M</string>
-         </property>
-        </item>
-        <item row="15" column="4">
-         <property name="text">
           <string>ADD</string>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsDragEnabled|ItemIsDropEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
          </property>
         </item>
        </widget>
        <widget class="QPushButton" name="update_current_table_with_pattern_push_button">
         <property name="geometry">
          <rect>
-          <x>410</x>
-          <y>440</y>
-          <width>201</width>
-          <height>23</height>
+          <x>340</x>
+          <y>430</y>
+          <width>271</width>
+          <height>27</height>
          </rect>
+        </property>
+        <property name="font">
+         <font>
+          <strikeout>false</strikeout>
+          <kerning>true</kerning>
+         </font>
+        </property>
+        <property name="autoFillBackground">
+         <bool>false</bool>
         </property>
         <property name="text">
          <string>Update/Add Pattern to Current Table</string>
+        </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
+        <property name="default">
+         <bool>true</bool>
         </property>
        </widget>
        <widget class="QPushButton" name="cancel_editing_pattern_push_button">
         <property name="geometry">
          <rect>
           <x>620</x>
-          <y>440</y>
+          <y>430</y>
           <width>81</width>
-          <height>23</height>
+          <height>26</height>
          </rect>
         </property>
         <property name="text">
@@ -1091,8 +1111,8 @@
        <widget class="QLabel" name="label">
         <property name="geometry">
          <rect>
-          <x>410</x>
-          <y>340</y>
+          <x>340</x>
+          <y>330</y>
           <width>141</width>
           <height>16</height>
          </rect>
@@ -1104,9 +1124,9 @@
        <widget class="QTextEdit" name="pattern_nonBinary_values_shown_text_editor">
         <property name="geometry">
          <rect>
-          <x>410</x>
+          <x>340</x>
           <y>220</y>
-          <width>381</width>
+          <width>451</width>
           <height>71</height>
          </rect>
         </property>
@@ -1117,7 +1137,7 @@
        <widget class="QLabel" name="label_4">
         <property name="geometry">
          <rect>
-          <x>410</x>
+          <x>340</x>
           <y>200</y>
           <width>141</width>
           <height>16</height>
@@ -1130,9 +1150,9 @@
        <widget class="QGroupBox" name="groupBox">
         <property name="geometry">
          <rect>
-          <x>410</x>
+          <x>340</x>
           <y>120</y>
-          <width>381</width>
+          <width>451</width>
           <height>80</height>
          </rect>
         </property>
@@ -1144,7 +1164,7 @@
           <rect>
            <x>10</x>
            <y>20</y>
-           <width>281</width>
+           <width>431</width>
            <height>51</height>
           </rect>
          </property>
@@ -1169,14 +1189,27 @@
        <widget class="QPushButton" name="remove_last_entry_pushbutton">
         <property name="geometry">
          <rect>
-          <x>410</x>
-          <y>310</y>
+          <x>340</x>
+          <y>300</y>
           <width>111</width>
           <height>23</height>
          </rect>
         </property>
         <property name="text">
          <string>Remove Last Entry</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="clear_pattern_push_button">
+        <property name="geometry">
+         <rect>
+          <x>460</x>
+          <y>300</y>
+          <width>111</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Clear Pattern</string>
         </property>
        </widget>
       </widget>
@@ -1217,57 +1250,66 @@
      <attribute name="title">
       <string>Connect to UXG</string>
      </attribute>
-     <widget class="QPushButton" name="pushButton">
+     <widget class="QWidget" name="gridLayoutWidget_2">
       <property name="geometry">
        <rect>
-        <x>90</x>
-        <y>90</y>
-        <width>191</width>
-        <height>23</height>
+        <x>10</x>
+        <y>10</y>
+        <width>771</width>
+        <height>461</height>
        </rect>
       </property>
-      <property name="text">
-       <string>connect</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="pushButton_2">
-      <property name="geometry">
-       <rect>
-        <x>90</x>
-        <y>130</y>
-        <width>191</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>send *IDN?</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="download_all_files_from_uxg_push_button_2">
-      <property name="geometry">
-       <rect>
-        <x>330</x>
-        <y>90</y>
-        <width>301</width>
-        <height>23</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Download All Files Available on UXG</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="pushButton_3">
-      <property name="geometry">
-       <rect>
-        <x>330</x>
-        <y>140</y>
-        <width>301</width>
-        <height>23</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Delete All Files on UXG</string>
-      </property>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="1" column="1">
+        <widget class="QPushButton" name="delete_all_files_on_uxg_push_button">
+         <property name="text">
+          <string>Delete All Files on UXG</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QPushButton" name="power_off_uxg_push_button">
+         <property name="text">
+          <string>Power Off UXG</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QPushButton" name="pushButton">
+         <property name="text">
+          <string>connect</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QPushButton" name="initiate_uxg_self_test_push_button">
+         <property name="text">
+          <string>Initiate UXG Self-Test</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QPushButton" name="download_all_files_from_uxg_push_button_2">
+         <property name="text">
+          <string>Download All Files Available on UXG</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QPushButton" name="pushButton_2">
+         <property name="text">
+          <string>send *IDN?</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QPushButton" name="pushButton_3">
+         <property name="text">
+          <string>get FPCS's</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </widget>
    </widget>

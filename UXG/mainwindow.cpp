@@ -10,6 +10,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     MainWindow::fpcs_setup();
     window_ftpManager = new FtpManager(this);
+
+    ui->uxg_fpcs_files_combo_box->hide();
+    waitingForFPCSFileList = false;
 }
 
 MainWindow::~MainWindow()
@@ -109,7 +112,10 @@ void MainWindow::on_create_new_table_button_box_accepted()
     }
 }
 
-//Dialog Buttons for loading Table
+/*
+ * Dialog Buttons for loading Table
+ * Assumes a file name has been chosen before pressed, but also checks if that's the case.
+ */
 void MainWindow::on_select_existing_table_button_box_accepted()
 {
     window_fpcs.settings.usingExistingTable = true;
@@ -123,6 +129,9 @@ void MainWindow::on_select_existing_table_button_box_accepted()
         }
         ui->current_table_line_edit->setText(window_fpcs.workingFile.fileName());
     }
+
+    //TODO Update table visualization with the new data
+
 }
 
 void MainWindow::on_create_new_table_button_box_helpRequested()
@@ -138,7 +147,8 @@ void MainWindow::on_select_existing_table_button_box_helpRequested()
 //allow the user to select a preexisting file (TODO the header is checked when the "Open" button calls on Fpcs::initialize_workingFile() to check it)
 void MainWindow::on_select_file_push_button_clicked()
 {
-    //prompt the user to select a folder
+    if(window_fpcs.settings.usingExistingTableLocal == true){
+    //prompt the user to select a folder from the local system
     QString filePath = QFileDialog::getOpenFileName(this, tr("Open File"),
                 "/fileFolder/downloads", tr("CSV Files (*.csv);;Text Files (*.txt)"));
 
@@ -149,6 +159,9 @@ void MainWindow::on_select_file_push_button_clicked()
     //set the progress bar to 0%
     ui->create_progress_bar->reset();
     ui->loaded_table_progress_bar->reset();
+    }else{
+        qDebug() << "Cannot select local file with option to choose file from UXG currently selected";
+    }
 }
 
 void MainWindow::on_update_current_table_with_pattern_push_button_clicked()
@@ -200,11 +213,10 @@ void MainWindow::update_pattern_table(){
 void MainWindow::on_phase_pattern_type_radio_button_clicked()
 {
     ui->phase_freq_pattern_entry_table->showColumn(0);
-    ui->phase_freq_pattern_entry_table->showColumn(1);
-    ui->phase_freq_pattern_entry_table->showColumn(4);
+    ui->phase_freq_pattern_entry_table->showColumn(3);
     //hide the freq columns
+    ui->phase_freq_pattern_entry_table->hideColumn(1);
     ui->phase_freq_pattern_entry_table->hideColumn(2);
-    ui->phase_freq_pattern_entry_table->hideColumn(3);
 
     window_fpcs.workingEntry.codingType = "PHASE";
 }
@@ -214,12 +226,11 @@ void MainWindow::on_phase_pattern_type_radio_button_clicked()
  */
 void MainWindow::on_freq_pattern_type_radio_button_clicked()
 {
+    ui->phase_freq_pattern_entry_table->showColumn(1);
     ui->phase_freq_pattern_entry_table->showColumn(2);
     ui->phase_freq_pattern_entry_table->showColumn(3);
-    ui->phase_freq_pattern_entry_table->showColumn(4);
     //hide the phase columns
     ui->phase_freq_pattern_entry_table->hideColumn(0);
-    ui->phase_freq_pattern_entry_table->hideColumn(1);
 
     window_fpcs.workingEntry.codingType = "FREQUENCY";
 }
@@ -233,7 +244,6 @@ void MainWindow::on_both_pattern_type_radio_button_clicked()
     ui->phase_freq_pattern_entry_table->showColumn(1);
     ui->phase_freq_pattern_entry_table->showColumn(2);
     ui->phase_freq_pattern_entry_table->showColumn(3);
-    ui->phase_freq_pattern_entry_table->showColumn(4);
 
     window_fpcs.workingEntry.codingType = "BOTH";
 }
@@ -275,8 +285,9 @@ void MainWindow::add_button_in_pattern_table_setup(int row)
             ui->pattern_nonBinary_values_shown_text_editor->insertPlainText("], ");
 
         }else if(window_fpcs.workingEntry.codingType == "FREQUENCY"){
-            //add the freq value to the pattern visualizer
+            //add the freq value to the pattern visualizer with units
             ui->pattern_nonBinary_values_shown_text_editor->insertPlainText("[");
+            ui->pattern_nonBinary_values_shown_text_editor->insertPlainText(ui->phase_freq_pattern_entry_table->item(row, 1)->text());
             ui->pattern_nonBinary_values_shown_text_editor->insertPlainText(ui->phase_freq_pattern_entry_table->item(row, 2)->text());
             ui->pattern_nonBinary_values_shown_text_editor->insertPlainText("], ");
 
@@ -285,6 +296,7 @@ void MainWindow::add_button_in_pattern_table_setup(int row)
             ui->pattern_nonBinary_values_shown_text_editor->insertPlainText("[");
             ui->pattern_nonBinary_values_shown_text_editor->insertPlainText(ui->phase_freq_pattern_entry_table->item(row, 0)->text());
             ui->pattern_nonBinary_values_shown_text_editor->insertPlainText(",");
+            ui->pattern_nonBinary_values_shown_text_editor->insertPlainText(ui->phase_freq_pattern_entry_table->item(row, 1)->text());
             ui->pattern_nonBinary_values_shown_text_editor->insertPlainText(ui->phase_freq_pattern_entry_table->item(row, 2)->text());
             ui->pattern_nonBinary_values_shown_text_editor->insertPlainText("], ");
         }else{
@@ -343,30 +355,50 @@ void MainWindow::add_button_in_pattern_table_setup(int row)
 
 void MainWindow::on_phase_freq_pattern_entry_table_cellChanged(int row, int column)
 {
+
     switch(column){
-    case 0 :
+    case 0 : { //case 0 is the phase column
         //this gets the TableWidgetItem that was changed, gets it's QString text, converts it to an Int, then sets that equal to the phase
-        window_fpcs.workingEntry.phases[row] = ui->phase_freq_pattern_entry_table->item(row, column)->text().toInt();
+        window_fpcs.workingEntry.phases[row] = ui->phase_freq_pattern_entry_table->item(row, column)->text().remove("°").toInt();
+        QString currentText = ui->phase_freq_pattern_entry_table->item(row,column)->text();
+        if(currentText.contains("°")){
+                break; //prevent infinite loop
+        }
+        //add the degree symbol on the end of their number
+        currentText = currentText + "°";
+        ui->phase_freq_pattern_entry_table->item(row,column)->setText(currentText);
         break;
-    case 2:
+    }
+    case 1: { //case 1 is the freq column
         window_fpcs.workingEntry.freqs[row] = ui->phase_freq_pattern_entry_table->item(row, column)->text().toInt();
         break;
-    case 3:
-        window_fpcs.workingEntry.freqUnits[row] = ui->phase_freq_pattern_entry_table->item(row, column)->text();
+    }
+    case 2: { //case 2 is the freq units
+        //set the freq units but remove the ending "hz"
+        window_fpcs.workingEntry.freqUnits[row] = ui->phase_freq_pattern_entry_table->item(row, column)->text().remove("hz");
+        QString currentText = ui->phase_freq_pattern_entry_table->item(row,column)->text();
+        if(currentText.contains("hz")){
+                break; //prevent infinite loop
+        }
+        currentText = currentText + "hz";
+        ui->phase_freq_pattern_entry_table->item(row,column)->setText(currentText);
         break;
-    case 4:
+    }
+    case 3: { //case 3 is the add button
         //refuse to let the user change it from "ADD"
         ui->phase_freq_pattern_entry_table->item(row,column)->setText("ADD");
         break;
-    default:
+    }
+    default: {
         qDebug() << "Column in table chosen outside scope of the table";
         return;
+    }
     }
 }
 
 void MainWindow::on_phase_freq_pattern_entry_table_cellClicked(int row, int column)
 {
-    if(column == 4){
+    if(column == 3){
         add_button_in_pattern_table_setup(row);
     }
 }
@@ -439,6 +471,7 @@ void MainWindow::on_pushButton_clicked()
 {
     QString host = "169.254.24.85";
     window_ftpManager->connect(host, 5025);  //K-N5193A-90114 or 169.254.24.85
+    window_ftpManager->send_SPCI(":DISPlay:REMote ON");
 }
 
 void MainWindow::on_pushButton_2_clicked()
@@ -450,4 +483,116 @@ void MainWindow::on_pushButton_2_clicked()
 void MainWindow::on_download_all_files_from_uxg_push_button_2_clicked()
 {
     MainWindow::on_download_all_files_from_uxg_push_button_clicked();
+}
+
+void MainWindow::on_select_local_file_radio_button_clicked()
+{
+    window_fpcs.settings.usingExistingTableLocal = true;
+    ui->select_file_push_button->show();
+    ui->select_file_line_edit->show();
+    ui->uxg_fpcs_files_combo_box->hide();
+}
+
+void MainWindow::on_select_file_from_uxg_radio_button_clicked()
+{
+     window_fpcs.settings.usingExistingTableLocal = false;
+     //Make the drop down menu cover the "select File" button and the text editor next to it
+     ui->select_file_push_button->hide();
+     ui->select_file_line_edit->hide();
+     ui->uxg_fpcs_files_combo_box->show();
+
+     waitingForFPCSFileList = true;
+     window_ftpManager->send_SPCI(":MEMory:CATalog:FPCSetup?");
+}
+
+void MainWindow::on_cancel_editing_pattern_push_button_clicked()
+{
+    ui->table_or_pattern_toolbox->setCurrentIndex(0);
+}
+
+void MainWindow::on_clear_pattern_push_button_clicked()
+{
+    //TODO
+}
+
+void MainWindow::on_power_off_uxg_push_button_clicked()
+{
+    switch( QMessageBox::question(
+                this,
+                tr("Power Down"),
+                tr("Are you sure you want to power down?"),
+                QMessageBox::Yes |
+                QMessageBox::Cancel,
+                QMessageBox::Cancel ) )
+    {
+      case QMessageBox::Yes:
+        window_ftpManager->send_SPCI(":SYSTem:PDOWn");
+        break;
+      case QMessageBox::Cancel:
+        //do nothing, the messageBox will close itself upon a selection
+        break;
+      default:
+        //do nothing, the messageBox will close itself upon a selection
+        break;
+    }
+}
+
+void MainWindow::on_initiate_uxg_self_test_push_button_clicked()
+{
+    window_ftpManager->send_SPCI("*TST?");
+}
+
+void MainWindow::on_delete_all_files_on_uxg_push_button_clicked()
+{
+    switch( QMessageBox::question(
+                this,
+                tr("Delete All Files on UXG"),
+                tr("This will delete all PDW, Binary, and FPCS Files on the connected UXG. \n\t\t\tAre you sure?"),
+                QMessageBox::Yes |
+                //QMessageBox::No |
+                QMessageBox::Cancel,
+                QMessageBox::Cancel ) )
+    {
+      case QMessageBox::Yes:
+        window_ftpManager->send_SPCI(":MEMory:DELete:ALL");
+        break;
+      //case QMessageBox::No:
+        //do nothing, the messageBox will close itself upon a selection
+      //break;
+      case QMessageBox::Cancel:
+        //do nothing, the messageBox will close itself upon a selection
+        break;
+      default:
+        //do nothing, the messageBox will close itself upon a selection
+        break;
+    }
+}
+
+void MainWindow::on_binary_data_view_push_button_clicked(bool checked)
+{
+    window_fpcs.settings.usingBinaryDataView = checked;
+    //TODO call a method window_fpcs.updateTableVisualizer(); which will check that bool and update the table view to be either binary bits or the layman's [phase,freq],... view
+
+}
+
+void MainWindow::on_socket_readyRead(){
+    qDebug() << "Socket readyRead";
+    QString allRead = window_ftpManager->tcpSocket->readAll();
+    QStringList allReadParsed = allRead.split(QRegExp("[\r\n]"), Qt::SkipEmptyParts);
+    for(QString item : allReadParsed){
+        qDebug() << item;
+    }
+    //this process is specifically for when the user needs to know what all available FPCS files on the UXG are.
+    if(waitingForFPCSFileList){
+        qDebug() << "FPCS files : ";
+        QStringList allReadParsedFPCS = allRead.split(QLatin1Char(','),Qt::SkipEmptyParts);
+        QStringList outputList;
+        for(QString item : allReadParsedFPCS){
+            if(item.contains("@")){
+                outputList << item.remove("FPCS").remove("@").remove('"');
+            }
+        }
+        waitingForFPCSFileList = false;
+        ui->uxg_fpcs_files_combo_box->addItems(outputList);
+    }
 }

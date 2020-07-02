@@ -1,5 +1,5 @@
 include in the manual that the user must create the fpcs prior to creating the signals or else they won't be able to select the pattern that each signal corresponds to 
-
+include in manual that you don't have to type hz or degrees everytime 
 
 implement "delete table from UXG" button 
 Add barker codes as an option
@@ -36,7 +36,7 @@ Using :MEMory:FREE[:ALL]? have the code check if there's enough room on the UXG 
 Have a startup function routine that does things like turn the display off, turn Modulation On, etc.
 Add a self-test button on the connect page
 Add a power-off button to the connect page
-
+Add checks for the user inputs that they're in fact numbers when we expect them to be 
 
 
 

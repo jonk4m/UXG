@@ -37,6 +37,8 @@ public:
         bool usingCustomTableName = false;
         bool usingCustomFilePath = false;
         bool usingExistingTable = false;
+        bool usingExistingTableLocal = true;
+        bool usingBinaryDataView = true;
         //this fileInPlay checkflag is true when a file has either been created or opened, AND the header has been created/checked AND the streamer is in the right position using that file
         bool fileInPlay = false;
         int defaultTableNumber = 0;
@@ -55,11 +57,13 @@ public:
 
     Fpcs();
     bool initialize_workingFile();
+    bool initialize_existingFile_local();
+    bool initialize_existingFile_onUxg();
+    bool initialize_newFile();
+
     void close_file();
     void set_streamer();
     void write_header_to_workingFile();
-    bool delete_file_on_uxg();
-    bool delete_file_on_local();
     QString mapped_file_path();
     bool delete_all_previously_created_files();
     bool check_file_header();

@@ -26,59 +26,71 @@ bool Fpcs::initialize_workingFile(){
     workingFile.close();
 
     if(this->settings.usingExistingTable == true){ //loading in an existing Table
-        workingFile.setFileName(this->settings.existingTableFilePath); //set this file path to be for the working file
-        bool exists = workingFile.exists(this->settings.existingTableFilePath);
-        if(exists){
-            if(!workingFile.open(QFile::ReadWrite | QFile::Text | QFile::ExistingOnly)) //Options: ExistingOnly, NewOnly, Append
-            {
-                qDebug() << " Could not open File : " + this->settings.existingTableFilePath;
-                return false;
-            }
+        if(settings.usingExistingTableLocal){
+            return initialize_existingFile_local();
         }else{
-            qDebug() << "File Not Found";
-            return false;
+            return initialize_existingFile_onUxg();
         }
-        //create the QTextStreamer to operate on this file until further notice
-        this->set_streamer();
-        //check header
-        bool correctHeader = this->check_file_header();
-        if(!correctHeader){
-            qDebug() << "Incorrect Header found on Loaded Table File";
-        }
-        //TODO put streamer's position at end of the file (do I need to after using it to check the file header?)
-
-        //checkflag so widgets know a valid file is in play
-        this->settings.fileInPlay = true;
-        return true;
-
     }else{
-
-        /* creating a new file
-        *  Note that we use two separate strings that make up the filepath. One is the folder filepath, and the other is the name of the file
-        *  this is done to simplify editing both separately in the gui.
-        */
-
-        bool exists = workingFile.exists(this->mapped_file_path());
-
-        if(exists){
-            qDebug() << "File : " + this->mapped_file_path() + " already exists, aborting file creation...";
-            return false;
-        }
-
-        workingFile.setFileName(this->mapped_file_path()); //set this file path for the working file
-        if(!workingFile.open(QFile::ReadWrite | QFile::Text)) //Options: ExistingOnly, NewOnly, Append
-        {
-            qDebug() << " Could not create File : " + this->mapped_file_path();
-            return false;
-        }
-        //create the QTextStreamer to operate on this file until further notice
-        this->set_streamer();
-        //write the header at the beginning of the file
-        this->write_header_to_workingFile();
-        //checkflag so widgets know a valid file is in play
-        this->settings.fileInPlay = true;
-        return true;
+        return initialize_newFile();
     }
+}
+
+bool Fpcs::initialize_existingFile_local(){
+
+    workingFile.setFileName(this->settings.existingTableFilePath); //set this file path to be for the working file
+    bool exists = workingFile.exists(this->settings.existingTableFilePath);
+    if(exists){
+        if(!workingFile.open(QFile::ReadWrite | QFile::Text | QFile::ExistingOnly)) //Options: ExistingOnly, NewOnly, Append
+        {
+            qDebug() << " Could not open File : " + this->settings.existingTableFilePath;
+            return false;
+        }
+    }else{
+        qDebug() << "File Not Found";
+        return false;
+    }
+    //create the QTextStreamer to operate on this file until further notice
+    this->set_streamer();
+    //check header
+    bool correctHeader = this->check_file_header();
+    if(!correctHeader){
+        qDebug() << "Incorrect Header found on Loaded Table File";
+    }
+    //TODO put streamer's position at end of the file (do I need to after using it to check the file header?)
+
+    //checkflag so widgets know a valid file is in play
+    this->settings.fileInPlay = true;
+    return true;
+}
+
+bool Fpcs::initialize_existingFile_onUxg(){
+    return true;
+}
+
+bool Fpcs::initialize_newFile(){
+    /* creating a new file
+    *  Note that we use two separate strings that make up the filepath. One is the folder filepath, and the other is the name of the file
+    *  this is done to simplify editing both separately in the gui.
+    */
+    bool exists = workingFile.exists(this->mapped_file_path());
+    if(exists){
+        qDebug() << "File : " + this->mapped_file_path() + " already exists, aborting file creation...";
+        return false;
+    }
+    workingFile.setFileName(this->mapped_file_path()); //set this file path for the working file
+    if(!workingFile.open(QFile::ReadWrite | QFile::Text)) //Options: ExistingOnly, NewOnly, Append
+    {
+        qDebug() << " Could not create File : " + this->mapped_file_path();
+        return false;
+    }
+    //create the QTextStreamer to operate on this file until further notice
+    this->set_streamer();
+    //write the header at the beginning of the file
+    this->write_header_to_workingFile();
+    //checkflag so widgets know a valid file is in play
+    this->settings.fileInPlay = true;
+    return true;
 }
 
 /*
@@ -145,26 +157,6 @@ void Fpcs::write_header_to_workingFile(){
     streamer.flush(); //ensure all the data is written to the file before moving on
 };
 
-bool Fpcs::delete_file_on_uxg(){
-    if(this->settings.fileInPlay == true){
-        //TODO
-    }else{
-        qDebug() << "No File is currently selected to be deleted";
-        return false;
-    }
-    return false;
-};
-
-bool Fpcs::delete_file_on_local(){
-    if(this->settings.fileInPlay == true){
-        //TODO
-    }else{
-        qDebug() << "No File is currently selected to be deleted";
-        return false;
-    }
-    return false;
-};
-
 /*
  * This function uses the Qt Resource System to store a nonVolatile text file along with the executable. This file contains all previously made Tables' filePaths.
  * This function cycles through that list to delete all previously made files since this program was installed on the system.
@@ -173,8 +165,18 @@ bool Fpcs::delete_all_previously_created_files(){
     return false;
 };
 
-//TODO
+/*
+ * This function ensures the header on the imported file is correct for parsing and editing
+ */
 bool Fpcs::check_file_header(){
+    streamer.seek(0); //make sure the TextStream starts at the beginning of the file
+    QString header = "Comment,State,Coding Type,Length,Bits Per Subpulse,Phase State 0 (deg),Phase State 1 (deg),Phase State 2 (deg),Phase State 3 (deg),Phase State 4 (deg),Phase State 5 (deg),Phase State 6 (deg),Phase State 7 (deg),Phase State 8 (deg),Phase State 9 (deg),Phase State 10 (deg),Phase State 11 (deg),Phase State 12 (deg),Phase State 13 (deg),Phase State 14 (deg),Phase State 15 (deg),Frequency State 0 (Hz),Frequency State 1 (Hz),Frequency State 2 (Hz),Frequency State 3 (Hz),Frequency State 4 (Hz),Frequency State 5 (Hz),Frequency State 6 (Hz),Frequency State 7 (Hz),Frequency State 8 (Hz),Frequency State 9 (Hz),Frequency State 10 (Hz),Frequency State 11 (Hz),Frequency State 12 (Hz),Frequency State 13 (Hz),Frequency State 14 (Hz),Frequency State 15 (Hz),Hex Pattern";
+    QString headerRead = streamer.readLine().remove("\n");
+    if(headerRead != header){
+        qDebug() << "Correct : " + header;
+        qDebug() << "Given   : " + headerRead;
+        return false;
+    }
     return true;
 };
 

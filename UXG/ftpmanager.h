@@ -50,7 +50,6 @@ private slots:
     void socket_connected();
     void socket_disconnected();
     void socket_errorOccurred(QAbstractSocket::SocketError*);
-    void socket_readyRead();
 
 };
 

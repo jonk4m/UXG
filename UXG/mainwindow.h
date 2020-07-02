@@ -28,6 +28,7 @@ public:
     Ui::MainWindow *ui;
     Fpcs window_fpcs; //each fpcs also has it's own fpcs_settings struct titled "settings"
     FtpManager *window_ftpManager;
+    bool  waitingForFPCSFileList;
 
 private slots:
 
@@ -86,6 +87,25 @@ private slots:
     void on_pushButton_2_clicked();
 
     void on_download_all_files_from_uxg_push_button_2_clicked();
+
+    void on_select_local_file_radio_button_clicked();
+
+    void on_select_file_from_uxg_radio_button_clicked();
+
+    void on_cancel_editing_pattern_push_button_clicked();
+
+    void on_clear_pattern_push_button_clicked();
+
+
+    void on_power_off_uxg_push_button_clicked();
+
+    void on_initiate_uxg_self_test_push_button_clicked();
+
+    void on_delete_all_files_on_uxg_push_button_clicked();
+
+    void on_binary_data_view_push_button_clicked(bool checked);
+
+    void on_socket_readyRead();
 
 private:
 

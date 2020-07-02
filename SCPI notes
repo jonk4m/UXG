@@ -6,44 +6,44 @@ make a method that just polls the UXG for the status register and opens a pop-up
 
 Note: Make sure to read the "Remarks" section of the webhelp documentation for the N5193A for each command before implementing
 
-:MEMory:CATalog:PDW?    Makes the UXG output a list of all the PDW files on it
-:MEMory:CATalog:FPCSetup?  Displays only frequency/phase coding setup files.
-:MEMory:DELete:PDW  deletes all PDW files in memory 
+:MEMory:CATalog:PDW?    						Makes the UXG output a list of all the PDW files on it
+:MEMory:CATalog:FPCSetup?  						Displays only frequency/phase coding setup files.
+:MEMory:DELete:PDW  							deletes all PDW files in memory 
 :MEMory:DELete[:NAME] "<filename>"
-:DISPlay:REMote ON|OFF|1|0  Turns off or on the display
+:DISPlay:REMote ON|OFF|1|0  					Turns off or on the display
 :INSTrument[:SELect] NORMal|LIST|FCWSwitching|STReaming|VLO  sets the instrument mode
-:MEMory:DELete:ALL  This command deletes all non–volatile user-files including binary, list, scenario, state, and frequency/phase coding files along with any saved setups that use the front- panel table editors.
-:MEMory:DELete:FPCSetup This command deletes all of the frequency/phase coding setup files.
-:MEMory:DELete[:NAME] TestTable.csv  This deletes the csv file on the UXG
-:MEMory:DELete[:NAME] TestTable.fpcs  This deletes the FPCS file on the UXG
-:MEMory:EXPort[:ASCii]:FPCSetup "<filename>" For the current Mode of Streaming, Normal (FCP), or List, this command exports the current frequency/phase pattern setup table to the Binary file directory as a CSV/ASCII file. The filename can contain any file suffix (extender), but it is not required.
-:MEMory:FREE[:ALL]?  This command returns the number of bytes left in the non–volatile user file system.
-:MEMory:IMPort[:ASCii]:FPCSetup "<filename>"  this command imports a CSV/ASCII file from the Binary directory that replaces the current frequency/phase pattern setup table. 
-:MEMory:MOVE "<src_file>","<dest_file>" This command renames the requested file in the memory catalog.
-:MEMory:SIZE? <"filename">  This command returns the size of the file named <"filename"> in bytes or a –1, if the file does not exist. If the MSUS or directory is invalid, an “ERROR: –257, File name error” will be reported.
-:OUTPut:MODulation[:STATe] ON|OFF|1|0  This command enables or disables the modulation of the RF output with the currently active modulation type(s).
-:OUTPut[:STATe] ON|OFF|1|0  This command enables or disables the RF output. Although you can configure and engage various modulations, no signal is available at the RF OUTPUT connector until this command is executed. An annunciator is always displayed on the signal generator to indicate whether the RF output is switched on or off.
+:MEMory:DELete:ALL  							This command deletes all non–volatile user-files including binary, list, scenario, state, and frequency/phase coding files along with any saved setups that use the front- panel table editors.
+:MEMory:DELete:FPCSetup 						This command deletes all of the frequency/phase coding setup files.
+:MEMory:DELete[:NAME] TestTable.csv  			This deletes the csv file on the UXG
+:MEMory:DELete[:NAME] TestTable.fpcs  			This deletes the FPCS file on the UXG
+:MEMory:EXPort[:ASCii]:FPCSetup "<filename>"	For the current Mode of Streaming, Normal (FCP), or List, this command exports the current frequency/phase pattern setup table to the Binary file directory as a CSV/ASCII file. The filename can contain any file suffix (extender), but it is not required.
+:MEMory:FREE[:ALL]?  							This command returns the number of bytes left in the non–volatile user file system.
+:MEMory:IMPort[:ASCii]:FPCSetup "<filename>"  	This command imports a CSV/ASCII file from the Binary directory that replaces the current frequency/phase pattern setup table. 
+:MEMory:MOVE "<src_file>","<dest_file>" 		This command renames the requested file in the memory catalog.
+:MEMory:SIZE? <"filename">  					This command returns the size of the file named <"filename"> in bytes or a –1, if the file does not exist. If the MSUS or directory is invalid, an “ERROR: –257, File name error” will be reported.
+:OUTPut:MODulation[:STATe] ON|OFF|1|0  			This command enables or disables the modulation of the RF output with the currently active modulation type(s).
+:OUTPut[:STATe] ON|OFF|1|0  					This command enables or disables the RF output. Although you can configure and engage various modulations, no signal is available at the RF OUTPUT connector until this command is executed. An annunciator is always displayed on the signal generator to indicate whether the RF output is switched on or off.
 [:SOURce]:CONTrol:TRIGger:SOURce NONE|BUS|EXTernal|KEY  This command selects the trigger source. BUS: This choice enables GPIB triggering using the *TRG or GET command, or LAN and USB triggering using the *TRG command
 [:SOURce]:STReam:ABORt:TRIGger[:STATe] ON|OFF|1|0      This command sets the abort trigger state. If set to ON, use the other abort trigger commands to configure the trigger.
 [:SOURce]:STReam:ABORt:TRIGger:SOURce KEY|BUS|EXTernal   Selects the abort trigger source.
-[:SOURce]:STReam:INFormation:COUNt:ALL? This query returns all count statistics as comma separated name value pairs. The order is not meaningful nor is the order guaranteed to be consistent. The number of name value pairs may change in the future. Over time, some counts may become obsolete and only return a value of 0. The set of names are: “Triggered Count”, “Collision Count”, “Expired Count”, “Canceled Count”, and “Total PDW Count”. Example Response: “Triggered Count”,123,”Collision Count”,1,”Expired Count”,0,”Canceled Count”,0,”Total PDW Count”,124
-[:SOURce]:STReam:SETup:TIME <setupTime>   This feature controls the setup time that is used to change the PDW parameters before the Pulse Start Time. Make 270ns.
+[:SOURce]:STReam:INFormation:COUNt:ALL? 		This query returns all count statistics as comma separated name value pairs. The order is not meaningful nor is the order guaranteed to be consistent. The number of name value pairs may change in the future. Over time, some counts may become obsolete and only return a value of 0. The set of names are: “Triggered Count”, “Collision Count”, “Expired Count”, “Canceled Count”, and “Total PDW Count”. Example Response: “Triggered Count”,123,”Collision Count”,1,”Expired Count”,0,”Canceled Count”,0,”Total PDW Count”,124
+[:SOURce]:STReam:SETup:TIME <setupTime>   		This feature controls the setup time that is used to change the PDW parameters before the Pulse Start Time. Make 270ns.
 To use frequency or phase coding, pulse must be enabled.
 [:SOURce]:STReam:SOURce:FILE[:NAME] <“filename”>  Specifies an internal file as the currently playable Streaming Scenario. An error is reported if the file selected for streaming is not properly aligned for efficient loading. The file PDWs must start aligned on a 4096 byte boundary. Selecting a new file to play aborts any play in effect and re-arms the trigger, resetting the Scenario Time. 
-[:SOURce]:STReam:STATe ON|OFF|1|0  This command set the state so that streaming is either on or off. This feature controls whether the streaming is playing or idle. When the streaming state is off, then the whole stream play is aborted and streaming cannot be triggered to play. When the streaming state is on, the stream can be triggered to play. The first valid (to be played) PDW after a reset, cancel, or abort must have the Marked Operation field “First PDW after Reset” bit set. This will be the first PDW to play after the play trigger is received. When you turn on Streaming or select a new stream to play, the output is unchanged from the non-Streaming UI setup but the RF output will be off. This condition will maintain until the first PDW is triggered.While Streaming is on, there is no front panel access to any features that are controlled by Streaming (frequency, amplitude, AM, FM/ΦM, and Pulse). The Streaming-controlled feature settings can be changed at any time from SCPI, but will not take effect until Streaming is turned off. Instrument parameters changed from the Streaming do not modify the GUI or remote control setting. When the Streaming is turned off, the values will return to their state before the Streaming was on (allowing for any changes made from SCPI).
+[:SOURce]:STReam:STATe ON|OFF|1|0  				This command set the state so that streaming is either on or off. This feature controls whether the streaming is playing or idle. When the streaming state is off, then the whole stream play is aborted and streaming cannot be triggered to play. When the streaming state is on, the stream can be triggered to play. The first valid (to be played) PDW after a reset, cancel, or abort must have the Marked Operation field “First PDW after Reset” bit set. This will be the first PDW to play after the play trigger is received. When you turn on Streaming or select a new stream to play, the output is unchanged from the non-Streaming UI setup but the RF output will be off. This condition will maintain until the first PDW is triggered.While Streaming is on, there is no front panel access to any features that are controlled by Streaming (frequency, amplitude, AM, FM/ΦM, and Pulse). The Streaming-controlled feature settings can be changed at any time from SCPI, but will not take effect until Streaming is turned off. Instrument parameters changed from the Streaming do not modify the GUI or remote control setting. When the Streaming is turned off, the values will return to their state before the Streaming was on (allowing for any changes made from SCPI).
 [:SOURce]:STReam:TRIGger:PLAY:SOURce KEY|BUS|EXTernal|TIMer  BUS: This choice enables GPIB triggering using the *TRG or GET command, or LAN and USB triggering using the *TRG command
 [:SOURce]:STReam:TRIGger:PLAY:FILE:TYPE:CONTinuous[:TYPE] FREE|TRIGger   Use this command to select whether a trigger is required to start the streaming from the stream file. 
 Stream State must be off to make changes to settings of Stream, and FILE needs to be the Stream Source before making setting changes that have FILE in the SCPI command
-:SYSTem:COMMunicate:LAN:CONFig MANual|AUTO   This command selects the method for determining the signal generator’s internet protocol (IP) address. MANual means The user assigns an IP address to the signal generator
-:SYSTem:COMMunicate:LAN:IP "<ipstring>"  This command sets the IP address used by the signal generator when the LAN configuration has been set to Manual. The query form will return the current IP address regardless of the LAN configuration mode. 
-:SYSTem:COMMunicate:LAN:RESTart  This command restarts the network to enable changes that have been made to the LAN setup.
+:SYSTem:COMMunicate:LAN:CONFig MANual|AUTO   	This command selects the method for determining the signal generator’s internet protocol (IP) address. MANual means The user assigns an IP address to the signal generator
+:SYSTem:COMMunicate:LAN:IP "<ipstring>"  		This command sets the IP address used by the signal generator when the LAN configuration has been set to Manual. The query form will return the current IP address regardless of the LAN configuration mode. 
+:SYSTem:COMMunicate:LAN:RESTart  				This command restarts the network to enable changes that have been made to the LAN setup.
 LAN must be restarted after changes are made to it's settings for them to be implemented 
-:SYSTem:ERRor:SCPI[:SYNTax] ON|OFF|1|0  This command enables or disables the reporting of SCPI syntax errors to the error queue. Enable at startup 
-:SYSTem:LOG:SCPI ON|OFF|1|0  This command toggles the state of SCPI logging. When toggled ON, a copy of every subsequent SCPI command executed will be placed in the log.
+:SYSTem:ERRor:SCPI[:SYNTax] ON|OFF|1|0  		This command enables or disables the reporting of SCPI syntax errors to the error queue. Enable at startup 
+:SYSTem:LOG:SCPI ON|OFF|1|0  					This command toggles the state of SCPI logging. When toggled ON, a copy of every subsequent SCPI command executed will be placed in the log.
 :SYSTem:PDOWn  This command turns off the instrument.
-*ESR?  The Standard Event Status Register (ESR) query returns the value of the Standard Event Status Register.
-*ESE <data>  The Standard Event Status Enable (ESE) command sets the Standard Event Status Enable Register. The variable <data> represents the sum of the bits that will be enabled. 0 to 255 
-*SRE <data>  The Service Request Enable (SRE) command sets the value of the Service Request Enable Register. The variable <data> is the decimal sum of the bits that will be enabled. Bit 6 (value 64) is ignored and cannot be set by this command. 0 to 255 The setting enabled by this command is not affected by signal generator preset or *RST. However, cycling the signal generator power will reset it to zero.
+*ESR?  											The Standard Event Status Register (ESR) query returns the value of the Standard Event Status Register.
+*ESE <data>  									The Standard Event Status Enable (ESE) command sets the Standard Event Status Enable Register. The variable <data> represents the sum of the bits that will be enabled. 0 to 255 
+*SRE <data>  									The Service Request Enable (SRE) command sets the value of the Service Request Enable Register. The variable <data> is the decimal sum of the bits that will be enabled. Bit 6 (value 64) is ignored and cannot be set by this command. 0 to 255 The setting enabled by this command is not affected by signal generator preset or *RST. However, cycling the signal generator power will reset it to zero.
 *SRE?  The Service Request Enable (SRE) query returns the value of the Service Request Enable Register.
 *IDN?  The Identification (IDN) query outputs an identifying string.
 *OPC   The Operation Complete (OPC) command sets bit 0 in the Standard Event Status Register when all pending operations have finished.

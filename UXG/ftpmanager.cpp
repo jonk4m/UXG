@@ -6,8 +6,13 @@ FtpManager::FtpManager(QMainWindow *window)
     process = new QProcess(window);
     current_state = state::initialized;
     tcpSocket = new QTcpSocket(window);
+    QAbstractSocket::connect(tcpSocket,SIGNAL(readyRead()),window,SLOT(on_socket_readyRead()));
 }
 
+/*
+ * This method downloads or uploads files from or to the UXG
+ * notes that a fileOrFolderName parameter of "*" means that all files will be downloaded
+ */
 void FtpManager::start_process(QString fileOrFolderName){
     qDebug() << "Starting upload process";
     QStringList arguments;
@@ -36,11 +41,27 @@ void FtpManager::start_process(QString fileOrFolderName){
 
     }else if(current_state == state::downloading){
         //Download all files from the UXG
+        QString commandPath = QDir::currentPath() + "/fileFolder/downloadFtpCommands.txt";
+        QFile commandFile(commandPath);
+        qDebug() << commandFile.readLine();
+        qDebug() << commandFile.readLine();
+        qDebug() << commandFile.readLine();
+        qDebug() << commandFile.readLine();
+        qDebug() << commandFile.readLine();
+        QString textLine = "mget " + fileOrFolderName + "\n";
+        commandFile.write(textLine.toUtf8());
+        commandFile.write("bye");
+        commandFile.flush();
+        commandFile.close();
+
         QString commandArg = "-s:" + QDir::currentPath() + "/fileFolder/downloadFtpCommands.txt"; //note that the downloads folder must be added upon deployment
         arguments << "-d" << "-i" << commandArg << "K-N5193A-90114";
+
     }else{
         qDebug() << "Error in FtpManager state, should be either uploading or downloading";
     }
+
+
     process->start(program,arguments);
     QProcess::connect(process,SIGNAL(started()),this,SLOT(process_started()));
     QProcess::connect(process,SIGNAL(finished(int,QProcess::ExitStatus)),this,SLOT(process_finished()));
@@ -102,7 +123,6 @@ void FtpManager::connect(QString host, quint16 port){
         tcpSocket->connectToHost(host,port,QIODevice::ReadWrite);
         QAbstractSocket::connect(tcpSocket,SIGNAL(connected()),this,SLOT(socket_connected()));
         QAbstractSocket::connect(tcpSocket,SIGNAL(disconnected()),this,SLOT(socket_disconnected()));
-        QAbstractSocket::connect(tcpSocket,SIGNAL(readyRead()),this,SLOT(socket_readyRead()));
         QAbstractSocket::connect(tcpSocket,SIGNAL(errorOccurred(QAbstractSocket::SocketError*)),this,SLOT(socket_errorOccurred(QAbstractSocket::SocketError*)));
     }
 }
@@ -119,14 +139,6 @@ void FtpManager::socket_disconnected(){
     qDebug() << "Socket disconnected";
 }
 
-void FtpManager::socket_readyRead(){
-    qDebug() << "Socket readyRead";
-    QString allRead = tcpSocket->readAll();
-    QStringList allReadParsed = allRead.split(QRegExp("[\r\n]"), Qt::SkipEmptyParts);
-    for(QString item : allReadParsed){
-        qDebug() << item;
-    }
-}
 
 void FtpManager::socket_errorOccurred(QAbstractSocket::SocketError *error){
     qDebug() << "Socket error occurred : ";
