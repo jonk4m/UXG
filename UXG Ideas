@@ -27,6 +27,7 @@ MEMory:EXPort:ASCii:FPCSetup TestTable.fpcs
 //this step sets the current table to the exported FPCS file we just made
 SOURce:PULM:STReam:FPCSetup:SELect TestTable.fpcs
 
+
 	
 	
 	
@@ -36,9 +37,9 @@ SOURce:PULM:STReam:FPCSetup:SELect TestTable.fpcs
 	
 	
 	
-	
-	
-	
+1 million pulses per second for file streaming but we can go faster with a buffer by putting those onto the FPGS to get faster RPI's. 10 million per sec for list mode (best for very short scenario with very high pulse density)
+for pdw streaming from a file, the file is stored on ssd and can be massive. Absolute start time is required for this which is our problem for trying to switch between streaming from different files dynamically. 
+list mode is limited to 700,000ish pulses since it's on the FPGA
 	
 	
 	
