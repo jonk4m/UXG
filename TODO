@@ -34,8 +34,8 @@ Add these SCPI commands to happen after the ftp process uploads a file:
 Allow user to choose from list of hostnames or IP's in the "connect to UXG" tab for choosing the current UXG
 Using :MEMory:FREE[:ALL]? have the code check if there's enough room on the UXG for the file before uploading it (there's got to be a function with QFile to check the size and make sure there's enough room comparing that size)
 Have a startup function routine that does things like turn the display off, turn Modulation On, etc.
-Add a self-test button on the connect page
-Add a power-off button to the connect page
+----------------------------------------------------------------------------------------------Add a self-test button on the connect page
+----------------------------------------------------------------------------------------------Add a power-off button to the connect page
 Add checks for the user inputs that they're in fact numbers when we expect them to be 
 
 

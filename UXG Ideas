@@ -28,39 +28,56 @@ MEMory:EXPort:ASCii:FPCSetup TestTable.fpcs
 SOURce:PULM:STReam:FPCSetup:SELect TestTable.fpcs
 
 
-	
-	
-	
-	
-	
-	
-	
-	
+
 	
 1 million pulses per second for file streaming but we can go faster with a buffer by putting those onto the FPGS to get faster RPI's. 10 million per sec for list mode (best for very short scenario with very high pulse density)
 for pdw streaming from a file, the file is stored on ssd and can be massive. Absolute start time is required for this which is our problem for trying to switch between streaming from different files dynamically. 
 list mode is limited to 700,000ish pulses since it's on the FPGA
+
+
+GET IT SO YOU CAN OPEN AN EXISTING FILE ON THE UXG, THEN WORRY ABOUT VISUALIZING THE TABLES
+
+
+
+
+radio buttons change window_fpcs.settings.usingExistingTableLocal = true;
+
+select File button then gets the filepath and name and sets it to window_fpcs.settings.existingTableFilePath = filePath;
+ - this is where we need to display the list of files on the uxg to the user. 
+ 
+the OPEN button sets window_fpcs.settings.usingExistingTable = true; then does initialize_workingFile()
+
+initialize_workingFile() calls initialize_existingFile_local(); (would be initialize_existingFile_onUxg();
+
+initialize_existingFile_local(); creates a QFile from that filepath, checks its header, and sets the streamer
+ - 
+
+DONE
+
+
+
+
+when the user presses select file, display the list of fpcs files to the user,
+when they select one and click open, tell the UXG to export that fpcs file to a csv. (even if it already exists as a csv it will just overright it)
+then use ftpManager.startProcess() to get that file. Then do the initialize_file() shit to rewrite the header and basically rewrite the whole file preserving that data.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	
-	
-	
-	
-	
-	
-	
-	
-	ftp://169.254.24.85/BIN/BIGTABLE.CSV
-	ftp://:keysight@169.254.24.85:21/BIN/BIGTABLE.CSV
-	
-	
-	
-	
-	for packet sender I used the IP address and port 21 for tcp
-	alternatively port 5025 for SCPI
-	
-	
-	:INSTrument[:SELect] NORMal
-	
-	:INSTrument[:SELect] NORMal|LIST|FCWSwitching|STReaming|VLO|RPTEST|EMFCp
-	
-	(Connect "N5193A", "TCPIP0::169.254.24.85::hislip0::INSTR", "UXG Agile Signal Generator / A.01.60")
 

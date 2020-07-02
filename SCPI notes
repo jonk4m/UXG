@@ -1,6 +1,4 @@
-For remote operation, turn off updating the display so the signal generator is even faster (doesn’t specify exactly what it means by faster) by using the SCPI command “:DISPlay:REMote ON|OFF|1|0”
-
-*IDN? For it to send back its identification 
+For remote operation, turn off updating the display so the signal generator is even faster (doesn’t specify exactly what it means by faster) by using the SCPI command “:DISPlay:REMote ON|OFF|1|0” 
 
 make a method that just polls the UXG for the status register and opens a pop-up with all the parsed information
 
@@ -40,7 +38,7 @@ Stream State must be off to make changes to settings of Stream, and FILE needs t
 LAN must be restarted after changes are made to it's settings for them to be implemented 
 :SYSTem:ERRor:SCPI[:SYNTax] ON|OFF|1|0  		This command enables or disables the reporting of SCPI syntax errors to the error queue. Enable at startup 
 :SYSTem:LOG:SCPI ON|OFF|1|0  					This command toggles the state of SCPI logging. When toggled ON, a copy of every subsequent SCPI command executed will be placed in the log.
-:SYSTem:PDOWn  This command turns off the instrument.
+:SYSTem:PDOWn  									This command turns off the instrument.
 *ESR?  											The Standard Event Status Register (ESR) query returns the value of the Standard Event Status Register.
 *ESE <data>  									The Standard Event Status Enable (ESE) command sets the Standard Event Status Enable Register. The variable <data> represents the sum of the bits that will be enabled. 0 to 255 
 *SRE <data>  									The Service Request Enable (SRE) command sets the value of the Service Request Enable Register. The variable <data> is the decimal sum of the bits that will be enabled. Bit 6 (value 64) is ignored and cannot be set by this command. 0 to 255 The setting enabled by this command is not affected by signal generator preset or *RST. However, cycling the signal generator power will reset it to zero.
