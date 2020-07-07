@@ -1,5 +1,7 @@
 include in the manual that the user must create the fpcs prior to creating the signals or else they won't be able to select the pattern that each signal corresponds to 
 include in manual that you don't have to type hz or degrees everytime 
+include in manual why you can't just download an fpcs file from the web ftp and then it will say the header is wrong. (it's because you have to import from my application so the application can rewrite the header)
+
 
 implement "delete table from UXG" button 
 Add barker codes as an option
@@ -40,6 +42,8 @@ Add checks for the user inputs that they're in fact numbers when we expect them 
 
 
 
+On the documentation User's Guide/Streaming Mode Use/FrequencyPhase Coding Files  at the top, the third "NOTE" down says "This topic does not apply to Streaming when File is the Streaming Source selection." So wtf do we use as a reference for that?
+It appears I should be using FPC not FPCS since FPCS is for FCP operation whereas FPC is for streaming. 
 
 
 

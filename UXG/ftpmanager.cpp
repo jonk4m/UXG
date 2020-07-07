@@ -14,7 +14,7 @@ FtpManager::FtpManager(QMainWindow *window)
  * notes that a fileOrFolderName parameter of "*" means that all files will be downloaded
  */
 void FtpManager::start_process(QString fileOrFolderName){
-    qDebug() << "Starting upload process";
+    qDebug() << "Starting process";
     QStringList arguments;
     QString program = "ftp";
 
@@ -61,14 +61,14 @@ void FtpManager::start_process(QString fileOrFolderName){
         qDebug() << "Error in FtpManager state, should be either uploading or downloading";
     }
 
-
     process->start(program,arguments);
     QProcess::connect(process,SIGNAL(started()),this,SLOT(process_started()));
     QProcess::connect(process,SIGNAL(finished(int,QProcess::ExitStatus)),this,SLOT(process_finished()));
     QProcess::connect(process,SIGNAL(errorOccurred(QProcess::ProcessError)),this,SLOT(process_finished()));
     QProcess::connect(process,SIGNAL(readyReadStandardError()),this,SLOT(process_ready_read_error()));
     QProcess::connect(process,SIGNAL(readyReadStandardOutput()),this,SLOT(process_ready_read_output()));
-    qDebug() << "finished adding connections";
+    if(current_state == state::downloading)
+        process->waitForFinished(); //blocking function to allow for the callback to not encounter a racing error
 }
 
 void FtpManager::process_started(){
@@ -138,7 +138,6 @@ void FtpManager::socket_connected(){
 void FtpManager::socket_disconnected(){
     qDebug() << "Socket disconnected";
 }
-
 
 void FtpManager::socket_errorOccurred(QAbstractSocket::SocketError *error){
     qDebug() << "Socket error occurred : ";

@@ -20,7 +20,8 @@ send C:/Users/abms1/Documents/TestTable.csv
 //This step imports the csv table values into the current table but does not create a file from those values
 MEMory:IMPort:ASCii:FPCSetup TestTable.csv
 
-//store and export both use the SCPI command EXPort. The way it knows to export as a CSV or FPCS and put it in the correct file location accordingly is you have to specify in the file name either .csv or .fpcs
+//store and export both use the SCPI command EXPort. The way it knows to export as a CSV or FPCS and put it in the correct file location accordingly 
+//is you have to specify in the file name either .csv or .fpcs
 //This step takes the data of the current table and exports it into a FPCS file on the UXG so it can be used later
 MEMory:EXPort:ASCii:FPCSetup TestTable.fpcs
 

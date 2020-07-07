@@ -26,11 +26,7 @@ bool Fpcs::initialize_workingFile(){
     workingFile.close();
 
     if(this->settings.usingExistingTable == true){ //loading in an existing Table
-        if(settings.usingExistingTableLocal){
-            return initialize_existingFile_local();
-        }else{
-            return initialize_existingFile_onUxg();
-        }
+        return initialize_existingFile_local();
     }else{
         return initialize_newFile();
     }
@@ -61,10 +57,6 @@ bool Fpcs::initialize_existingFile_local(){
 
     //checkflag so widgets know a valid file is in play
     this->settings.fileInPlay = true;
-    return true;
-}
-
-bool Fpcs::initialize_existingFile_onUxg(){
     return true;
 }
 
@@ -158,14 +150,6 @@ void Fpcs::write_header_to_workingFile(){
 };
 
 /*
- * This function uses the Qt Resource System to store a nonVolatile text file along with the executable. This file contains all previously made Tables' filePaths.
- * This function cycles through that list to delete all previously made files since this program was installed on the system.
- */
-bool Fpcs::delete_all_previously_created_files(){
-    return false;
-};
-
-/*
  * This function ensures the header on the imported file is correct for parsing and editing
  */
 bool Fpcs::check_file_header(){
@@ -178,35 +162,6 @@ bool Fpcs::check_file_header(){
         return false;
     }
     return true;
-};
-
-bool Fpcs::import_fpcs_onto_uxg(QProcess *ftpProcess){
-    //if(this->settings.fileInPlay == true){ UNCOMMENT ME
-        //start a QProcess and call the command line argument to start the ftp transfer
-        ftpProcess->start("ftp", QStringList() << "K-N5193A-90114"); //add another << "argument" for an additional argument when required
-        qDebug() << ftpProcess->readAll();
-        ftpProcess->waitForReadyRead();
-        qDebug() << ftpProcess->readAll();
-        ftpProcess->write("\r\r\n");
-        ftpProcess->waitForReadyRead();
-        qDebug() << ftpProcess->readAll();
-        ftpProcess->close();
-
-
-
-
-        /*ftpProcess->write("\n");
-        ftpProcess->write("keysight");
-        ftpProcess->closeWriteChannel();
-        ftpProcess->waitForReadyRead();
-        qDebug() << ftpProcess->readAllStandardOutput();
-        ftpProcess->close();*/
-
-    //}else{
-    //    qDebug() << "No File is currently selected to be imported onto the UXG";
-    //    return false;
-    //}
-    return false;
 };
 
 /*

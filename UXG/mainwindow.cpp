@@ -110,6 +110,8 @@ void MainWindow::on_create_new_table_button_box_accepted()
     }else{
         qDebug() << "File unable to initialize";
     }
+
+    //TODO Update table visualization with the new data
 }
 
 /*
@@ -119,6 +121,21 @@ void MainWindow::on_create_new_table_button_box_accepted()
 void MainWindow::on_select_existing_table_button_box_accepted()
 {
     window_fpcs.settings.usingExistingTable = true;
+    if(window_fpcs.settings.usingExistingTableLocal == false){
+        //extra steps required here to import the file from the uxg, correct its header, and
+        //rewrite its rows for the new header
+        //then we initialize the file as if it already existed locally
+        // tell the uxg to export the fpcs file as a csv
+        downloadState = settingCurrentTable;
+        QString scpiCommand = ":SOURce:PULM:STReam:FPCSetup:SELect ";
+        scpiCommand.append('"');
+        scpiCommand.append(window_fpcs.settings.existingTableFilePath.append(".fpcs"));
+        scpiCommand.append('"');
+        qDebug() << scpiCommand;
+        window_ftpManager->send_SPCI(scpiCommand);
+        //once the SPCI command is sent, on_socket_readyRead() will send the SCPI command to export the current table, then call pre_initialize_uxg_file() when it's done.
+        return;
+    }
     bool fileInitialized = window_fpcs.initialize_workingFile();
     if(fileInitialized){
         //make the progress bar move
@@ -128,6 +145,63 @@ void MainWindow::on_select_existing_table_button_box_accepted()
             QThread::msleep(10);
         }
         ui->current_table_line_edit->setText(window_fpcs.workingFile.fileName());
+    }else{
+        qDebug() << "File unable to initialize";
+    }
+
+    //TODO Update table visualization with the new data
+}
+
+/*
+ * qDebug() << "initializing : " << settings.existingTableFileNameUxg;
+    workingFile.setFileName(this->settings.existingTableFileNameUxg); //set this file path to be for the working file
+ */
+bool MainWindow::pre_initialize_uxg_file(){
+    //download the table from the uxg into the downloads folder
+    window_ftpManager->current_state = FtpManager::state::downloading;
+    QString filename = window_fpcs.settings.existingTableFilePath; //window_fpcs.settings.existingTableFilePath is the name of just the file without extension at this point
+    //then feed it into the process
+    window_ftpManager->start_process(filename + ".csv");
+    //we can immediately begin using the file after this call because when the window_ftpManager current_state is downloading,
+    //the start_process function will use a blocking function before returning
+    QFile tempFile;
+    QString tempFilePath = QDir::currentPath() + "/fileFolder/downloads/" + filename + ".csv";
+    qDebug() << "tempFilePath: " + tempFilePath;
+    tempFile.setFileName(tempFilePath);
+    bool exists = tempFile.exists(tempFilePath);
+    if(exists){
+        if(!tempFile.open(QFile::ReadWrite | QFile::Text | QFile::ExistingOnly)) //Options: ExistingOnly, NewOnly, Append
+        {
+            qDebug() << " Could not open File : " + tempFilePath;
+            return false;
+        }
+    }else{
+        qDebug() << "File Not Found";
+        return false;
+    }
+    //create the QTextStreamer to operate on this file until further notice
+    QTextStream tempStreamer;
+    tempStreamer.setDevice(&tempFile);
+    //check header
+    tempStreamer.seek(0); //make sure the TextStream starts at the beginning of the file
+    qDebug() << tempStreamer.readAll();
+    //QString header = "Comment,State,Coding Type,Length,Bits Per Subpulse,Phase State 0 (deg),Phase State 1 (deg),Phase State 2 (deg),Phase State 3 (deg),Phase State 4 (deg),Phase State 5 (deg),Phase State 6 (deg),Phase State 7 (deg),Phase State 8 (deg),Phase State 9 (deg),Phase State 10 (deg),Phase State 11 (deg),Phase State 12 (deg),Phase State 13 (deg),Phase State 14 (deg),Phase State 15 (deg),Frequency State 0 (Hz),Frequency State 1 (Hz),Frequency State 2 (Hz),Frequency State 3 (Hz),Frequency State 4 (Hz),Frequency State 5 (Hz),Frequency State 6 (Hz),Frequency State 7 (Hz),Frequency State 8 (Hz),Frequency State 9 (Hz),Frequency State 10 (Hz),Frequency State 11 (Hz),Frequency State 12 (Hz),Frequency State 13 (Hz),Frequency State 14 (Hz),Frequency State 15 (Hz),Hex Pattern\n";
+    //tempStreamer << header;
+    //tempStreamer.flush(); //ensure all the data is written to the file before moving on
+
+
+
+    bool fileInitialized = window_fpcs.initialize_workingFile();
+    if(fileInitialized){
+        //make the progress bar move
+        ui->create_progress_bar->reset();
+        for(int j=0; j<=100; j++){
+            ui->loaded_table_progress_bar->setValue(j);
+            QThread::msleep(10);
+        }
+        ui->current_table_line_edit->setText(window_fpcs.workingFile.fileName());
+    }else{
+        qDebug() << "File unable to initialize";
     }
 
     //TODO Update table visualization with the new data
@@ -572,7 +646,6 @@ void MainWindow::on_binary_data_view_push_button_clicked(bool checked)
 {
     window_fpcs.settings.usingBinaryDataView = checked;
     //TODO call a method window_fpcs.updateTableVisualizer(); which will check that bool and update the table view to be either binary bits or the layman's [phase,freq],... view
-
 }
 
 void MainWindow::on_socket_readyRead(){
@@ -582,6 +655,7 @@ void MainWindow::on_socket_readyRead(){
     for(QString item : allReadParsed){
         qDebug() << item;
     }
+
     //this process is specifically for when the user needs to know what all available FPCS files on the UXG are.
     if(waitingForFPCSFileList){
         qDebug() << "FPCS files : ";
@@ -595,4 +669,26 @@ void MainWindow::on_socket_readyRead(){
         waitingForFPCSFileList = false;
         ui->uxg_fpcs_files_combo_box->addItems(outputList);
     }
+
+    //this process is specifically for when the user is downloading a uxg fpcs file to then edit.
+    if(downloadState == settingCurrentTable){
+        qDebug() << "file set to current table";
+        downloadState = exportingTable;
+        QString scpiCommand = ":MEMory:EXPort:ASCii:FPCSetup ";
+        scpiCommand.append('"');
+        scpiCommand.append(window_fpcs.settings.existingTableFilePath.append(".csv"));
+        scpiCommand.append('"');
+        qDebug() << scpiCommand;
+        window_ftpManager->send_SPCI(scpiCommand);
+    }else if(downloadState == exportingTable){
+        downloadState = finished;
+        qDebug() << "file is exported, ready for ftp";
+        //pre_initialize_uxg_file();
+    }
+}
+
+void MainWindow::on_uxg_fpcs_files_combo_box_currentTextChanged(const QString &arg1)
+{
+    window_fpcs.settings.existingTableFilePath = arg1;
+    window_fpcs.settings.existingTableFilePath = window_fpcs.settings.existingTableFilePath.remove('"').remove(" ");
 }

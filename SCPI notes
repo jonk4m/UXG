@@ -21,6 +21,7 @@ Note: Make sure to read the "Remarks" section of the webhelp documentation for t
 :MEMory:SIZE? <"filename">  					This command returns the size of the file named <"filename"> in bytes or a –1, if the file does not exist. If the MSUS or directory is invalid, an “ERROR: –257, File name error” will be reported.
 :OUTPut:MODulation[:STATe] ON|OFF|1|0  			This command enables or disables the modulation of the RF output with the currently active modulation type(s).
 :OUTPut[:STATe] ON|OFF|1|0  					This command enables or disables the RF output. Although you can configure and engage various modulations, no signal is available at the RF OUTPUT connector until this command is executed. An annunciator is always displayed on the signal generator to indicate whether the RF output is switched on or off.
+[:SOURce]:PULM:STReam:FPCSetup:SELect "<filename>" This command selects a frequency/phase coding setup table for use with Steaming.
 [:SOURce]:CONTrol:TRIGger:SOURce NONE|BUS|EXTernal|KEY  This command selects the trigger source. BUS: This choice enables GPIB triggering using the *TRG or GET command, or LAN and USB triggering using the *TRG command
 [:SOURce]:STReam:ABORt:TRIGger[:STATe] ON|OFF|1|0      This command sets the abort trigger state. If set to ON, use the other abort trigger commands to configure the trigger.
 [:SOURce]:STReam:ABORt:TRIGger:SOURce KEY|BUS|EXTernal   Selects the abort trigger source.

@@ -12,6 +12,7 @@
 #include <QUrl>
 #include "QTcpSocket"
 #include "ftpmanager.h"
+#include "QTextStream"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -29,6 +30,12 @@ public:
     Fpcs window_fpcs; //each fpcs also has it's own fpcs_settings struct titled "settings"
     FtpManager *window_ftpManager;
     bool  waitingForFPCSFileList;
+    enum DownloadState {
+        finished = 0,
+        exportingTable = 1,
+        settingCurrentTable = 2
+    };
+    DownloadState downloadState = finished;
 
 private slots:
 
@@ -76,8 +83,6 @@ private slots:
 
     void on_batch_pattern_entry_push_button_clicked();
 
-   // void output_to_command_line_text_editor();
-
     void on_qprocess_upload_push_button_clicked();
 
     void on_download_all_files_from_uxg_push_button_clicked();
@@ -96,7 +101,6 @@ private slots:
 
     void on_clear_pattern_push_button_clicked();
 
-
     void on_power_off_uxg_push_button_clicked();
 
     void on_initiate_uxg_self_test_push_button_clicked();
@@ -107,7 +111,11 @@ private slots:
 
     void on_socket_readyRead();
 
+    void on_uxg_fpcs_files_combo_box_currentTextChanged(const QString &arg1);
+
 private:
+
+    bool pre_initialize_uxg_file();
 
 };
 #endif // MAINWINDOW_H

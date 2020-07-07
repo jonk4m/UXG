@@ -58,16 +58,13 @@ public:
     Fpcs();
     bool initialize_workingFile();
     bool initialize_existingFile_local();
-    bool initialize_existingFile_onUxg();
     bool initialize_newFile();
 
     void close_file();
     void set_streamer();
     void write_header_to_workingFile();
     QString mapped_file_path();
-    bool delete_all_previously_created_files();
     bool check_file_header();
-    bool import_fpcs_onto_uxg(QProcess *ftpProcess);
     bool add_entry();
 };
 
