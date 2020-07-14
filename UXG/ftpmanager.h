@@ -25,6 +25,7 @@ public:
 
     QProcess *process;
     QTcpSocket *tcpSocket;
+    QString uploadingFileOrFolderName; //needs to be preserved across socket signals (see the finished slot for tcpSocket)
 
     enum state{
         initialized = 0,

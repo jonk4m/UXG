@@ -43,7 +43,7 @@ bool Fpcs::initialize_existingFile_local(){
             return false;
         }
     }else{
-        qDebug() << "File Not Found";
+        qDebug() << "File Not Found : " << settings.existingTableFilePath;
         return false;
     }
     //create the QTextStreamer to operate on this file until further notice

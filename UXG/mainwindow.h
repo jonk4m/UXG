@@ -113,9 +113,13 @@ private slots:
 
     void on_uxg_fpcs_files_combo_box_currentTextChanged(const QString &arg1);
 
+    void on_delete_table_from_uxg_push_button_clicked();
+
 private:
 
     bool pre_initialize_uxg_file();
+
+    void output_to_console(QString);
 
 };
 #endif // MAINWINDOW_H

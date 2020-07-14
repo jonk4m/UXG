@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>803</width>
-    <height>593</height>
+    <height>774</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>3</number>
     </property>
     <widget class="QWidget" name="signal_creator_tab">
      <attribute name="title">
@@ -116,7 +116,7 @@
           <bool>true</bool>
          </property>
         </widget>
-        <widget class="QRadioButton" name="binary_data_view_push_button">
+        <widget class="QCheckBox" name="binary_data_view_push_button">
          <property name="geometry">
           <rect>
            <x>330</x>
@@ -673,56 +673,6 @@
          </column>
         </widget>
        </widget>
-       <widget class="QPushButton" name="delete_table_from_uxg_push_button">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>230</y>
-          <width>301</width>
-          <height>23</height>
-         </rect>
-        </property>
-        <property name="palette">
-         <palette>
-          <active>
-           <colorrole role="Button">
-            <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>240</red>
-              <green>104</green>
-              <blue>104</blue>
-             </color>
-            </brush>
-           </colorrole>
-          </active>
-          <inactive>
-           <colorrole role="Button">
-            <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>240</red>
-              <green>104</green>
-              <blue>104</blue>
-             </color>
-            </brush>
-           </colorrole>
-          </inactive>
-          <disabled>
-           <colorrole role="Button">
-            <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>240</red>
-              <green>104</green>
-              <blue>104</blue>
-             </color>
-            </brush>
-           </colorrole>
-          </disabled>
-         </palette>
-        </property>
-        <property name="text">
-         <string>Delete Table from UXG</string>
-        </property>
-       </widget>
        <widget class="QTabWidget" name="create_or_select_table_tab_widget">
         <property name="geometry">
          <rect>
@@ -952,6 +902,59 @@
            <bool>true</bool>
           </property>
          </widget>
+         <widget class="QPushButton" name="delete_table_from_uxg_push_button">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>80</y>
+            <width>281</width>
+            <height>23</height>
+           </rect>
+          </property>
+          <property name="palette">
+           <palette>
+            <active>
+             <colorrole role="Button">
+              <brush brushstyle="SolidPattern">
+               <color alpha="255">
+                <red>240</red>
+                <green>104</green>
+                <blue>104</blue>
+               </color>
+              </brush>
+             </colorrole>
+            </active>
+            <inactive>
+             <colorrole role="Button">
+              <brush brushstyle="SolidPattern">
+               <color alpha="255">
+                <red>240</red>
+                <green>104</green>
+                <blue>104</blue>
+               </color>
+              </brush>
+             </colorrole>
+            </inactive>
+            <disabled>
+             <colorrole role="Button">
+              <brush brushstyle="SolidPattern">
+               <color alpha="255">
+                <red>240</red>
+                <green>104</green>
+                <blue>104</blue>
+               </color>
+              </brush>
+             </colorrole>
+            </disabled>
+           </palette>
+          </property>
+          <property name="text">
+           <string>Delete Table from UXG</string>
+          </property>
+         </widget>
         </widget>
        </widget>
        <widget class="QPushButton" name="qprocess_upload_push_button">
@@ -971,7 +974,7 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>260</y>
+          <y>230</y>
           <width>301</width>
           <height>23</height>
          </rect>
@@ -986,8 +989,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>791</width>
-         <height>467</height>
+         <width>100</width>
+         <height>30</height>
         </rect>
        </property>
        <attribute name="label">
@@ -1787,27 +1790,6 @@
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
-       <item row="1" column="1">
-        <widget class="QPushButton" name="delete_all_files_on_uxg_push_button">
-         <property name="text">
-          <string>Delete All Files on UXG</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QPushButton" name="power_off_uxg_push_button">
-         <property name="text">
-          <string>Power Off UXG</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0">
-        <widget class="QPushButton" name="pushButton">
-         <property name="text">
-          <string>connect</string>
-         </property>
-        </widget>
-       </item>
        <item row="2" column="1">
         <widget class="QPushButton" name="initiate_uxg_self_test_push_button">
          <property name="text">
@@ -1815,10 +1797,10 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="1">
-        <widget class="QPushButton" name="download_all_files_from_uxg_push_button_2">
+       <item row="1" column="1">
+        <widget class="QPushButton" name="delete_all_files_on_uxg_push_button">
          <property name="text">
-          <string>Download All Files Available on UXG</string>
+          <string>Delete All Files on UXG</string>
          </property>
         </widget>
        </item>
@@ -1829,16 +1811,46 @@
          </property>
         </widget>
        </item>
-       <item row="3" column="0">
-        <widget class="QPushButton" name="pushButton_3">
+       <item row="0" column="1">
+        <widget class="QPushButton" name="download_all_files_from_uxg_push_button_2">
          <property name="text">
-          <string>get FPCS's</string>
+          <string>Download All Files Available on UXG</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QPushButton" name="pushButton">
+         <property name="text">
+          <string>connect</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QPushButton" name="power_off_uxg_push_button">
+         <property name="text">
+          <string>Power Off UXG</string>
          </property>
         </widget>
        </item>
       </layout>
      </widget>
     </widget>
+   </widget>
+   <widget class="QPlainTextEdit" name="console_text_editor">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>560</y>
+      <width>781</width>
+      <height>171</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+    <property name="centerOnScroll">
+     <bool>true</bool>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">

@@ -50,7 +50,7 @@ LAN must be restarted after changes are made to it's settings for them to be imp
 *TRG   The Trigger (TRG) command triggers the device if BUS is the selected trigger source, otherwise, *TRG is ignored.
 *TST?  The Self–Test (TST) query initiates the internal self–test and returns one of the following results: 0 all test passed, 1 one or more tests failed. 
 
-
+[:SOURce]:PULM:STATe ON|OFF|1|0  This command enables or disables pulse modulation.  you need to turn this on for a fpcs to work 
 
 
 

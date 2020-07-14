@@ -12,6 +12,7 @@ FtpManager::FtpManager(QMainWindow *window)
 /*
  * This method downloads or uploads files from or to the UXG
  * notes that a fileOrFolderName parameter of "*" means that all files will be downloaded
+ * the fileOrFolderName parameter includes the current directory when uploading
  */
 void FtpManager::start_process(QString fileOrFolderName){
     qDebug() << "Starting process";
@@ -21,15 +22,16 @@ void FtpManager::start_process(QString fileOrFolderName){
     if(current_state == state::uploading){
         qDebug() << "Name is : ";
         qDebug() << fileOrFolderName;
-        //TODO set the filename in the text document of the ftp commands to match the input parameter
+        //set the filename in the text document of the ftp commands to match the input parameter
         QString commandPath = QDir::currentPath() + "/fileFolder/uploadFtpCommands.txt";
         QFile commandFile(commandPath);
         if(!commandFile.open(QIODevice::ReadWrite | QIODevice::Text))
             qDebug() << "Failed to open uploadFtpCommands.txt";
-        qDebug() << commandFile.readLine();
-        qDebug() << commandFile.readLine();
-        qDebug() << commandFile.readLine();
-        qDebug() << commandFile.readLine();
+        commandFile.resize(0); //clears the entire file
+        commandFile.write(QString("user\n").toUtf8());
+        commandFile.write(QString("keysight\n").toUtf8());
+        commandFile.write(QString("lcd fileFolder/uploads\n").toUtf8());
+        commandFile.write(QString("cd /USER/BIN\n").toUtf8());
         QString textLine = "mput " + fileOrFolderName + "\n";
         commandFile.write(textLine.toUtf8());
         commandFile.write("bye");
@@ -43,11 +45,14 @@ void FtpManager::start_process(QString fileOrFolderName){
         //Download all files from the UXG
         QString commandPath = QDir::currentPath() + "/fileFolder/downloadFtpCommands.txt";
         QFile commandFile(commandPath);
-        qDebug() << commandFile.readLine();
-        qDebug() << commandFile.readLine();
-        qDebug() << commandFile.readLine();
-        qDebug() << commandFile.readLine();
-        qDebug() << commandFile.readLine();
+        if(!commandFile.open(QIODevice::ReadWrite | QIODevice::Text))
+            qDebug() << "Failed to open downloadFtpCommands.txt";
+        commandFile.resize(0); //clears the entire file
+        commandFile.write(QString("user\n").toUtf8());
+        commandFile.write(QString("keysight\n").toUtf8());
+        commandFile.write(QString("lcd\n").toUtf8());
+        commandFile.write(QString("lcd fileFolder/downloads\n").toUtf8());
+        commandFile.write(QString("cd /USER/BIN\n").toUtf8());
         QString textLine = "mget " + fileOrFolderName + "\n";
         commandFile.write(textLine.toUtf8());
         commandFile.write("bye");
@@ -64,7 +69,6 @@ void FtpManager::start_process(QString fileOrFolderName){
     process->start(program,arguments);
     QProcess::connect(process,SIGNAL(started()),this,SLOT(process_started()));
     QProcess::connect(process,SIGNAL(finished(int,QProcess::ExitStatus)),this,SLOT(process_finished()));
-    QProcess::connect(process,SIGNAL(errorOccurred(QProcess::ProcessError)),this,SLOT(process_finished()));
     QProcess::connect(process,SIGNAL(readyReadStandardError()),this,SLOT(process_ready_read_error()));
     QProcess::connect(process,SIGNAL(readyReadStandardOutput()),this,SLOT(process_ready_read_output()));
     if(current_state == state::downloading)
@@ -75,9 +79,44 @@ void FtpManager::process_started(){
     qDebug() << "Process has started successfully";
 }
 
+/*
+ * The ftp process has finished downloading or uploading a file
+ */
 void FtpManager::process_finished(){
     qDebug() << "Process has finished successfully";
     qDebug() << process->exitCode();
+    if(current_state == state::uploading){
+        /* now tell the UXG to IMPORT the CSV file (the one you just put on the UXG using ftp) into the current table,
+         * then STORE that current table into a fpcs file of the same name as the csv
+         * :MEMory:IMPort:ASCii:FPCSetup "<ExistingFilename.csv>"    behaves the same as the "import from file" softbutton on UXG. This populates the current table values with those from the CSV file
+         * SOURce:PULM:STReam:FPCSetup:STORe "   behaves the same as the "store to file" softbutton on UXG. This creates a fpcs file out of the current table values
+         * SOURce:PULM:STReam:FPCSetup:SELect    This sets the current table file to be the fpcs file we just created
+         */
+        QString scpiCommand = ":MEMory:IMPort:ASCii:FPCSetup ";
+        scpiCommand.append('"');
+        scpiCommand.append(uploadingFileOrFolderName);
+        scpiCommand.append('"');
+        qDebug() << "sending: " << scpiCommand;
+        send_SPCI(scpiCommand);
+
+        scpiCommand.clear();
+        scpiCommand = "SOURce:PULM:STReam:FPCSetup:STORe ";
+        scpiCommand.append('"');
+        scpiCommand.append(uploadingFileOrFolderName.remove(".csv"));  //no need to append the .fpcs here, uxg does it automatically
+        scpiCommand.append('"');
+        qDebug() << "sending: " << scpiCommand;
+        send_SPCI(scpiCommand);
+
+        scpiCommand.clear();
+        scpiCommand = "SOURce:PULM:STReam:FPCSetup:SELect "; //Note this command will be rejected if the UXG is not in PDW Streaming Mode
+        scpiCommand.append('"');
+        scpiCommand.append(uploadingFileOrFolderName);
+        scpiCommand.append('"');
+        qDebug() << "sending: " << scpiCommand;
+        send_SPCI(scpiCommand);
+
+        current_state = state::initialized;
+    }
 }
 
 void FtpManager::process_error_occured(){
@@ -133,6 +172,8 @@ void FtpManager::closeTcpSocket(){
 
 void FtpManager::socket_connected(){
     qDebug() << "Socket connected";
+    send_SPCI("DISPlay:REMote ON");
+    send_SPCI("INSTrument STReaming");
 }
 
 void FtpManager::socket_disconnected(){

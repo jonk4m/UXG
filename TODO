@@ -49,21 +49,26 @@ It appears I should be using FPC not FPCS since FPCS is for FCP operation wherea
 
 
 
+ALWAYS SELECT AND LOAD FROM AN FPCS FILE
 
 
 
 
 
+UPLOAD BUTTON CLICKED
+Put the csv file on the uxg using ftp - check that the table isn't empty on the uxg
+import the csv file into the current table - check that the current table's values match the csv's 
+export the current table's values into an fpcs file of the same name - check that the file that was exported when viewed is in hex. IT ISN'T THIS IS WHERE SHIT IS GOING WRONG
+set the current table to be that fpcs file - just check the name of the current file on the UXG
 
 
+IN ORDER TO EXPORT THE CURRENT TABLE AS A CSV, YOU HAVE TO LOAD IT THEN EXPORT IT. BUT TO STORE THE CURRENT TABLE AS A FPCS, YOU JUST HAVE TO 
 
 
+SETTING AN FPCS FILE TO BE THE CURRENT TABLE DOES NOTHING. THE VALUES OF THE CURRENT TABLE DON'T CHANGE. YOU HAVE TO IMPORT FROM THE FPCS FILE FOR THE CURRENT TABLE'S VALUES TO MATCH THE FILE'S 
 
-
-
-
-
-
+:MEMory:EXPort:ASCii:FPCSetup "testFile.fpcs" WILL ALWAYS OUTPUT THE FILE AS A CSV EVEN IF YOU TELL IT TO DO IT AS AN FPCS (THAT COMES STRAIGHT FROM THE DOCUMENTATION)
+SO HOW DO I GO FROM A CSV TO AN FPCS???? WHY ISN'T THERE A :MEMory:STORE:ASCii:FPCSetup "testFile.fpcs"  SCPI COMMAND? There is, it's SOURce:PULM:STReam:FPCSetup:STORe 
 
 
 

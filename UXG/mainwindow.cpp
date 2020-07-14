@@ -2,7 +2,6 @@
 #include "ui_mainwindow.h"
 #include "QDebug"
 
-
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -12,7 +11,10 @@ MainWindow::MainWindow(QWidget *parent)
     window_ftpManager = new FtpManager(this);
 
     ui->uxg_fpcs_files_combo_box->hide();
+    ui->delete_table_from_uxg_push_button->hide();
     waitingForFPCSFileList = false;
+    output_to_console("---------------------------------------------------------Program started.");
+    qDebug() << "---------------------------------------------------------Program started.";
 }
 
 MainWindow::~MainWindow()
@@ -108,104 +110,11 @@ void MainWindow::on_create_new_table_button_box_accepted()
         }
         ui->current_table_line_edit->setText(window_fpcs.workingFile.fileName());
     }else{
+        output_to_console("File unable to initialize");
         qDebug() << "File unable to initialize";
     }
 
     //TODO Update table visualization with the new data
-}
-
-/*
- * Dialog Buttons for loading Table
- * Assumes a file name has been chosen before pressed, but also checks if that's the case.
- */
-void MainWindow::on_select_existing_table_button_box_accepted()
-{
-    window_fpcs.settings.usingExistingTable = true;
-    if(window_fpcs.settings.usingExistingTableLocal == false){
-        //extra steps required here to import the file from the uxg, correct its header, and
-        //rewrite its rows for the new header
-        //then we initialize the file as if it already existed locally
-        // tell the uxg to export the fpcs file as a csv
-        downloadState = settingCurrentTable;
-        QString scpiCommand = ":SOURce:PULM:STReam:FPCSetup:SELect ";
-        scpiCommand.append('"');
-        scpiCommand.append(window_fpcs.settings.existingTableFilePath.append(".fpcs"));
-        scpiCommand.append('"');
-        qDebug() << scpiCommand;
-        window_ftpManager->send_SPCI(scpiCommand);
-        //once the SPCI command is sent, on_socket_readyRead() will send the SCPI command to export the current table, then call pre_initialize_uxg_file() when it's done.
-        return;
-    }
-    bool fileInitialized = window_fpcs.initialize_workingFile();
-    if(fileInitialized){
-        //make the progress bar move
-        ui->create_progress_bar->reset();
-        for(int j=0; j<=100; j++){
-            ui->loaded_table_progress_bar->setValue(j);
-            QThread::msleep(10);
-        }
-        ui->current_table_line_edit->setText(window_fpcs.workingFile.fileName());
-    }else{
-        qDebug() << "File unable to initialize";
-    }
-
-    //TODO Update table visualization with the new data
-}
-
-/*
- * qDebug() << "initializing : " << settings.existingTableFileNameUxg;
-    workingFile.setFileName(this->settings.existingTableFileNameUxg); //set this file path to be for the working file
- */
-bool MainWindow::pre_initialize_uxg_file(){
-    //download the table from the uxg into the downloads folder
-    window_ftpManager->current_state = FtpManager::state::downloading;
-    QString filename = window_fpcs.settings.existingTableFilePath; //window_fpcs.settings.existingTableFilePath is the name of just the file without extension at this point
-    //then feed it into the process
-    window_ftpManager->start_process(filename + ".csv");
-    //we can immediately begin using the file after this call because when the window_ftpManager current_state is downloading,
-    //the start_process function will use a blocking function before returning
-    QFile tempFile;
-    QString tempFilePath = QDir::currentPath() + "/fileFolder/downloads/" + filename + ".csv";
-    qDebug() << "tempFilePath: " + tempFilePath;
-    tempFile.setFileName(tempFilePath);
-    bool exists = tempFile.exists(tempFilePath);
-    if(exists){
-        if(!tempFile.open(QFile::ReadWrite | QFile::Text | QFile::ExistingOnly)) //Options: ExistingOnly, NewOnly, Append
-        {
-            qDebug() << " Could not open File : " + tempFilePath;
-            return false;
-        }
-    }else{
-        qDebug() << "File Not Found";
-        return false;
-    }
-    //create the QTextStreamer to operate on this file until further notice
-    QTextStream tempStreamer;
-    tempStreamer.setDevice(&tempFile);
-    //check header
-    tempStreamer.seek(0); //make sure the TextStream starts at the beginning of the file
-    qDebug() << tempStreamer.readAll();
-    //QString header = "Comment,State,Coding Type,Length,Bits Per Subpulse,Phase State 0 (deg),Phase State 1 (deg),Phase State 2 (deg),Phase State 3 (deg),Phase State 4 (deg),Phase State 5 (deg),Phase State 6 (deg),Phase State 7 (deg),Phase State 8 (deg),Phase State 9 (deg),Phase State 10 (deg),Phase State 11 (deg),Phase State 12 (deg),Phase State 13 (deg),Phase State 14 (deg),Phase State 15 (deg),Frequency State 0 (Hz),Frequency State 1 (Hz),Frequency State 2 (Hz),Frequency State 3 (Hz),Frequency State 4 (Hz),Frequency State 5 (Hz),Frequency State 6 (Hz),Frequency State 7 (Hz),Frequency State 8 (Hz),Frequency State 9 (Hz),Frequency State 10 (Hz),Frequency State 11 (Hz),Frequency State 12 (Hz),Frequency State 13 (Hz),Frequency State 14 (Hz),Frequency State 15 (Hz),Hex Pattern\n";
-    //tempStreamer << header;
-    //tempStreamer.flush(); //ensure all the data is written to the file before moving on
-
-
-
-    bool fileInitialized = window_fpcs.initialize_workingFile();
-    if(fileInitialized){
-        //make the progress bar move
-        ui->create_progress_bar->reset();
-        for(int j=0; j<=100; j++){
-            ui->loaded_table_progress_bar->setValue(j);
-            QThread::msleep(10);
-        }
-        ui->current_table_line_edit->setText(window_fpcs.workingFile.fileName());
-    }else{
-        qDebug() << "File unable to initialize";
-    }
-
-    //TODO Update table visualization with the new data
-
 }
 
 void MainWindow::on_create_new_table_button_box_helpRequested()
@@ -234,6 +143,7 @@ void MainWindow::on_select_file_push_button_clicked()
     ui->create_progress_bar->reset();
     ui->loaded_table_progress_bar->reset();
     }else{
+        output_to_console("Cannot select local file with option to choose file from UXG currently selected");
         qDebug() << "Cannot select local file with option to choose file from UXG currently selected";
     }
 }
@@ -255,6 +165,7 @@ void MainWindow::on_add_another_pattern_to_this_table_push_button_clicked()
         ui->table_or_pattern_toolbox->setCurrentIndex(1); //this then opens the part of the GUI toolbox that is used for editing the pattern
         update_pattern_table();
     }else{
+        output_to_console("No Table Currently Selected to Add a Pattern to.");
         qDebug() << "No Table Currently Selected to Add a Pattern to.";
         return;
     }
@@ -374,7 +285,8 @@ void MainWindow::add_button_in_pattern_table_setup(int row)
             ui->pattern_nonBinary_values_shown_text_editor->insertPlainText(ui->phase_freq_pattern_entry_table->item(row, 2)->text());
             ui->pattern_nonBinary_values_shown_text_editor->insertPlainText("], ");
         }else{
-            qDebug() << "Unrecognizable Pattern Coding Type Entry : " + window_fpcs.workingEntry.state;
+            output_to_console("Unrecognizable Pattern Coding Type Entry : " + window_fpcs.workingEntry.state);
+            qDebug() << "Unrecognizable Pattern Coding Type Entry : " << window_fpcs.workingEntry.state;
             return;
         }
 
@@ -388,6 +300,7 @@ void MainWindow::add_button_in_pattern_table_setup(int row)
                 ui->pattern_binary_pattern_shown_text_editor->setText(window_fpcs.workingEntry.bitPattern); //update the ui with the bit pattern
 
             }else{
+                output_to_console("bits per subpulse mismatch with row number being added");
                 qDebug() << "bits per subpulse mismatch with row number being added";
             }
             break;
@@ -398,6 +311,7 @@ void MainWindow::add_button_in_pattern_table_setup(int row)
                 window_fpcs.workingEntry.bitPattern.append(rowNumberStringInBinary); //append this new chunk of bits to the bit pattern
                 ui->pattern_binary_pattern_shown_text_editor->setText(window_fpcs.workingEntry.bitPattern); //update the ui with the bit pattern
             }else{
+                output_to_console("bits per subpulse mismatch with row number being added");
                 qDebug() << "bits per subpulse mismatch with row number being added";
             }
             break;
@@ -408,6 +322,7 @@ void MainWindow::add_button_in_pattern_table_setup(int row)
                 window_fpcs.workingEntry.bitPattern.append(rowNumberStringInBinary); //append this new chunk of bits to the bit pattern
                 ui->pattern_binary_pattern_shown_text_editor->setText(window_fpcs.workingEntry.bitPattern); //update the ui with the bit pattern
             }else{
+                output_to_console("bits per subpulse mismatch with row number being added");
                 qDebug() << "bits per subpulse mismatch with row number being added";
             }
             break;
@@ -418,10 +333,12 @@ void MainWindow::add_button_in_pattern_table_setup(int row)
                 window_fpcs.workingEntry.bitPattern.append(rowNumberStringInBinary); //append this new chunk of bits to the bit pattern
                 ui->pattern_binary_pattern_shown_text_editor->setText(window_fpcs.workingEntry.bitPattern); //update the ui with the bit pattern
             }else{
+                output_to_console("bits per subpulse mismatch with row number being added");
                 qDebug() << "bits per subpulse mismatch with row number being added";
             }
             break;
         default:
+            output_to_console("Bits per subpulse value is invalid");
             qDebug() << "Bits per subpulse value is invalid";
             break;
         }
@@ -464,6 +381,7 @@ void MainWindow::on_phase_freq_pattern_entry_table_cellChanged(int row, int colu
         break;
     }
     default: {
+        output_to_console("Column in table chosen outside scope of the table");
         qDebug() << "Column in table chosen outside scope of the table";
         return;
     }
@@ -522,15 +440,33 @@ void MainWindow::on_batch_pattern_entry_push_button_clicked()
 
 }
 
+/*
+ * An important part of the functionality of this function is that window_fpcs.workingFile.fileName() is the filename and directory whereas we set
+ * the uploadingFileOrFolderName field to just be the name of the file without the directory. The reason behind this is so that the included directory
+ * is needed for the ftp process (since it utilizes windows's ftp client routine and has no idea what the "current directory" is) whereas when the
+ * ftp process is finished we send scpi commands to the UXG that only need the fileName (since it's on the UXG now that the ftp process is finished).
+ */
 void MainWindow::on_qprocess_upload_push_button_clicked()
 {
-    if(window_fpcs.settings.fileInPlay == true){
-        window_ftpManager->current_state = FtpManager::state::uploading;
-        QString filename = window_fpcs.workingFile.fileName();
-        //then feed it into the process
-        window_ftpManager->start_process(filename);
+    if(window_ftpManager->tcpSocket->state() == QAbstractSocket::ConnectedState){
+        if(window_fpcs.settings.fileInPlay == true){
+            window_ftpManager->current_state = FtpManager::state::uploading;
+            QString filename = window_fpcs.workingFile.fileName();
+
+            //change the ftpManager field to have the fileName without the directory
+            QFileInfo fileInfo(window_fpcs.workingFile.fileName());
+            QString fileNameWithoutDirectory(fileInfo.fileName());
+            window_ftpManager->uploadingFileOrFolderName = fileNameWithoutDirectory;
+
+            //feed fileName with current directory into the process that will upload the csv to the uxg bin directory
+            window_ftpManager->start_process(filename);
+        }else{
+            output_to_console("Cannot upload to UXG without selecting a file");
+            qDebug() << "Cannot upload to UXG without selecting a file";
+        }
     }else{
-        qDebug() << "Cannot upload to UXG without selecting a file";
+        output_to_console("Cannot upload to UXG without connecting TCPSocket first");
+        qDebug() << "Cannot upload to UXG without connecting TCPSocket first";
     }
 }
 
@@ -545,7 +481,6 @@ void MainWindow::on_pushButton_clicked()
 {
     QString host = "169.254.24.85";
     window_ftpManager->connect(host, 5025);  //K-N5193A-90114 or 169.254.24.85
-    window_ftpManager->send_SPCI(":DISPlay:REMote ON");
 }
 
 void MainWindow::on_pushButton_2_clicked()
@@ -565,6 +500,8 @@ void MainWindow::on_select_local_file_radio_button_clicked()
     ui->select_file_push_button->show();
     ui->select_file_line_edit->show();
     ui->uxg_fpcs_files_combo_box->hide();
+    ui->delete_table_from_uxg_push_button->hide();
+    ui->uxg_fpcs_files_combo_box->clear();
 }
 
 void MainWindow::on_select_file_from_uxg_radio_button_clicked()
@@ -574,6 +511,7 @@ void MainWindow::on_select_file_from_uxg_radio_button_clicked()
      ui->select_file_push_button->hide();
      ui->select_file_line_edit->hide();
      ui->uxg_fpcs_files_combo_box->show();
+     ui->delete_table_from_uxg_push_button->show();
 
      waitingForFPCSFileList = true;
      window_ftpManager->send_SPCI(":MEMory:CATalog:FPCSetup?");
@@ -649,21 +587,27 @@ void MainWindow::on_binary_data_view_push_button_clicked(bool checked)
 }
 
 void MainWindow::on_socket_readyRead(){
+    output_to_console("Socket readyRead");
     qDebug() << "Socket readyRead";
     QString allRead = window_ftpManager->tcpSocket->readAll();
     QStringList allReadParsed = allRead.split(QRegExp("[\r\n]"), Qt::SkipEmptyParts);
     for(QString item : allReadParsed){
         qDebug() << item;
+        output_to_console(item);
     }
 
     //this process is specifically for when the user needs to know what all available FPCS files on the UXG are.
     if(waitingForFPCSFileList){
+        //clear the current list of available files on the dropdown menu
+        ui->uxg_fpcs_files_combo_box->clear();
+
+        output_to_console("FPCS files : ");
         qDebug() << "FPCS files : ";
         QStringList allReadParsedFPCS = allRead.split(QLatin1Char(','),Qt::SkipEmptyParts);
         QStringList outputList;
         for(QString item : allReadParsedFPCS){
             if(item.contains("@")){
-                outputList << item.remove("FPCS").remove("@").remove('"');
+                outputList << item.remove("FPCS").remove("@").remove('"').remove('.');
             }
         }
         waitingForFPCSFileList = false;
@@ -672,16 +616,19 @@ void MainWindow::on_socket_readyRead(){
 
     //this process is specifically for when the user is downloading a uxg fpcs file to then edit.
     if(downloadState == settingCurrentTable){
+        output_to_console("file set to current table");
         qDebug() << "file set to current table";
         downloadState = exportingTable;
         QString scpiCommand = ":MEMory:EXPort:ASCii:FPCSetup ";
         scpiCommand.append('"');
         scpiCommand.append(window_fpcs.settings.existingTableFilePath.append(".csv"));
         scpiCommand.append('"');
+        output_to_console(scpiCommand);
         qDebug() << scpiCommand;
         window_ftpManager->send_SPCI(scpiCommand);
     }else if(downloadState == exportingTable){
         downloadState = finished;
+        output_to_console("file is exported, ready for ftp");
         qDebug() << "file is exported, ready for ftp";
         //pre_initialize_uxg_file();
     }
@@ -691,4 +638,158 @@ void MainWindow::on_uxg_fpcs_files_combo_box_currentTextChanged(const QString &a
 {
     window_fpcs.settings.existingTableFilePath = arg1;
     window_fpcs.settings.existingTableFilePath = window_fpcs.settings.existingTableFilePath.remove('"').remove(" ");
+}
+
+/*
+ * Dialog Buttons for loading Table
+ * Assumes a file name has been chosen before pressed, but also checks if that's the case.
+ */
+void MainWindow::on_select_existing_table_button_box_accepted()
+{
+    window_fpcs.settings.usingExistingTable = true;
+    if(window_fpcs.settings.usingExistingTableLocal == false){
+        //extra steps required here to import the file from the uxg, correct its header, and
+        //rewrite its rows for the new header
+        //then we initialize the file as if it already existed locally
+        // tell the uxg to export the fpcs file as a csv
+        downloadState = settingCurrentTable;
+        //select the chosen table as the current table on the UXG
+        QString scpiCommand = ":SOURce:PULM:STReam:FPCSetup:SELect "; //Note this command will be rejected if the UXG is not in PDW Streaming Mode
+        scpiCommand.append('"');
+        scpiCommand.append(window_fpcs.settings.existingTableFilePath.append(".fpcs"));
+        scpiCommand.append('"');
+        output_to_console("sending: " + scpiCommand);
+        qDebug() << "sending: " << scpiCommand;
+        window_ftpManager->send_SPCI(scpiCommand);
+
+        //export the fpcs file as a csv into the UXG's BIN directory
+        downloadState = exportingTable;
+        scpiCommand = ":MEMory:EXPort:ASCii:FPCSetup ";
+        scpiCommand.append('"');
+        scpiCommand.append(window_fpcs.settings.existingTableFilePath.remove(".fpcs").append(".csv"));
+        scpiCommand.append('"');
+        output_to_console("sending: " + scpiCommand);
+        qDebug() << "sending: " << scpiCommand;
+        window_ftpManager->send_SPCI(scpiCommand);
+
+        pre_initialize_uxg_file();
+        return;
+    }
+    bool fileInitialized = window_fpcs.initialize_workingFile();
+    if(fileInitialized){
+        //make the progress bar move
+        ui->create_progress_bar->reset();
+        for(int j=0; j<=100; j++){
+            ui->loaded_table_progress_bar->setValue(j);
+            QThread::msleep(5);
+        }
+        ui->current_table_line_edit->setText(window_fpcs.workingFile.fileName());
+    }else{
+        output_to_console("File unable to initialize");
+        qDebug() << "File unable to initialize";
+    }
+
+    //TODO Update table visualization with the new data
+}
+
+/*
+ * When this function is called, it's assumed the exported file is already in the UXG's BIN folder
+ * qDebug() << "initializing : " << settings.existingTableFileNameUxg;
+    workingFile.setFileName(this->settings.existingTableFileNameUxg); //set this file path to be for the working file
+ */
+bool MainWindow::pre_initialize_uxg_file(){
+    //download the table from the uxg into the downloads folder
+    window_ftpManager->current_state = FtpManager::state::downloading;
+    //then feed it into the process
+    window_ftpManager->start_process(window_fpcs.settings.existingTableFilePath); //note that start_process() only needs the name of the file
+    //we can immediately begin using the file after this call because when the window_ftpManager current_state is downloading,
+    //the start_process function will use a blocking function before returning
+
+    //By this point the exported csv file representation of the fpcs file is downloaded over ftp into this program's downloads folder
+    QFile tempFile;
+    QString tempFilePath = QDir::currentPath() + "/fileFolder/downloads/" + window_fpcs.settings.existingTableFilePath;
+    output_to_console("tempFilePath: " + tempFilePath);
+    qDebug() << "tempFilePath: " << tempFilePath;
+    tempFile.setFileName(tempFilePath);
+    bool exists = tempFile.exists(tempFilePath);
+    if(exists){
+        if(!tempFile.open(QFile::ReadWrite | QFile::Text | QFile::ExistingOnly)) //Options: ExistingOnly, NewOnly, Append
+        {
+            output_to_console("Could not open File : " + tempFilePath);
+            qDebug() << "Could not open File : " << tempFilePath;
+            return false;
+        }
+    }else{
+        output_to_console("File Not Found : " + tempFilePath);
+        qDebug() << "File Not Found : " << tempFilePath;
+        return false;
+    }
+    //create the QTextStreamer to operate on this file until further notice
+    QTextStream tempStreamer;
+    tempStreamer.setDevice(&tempFile);
+    //check header
+    tempStreamer.seek(0); //make sure the TextStream starts at the beginning of the file
+    QString read = tempStreamer.readAll();
+    output_to_console("Downloaded File Data : " + read);
+    qDebug() << "Downloaded File Data : " << read;
+
+    //TODO parse through the header of the file here and update it with the new header as well as moving data over into the correct spots thereafter
+
+    //QString header = "Comment,State,Coding Type,Length,Bits Per Subpulse,Phase State 0 (deg),Phase State 1 (deg),Phase State 2 (deg),Phase State 3 (deg),Phase State 4 (deg),Phase State 5 (deg),Phase State 6 (deg),Phase State 7 (deg),Phase State 8 (deg),Phase State 9 (deg),Phase State 10 (deg),Phase State 11 (deg),Phase State 12 (deg),Phase State 13 (deg),Phase State 14 (deg),Phase State 15 (deg),Frequency State 0 (Hz),Frequency State 1 (Hz),Frequency State 2 (Hz),Frequency State 3 (Hz),Frequency State 4 (Hz),Frequency State 5 (Hz),Frequency State 6 (Hz),Frequency State 7 (Hz),Frequency State 8 (Hz),Frequency State 9 (Hz),Frequency State 10 (Hz),Frequency State 11 (Hz),Frequency State 12 (Hz),Frequency State 13 (Hz),Frequency State 14 (Hz),Frequency State 15 (Hz),Hex Pattern\n";
+    //tempStreamer << header;
+    //tempStreamer.flush(); //ensure all the data is written to the file before moving on
+
+
+    window_fpcs.settings.existingTableFilePath = tempFilePath;
+    bool fileInitialized = window_fpcs.initialize_workingFile();
+    if(fileInitialized){
+        //make the progress bar move
+        ui->create_progress_bar->reset();
+        for(int j=0; j<=100; j++){
+            ui->loaded_table_progress_bar->setValue(j);
+            QThread::msleep(10);
+        }
+        ui->current_table_line_edit->setText(window_fpcs.workingFile.fileName());
+    }else{
+        output_to_console("File unable to initialize");
+        qDebug() << "File unable to initialize";
+    }
+
+    return true;
+    //TODO Update table visualization with the new data
+}
+
+void MainWindow::on_delete_table_from_uxg_push_button_clicked(){
+    //make sure the correct radio button is selected
+    if(window_fpcs.settings.usingExistingTableLocal == false){
+        //delete the fpcs file under that name
+        QString command = "MEMory:DELete:NAME ";
+        command.append('"');
+        command.append(window_fpcs.settings.existingTableFilePath.append(".fpcs"));
+        command.append('"');
+        window_ftpManager->send_SPCI(command);
+        //delete the csv file under that name
+        command.clear();
+        command = "MEMory:DELete:NAME ";
+        command.append('"');
+        command.append(window_fpcs.settings.existingTableFilePath.remove(".fpcs").append(".csv"));
+        command.append('"');
+        window_ftpManager->send_SPCI(command);
+        //reset the list of available files on the UXG
+        on_select_file_from_uxg_radio_button_clicked();
+
+        //make the progress bar move
+        ui->create_progress_bar->reset();
+        for(int j=0; j<=100; j++){
+            ui->loaded_table_progress_bar->setValue(j);
+            QThread::msleep(3);
+        }
+    }else{
+        output_to_console("Cannot delete a table on the uxg if radio button for selecting an existing table is not enabled.");
+        qDebug() << "Cannot delete a table on the uxg if radio button for selecting an existing table is not enabled.";
+    }
+}
+
+void MainWindow::output_to_console(QString text){
+    ui->console_text_editor->appendPlainText(text + "\n");
 }
