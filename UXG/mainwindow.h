@@ -13,6 +13,9 @@
 #include "QTcpSocket"
 #include "ftpmanager.h"
 #include "QTextStream"
+#include "QStringList"
+#include "QTableWidget"
+#include "QTableWidgetItem"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -115,11 +118,26 @@ private slots:
 
     void on_delete_table_from_uxg_push_button_clicked();
 
+    void on_create_or_select_table_tab_widget_currentChanged(int index);
+
+    void on_binary_data_view_push_button_stateChanged(int arg1);
+
+    void on_delete_selected_row_push_button_clicked();
+
+    void on_edit_selected_row_push_button_clicked();
+
 private:
 
     bool pre_initialize_uxg_file();
 
     void output_to_console(QString);
+
+    //These functions are specifically for table visualization purposes
+    void update_table_visualization();
+
+    void update_table_visualization_format();
+
+    void translate_csv_row_into_entry_format();
 
 };
 #endif // MAINWINDOW_H

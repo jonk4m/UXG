@@ -36,7 +36,6 @@ public:
 
     state current_state;
     void start_process(QString);
-
     void send_SPCI(QString);
     void connect(QString,quint16);
     void closeTcpSocket();

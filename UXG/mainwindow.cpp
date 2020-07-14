@@ -12,6 +12,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->uxg_fpcs_files_combo_box->hide();
     ui->delete_table_from_uxg_push_button->hide();
+    /*for(int i = 0; i < ui->table_visualization_table_widget->rowCount(); i++){
+        QTableWidgetItem *filler = new QTableWidgetItem();
+        ui->table_visualization_table_widget->setItem(i,0,filler);
+    }*/
     waitingForFPCSFileList = false;
     output_to_console("---------------------------------------------------------Program started.");
     qDebug() << "---------------------------------------------------------Program started.";
@@ -263,32 +267,30 @@ void MainWindow::on_how_many_different_phase_or_freq_spin_box_valueChanged(int a
 void MainWindow::add_button_in_pattern_table_setup(int row)
 {
         //First update the user-end text display to show the plain text pattern they are creating
+        QString plainText = "[";
         if(window_fpcs.workingEntry.codingType == "PHASE"){
             //add the phase value to the pattern visualizer
-            ui->pattern_nonBinary_values_shown_text_editor->insertPlainText("[");
-            ui->pattern_nonBinary_values_shown_text_editor->insertPlainText(ui->phase_freq_pattern_entry_table->item(row, 0)->text());
-            ui->pattern_nonBinary_values_shown_text_editor->insertPlainText("], ");
+            plainText.append(ui->phase_freq_pattern_entry_table->item(row, 0)->text());
 
         }else if(window_fpcs.workingEntry.codingType == "FREQUENCY"){
             //add the freq value to the pattern visualizer with units
-            ui->pattern_nonBinary_values_shown_text_editor->insertPlainText("[");
-            ui->pattern_nonBinary_values_shown_text_editor->insertPlainText(ui->phase_freq_pattern_entry_table->item(row, 1)->text());
-            ui->pattern_nonBinary_values_shown_text_editor->insertPlainText(ui->phase_freq_pattern_entry_table->item(row, 2)->text());
-            ui->pattern_nonBinary_values_shown_text_editor->insertPlainText("], ");
+            plainText.append(ui->phase_freq_pattern_entry_table->item(row, 1)->text());
+            plainText.append(ui->phase_freq_pattern_entry_table->item(row, 2)->text());
 
         }else if(window_fpcs.workingEntry.codingType == "BOTH"){
             //add both values to the pattern visualizer
-            ui->pattern_nonBinary_values_shown_text_editor->insertPlainText("[");
-            ui->pattern_nonBinary_values_shown_text_editor->insertPlainText(ui->phase_freq_pattern_entry_table->item(row, 0)->text());
-            ui->pattern_nonBinary_values_shown_text_editor->insertPlainText(",");
-            ui->pattern_nonBinary_values_shown_text_editor->insertPlainText(ui->phase_freq_pattern_entry_table->item(row, 1)->text());
-            ui->pattern_nonBinary_values_shown_text_editor->insertPlainText(ui->phase_freq_pattern_entry_table->item(row, 2)->text());
-            ui->pattern_nonBinary_values_shown_text_editor->insertPlainText("], ");
+            plainText.append(ui->phase_freq_pattern_entry_table->item(row, 0)->text());
+            plainText.append(",");
+            plainText.append(ui->phase_freq_pattern_entry_table->item(row, 1)->text());
+            plainText.append(ui->phase_freq_pattern_entry_table->item(row, 2)->text());
         }else{
             output_to_console("Unrecognizable Pattern Coding Type Entry : " + window_fpcs.workingEntry.state);
             qDebug() << "Unrecognizable Pattern Coding Type Entry : " << window_fpcs.workingEntry.state;
             return;
         }
+        plainText.append("], ");
+        ui->pattern_nonBinary_values_shown_text_editor->insertPlainText(plainText);
+        window_fpcs.workingEntry.plainTextRepresentation.append(plainText);
 
         //Then update the binary pattern QString and display this as well in the binary pattern text window
         switch(window_fpcs.workingEntry.bitsPerSubpulse){
@@ -401,10 +403,14 @@ void MainWindow::on_remove_last_entry_pushbutton_clicked()
     QString currentText = ui->pattern_nonBinary_values_shown_text_editor->toPlainText();
     int startingIndex = currentText.lastIndexOf('[');
     currentText = currentText.remove(startingIndex, 20);
+    //update the gui
     ui->pattern_nonBinary_values_shown_text_editor->clear();
     ui->pattern_nonBinary_values_shown_text_editor->insertPlainText(currentText);
+    //update the working entry struct
+    window_fpcs.workingEntry.plainTextRepresentation.clear();
+    window_fpcs.workingEntry.plainTextRepresentation.append(currentText);
 
-    //remove that entry from the binaryPattern
+    //remove that entry from the binaryPattern of the entry struct
     switch(window_fpcs.workingEntry.bitsPerSubpulse){
     case 1:
         window_fpcs.workingEntry.bitPattern.remove(window_fpcs.workingEntry.bitPattern.size() - 1, 1); //remove the last character in the QString
@@ -524,7 +530,10 @@ void MainWindow::on_cancel_editing_pattern_push_button_clicked()
 
 void MainWindow::on_clear_pattern_push_button_clicked()
 {
-    //TODO
+    window_fpcs.workingEntry.bitPattern.clear();
+    ui->pattern_binary_pattern_shown_text_editor->clear();
+    window_fpcs.workingEntry.plainTextRepresentation.clear();
+    ui->pattern_nonBinary_values_shown_text_editor->clear();
 }
 
 void MainWindow::on_power_off_uxg_push_button_clicked()
@@ -681,7 +690,7 @@ void MainWindow::on_select_existing_table_button_box_accepted()
         ui->create_progress_bar->reset();
         for(int j=0; j<=100; j++){
             ui->loaded_table_progress_bar->setValue(j);
-            QThread::msleep(5);
+            QThread::msleep(3);
         }
         ui->current_table_line_edit->setText(window_fpcs.workingFile.fileName());
     }else{
@@ -734,11 +743,9 @@ bool MainWindow::pre_initialize_uxg_file(){
     qDebug() << "Downloaded File Data : " << read;
 
     //TODO parse through the header of the file here and update it with the new header as well as moving data over into the correct spots thereafter
-
     //QString header = "Comment,State,Coding Type,Length,Bits Per Subpulse,Phase State 0 (deg),Phase State 1 (deg),Phase State 2 (deg),Phase State 3 (deg),Phase State 4 (deg),Phase State 5 (deg),Phase State 6 (deg),Phase State 7 (deg),Phase State 8 (deg),Phase State 9 (deg),Phase State 10 (deg),Phase State 11 (deg),Phase State 12 (deg),Phase State 13 (deg),Phase State 14 (deg),Phase State 15 (deg),Frequency State 0 (Hz),Frequency State 1 (Hz),Frequency State 2 (Hz),Frequency State 3 (Hz),Frequency State 4 (Hz),Frequency State 5 (Hz),Frequency State 6 (Hz),Frequency State 7 (Hz),Frequency State 8 (Hz),Frequency State 9 (Hz),Frequency State 10 (Hz),Frequency State 11 (Hz),Frequency State 12 (Hz),Frequency State 13 (Hz),Frequency State 14 (Hz),Frequency State 15 (Hz),Hex Pattern\n";
     //tempStreamer << header;
     //tempStreamer.flush(); //ensure all the data is written to the file before moving on
-
 
     window_fpcs.settings.existingTableFilePath = tempFilePath;
     bool fileInitialized = window_fpcs.initialize_workingFile();
@@ -792,4 +799,77 @@ void MainWindow::on_delete_table_from_uxg_push_button_clicked(){
 
 void MainWindow::output_to_console(QString text){
     ui->console_text_editor->appendPlainText(text + "\n");
+}
+
+/*
+ * If the "select existing table" tab is selected, automatically have the currently selected radio button option refreshed to update file names if need be.
+ */
+void MainWindow::on_create_or_select_table_tab_widget_currentChanged(int index)
+{
+    if(index == 1){
+        if(window_fpcs.settings.usingExistingTableLocal){
+            on_select_local_file_radio_button_clicked();
+        }else{
+            on_select_file_from_uxg_radio_button_clicked();
+        }
+    }
+}
+
+void MainWindow::on_binary_data_view_push_button_stateChanged(int arg1)
+{
+    //TODO
+}
+
+void MainWindow::on_delete_selected_row_push_button_clicked()
+{
+    //TODO
+}
+
+/*
+ * This function assumes all changes that need to be reflected on the table visualization were made to the workingFile.
+ * Thus, the workingFile CSV will be the reference for all changes made in this function call.
+ */
+void MainWindow::update_table_visualization(){
+    //
+    //set the position of the beginning of the file
+
+    //parse through the header incase the header doesn't follow the standard mapping of positions
+
+    //go through row by row of the csv, checking if it's the end of the file each time, and assign the current row to the workingEntry
+    //check if it's the end of the file, if not, keep looping
+    //clear the current workingEntry
+    //start assigning values for the current entry
+    //populate this row of the csv with the newly mapped positions and values of the workingEntry
+    //populate the table visualization with the
+}
+
+/*
+ * Format options are either binary or the plainText user-friendly format
+ */
+void MainWindow::update_table_visualization_format(){
+
+}
+
+/*
+ * Takes a single QString and parses the values into the WorkingEntry
+ */
+void MainWindow::translate_csv_row_into_entry_format(){
+
+}
+
+void MainWindow::on_edit_selected_row_push_button_clicked()
+{
+    QStringList lister;
+    lister.append("hello, ");
+    lister.append("hi there");
+    lister << "next row";
+    lister << "yet another row";
+    lister.insert(1,"second row down");
+
+    int row = 0;
+    for(QString item: lister){
+        qDebug() << "item at row " << row << " : " << item;
+        ui->table_visualization_table_widget->item(row,0)->setText(item);
+        row++;
+    }
 }

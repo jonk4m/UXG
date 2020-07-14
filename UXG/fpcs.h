@@ -31,6 +31,7 @@ public:
         unsigned long long int freqs[16] = {10, 20, 30, 40, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; //16 is max number of entries. we must use unsigned long long int since our frequencies can get into the gigaHertz
         QString freqUnits[16] = {"M","k","M","M","M","M","M","M","M","M","M","M","M","M","M","M"};
         QString bitPattern = ""; //the length will be the .size() of this field.
+        QString plainTextRepresentation = "";
     };
 
     struct fpcs_settings{
@@ -42,6 +43,7 @@ public:
         //this fileInPlay checkflag is true when a file has either been created or opened, AND the header has been created/checked AND the streamer is in the right position using that file
         bool fileInPlay = false;
         int defaultTableNumber = 0;
+        int workingEntryRowNumber = 1;
         QString defaultFilePath = QDir::currentPath() + "/fileFolder/uploads"; //note that the "fileFolder" and "uploads" folders needs to be created next to the executable on deployment
         QString defaultTableName = "Table0"; //TODO this will be incremented each time using: "Table" + QString::number(defaultTableNumber);
         QString customFilePath;
