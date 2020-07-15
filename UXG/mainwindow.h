@@ -128,9 +128,6 @@ private:
     //These functions are specifically for table visualization purposes
     void update_table_visualization();
 
-    void update_table_visualization_format();
-
-    void translate_csv_row_into_entry_format();
 
 };
 #endif // MAINWINDOW_H

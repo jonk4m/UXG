@@ -57,7 +57,7 @@ bool Fpcs::initialize_existingFile_local(){
 
     //whether the header is incorrect or not, we need to parse through the file and to assign the data to Entry's, write the correct header using "write_header_to_workingFile()" which also clears the file first
     //then once we are finished editing the entries or adding some, we will rewrite the entire csv file anyway
-    add_entries_from_existing_file();
+    import_entries_from_existing_file();
     write_header_to_workingFile();
 
     //checkflag so widgets know a valid file is in play
@@ -178,7 +178,7 @@ bool Fpcs::check_file_header(){
 /*
  * This method uses the existing working Entry struct to parse through and output the most current data manipulated in the gui pattern edit page into the workingFile through the streamer.
  */
-bool Fpcs::add_entry(){
+bool Fpcs::add_entry_to_file(){
     if(this->settings.fileInPlay == true){
         //parse through the fpcs_entry and add those values to the table csv file
         streamer << workingEntry.comment + ","; //comment gets incremented then converted to a QString
@@ -190,31 +190,30 @@ bool Fpcs::add_entry(){
 
         //enhanced for loop going through the array of phase values
         for(int i = 0; i < 16; i++){
-            streamer << QString::number(workingEntry.phases[i]) + ",";
+            streamer << workingEntry.phases[i] + ",";
         }
 
-        //enhanced for loop going through the array of freq values
+        //for loop going through the array of freq values
         for(int i = 0; i < 16; i++){
             unsigned long long int tempMultiplier = 1;
-            if(workingEntry.freqUnits == QString("G") || workingEntry.freqUnits == QString("g")){
+            if(workingEntry.freqUnits.at(i) == QString("G") || workingEntry.freqUnits.at(i) == QString("g")){
                 tempMultiplier = 1000000000;
-            }else if(workingEntry.freqUnits == QString("M") || workingEntry.freqUnits == QString("m")){
+            }else if(workingEntry.freqUnits.at(i) == QString("M") || workingEntry.freqUnits.at(i) == QString("m")){
                 tempMultiplier = 1000000;
-            }else if(workingEntry.freqUnits == QString("K") || workingEntry.freqUnits == QString("k")){
+            }else if(workingEntry.freqUnits.at(i) == QString("K") || workingEntry.freqUnits.at(i) == QString("k")){
                 tempMultiplier = 1000;
             }else{
                 qDebug() << "Unknown Scaling Factor used for a frequency in a pattern";
                 return false;
             }
 
-            streamer << QString::number(workingEntry.freqs[i] * tempMultiplier) + ",";
+            streamer << QString::number(workingEntry.freqs.at(i).toULongLong() * tempMultiplier) + ",";
         }
 
-        //add the hex pattern TODO the hex conversion is shortening the length. So if I have a length of 20 0's, the hex is just #h0 instead of #h00000
-        bool fOK;
-        int iValue = workingEntry.bitPattern.toInt(&fOK, 2);  //2 is the base
-        workingEntry.hexPattern = QString::number(iValue, 16);  //The new base is 16
-        streamer << "#h" + workingEntry.hexPattern;
+        //add the hex pattern
+        workingEntry.hexPattern = workingEntry.binary_to_hex_converter(workingEntry.bitPattern);
+
+        streamer << "#h" << workingEntry.hexPattern;
 
         streamer << "\n"; //end of entry, new line for next entry
 
@@ -230,7 +229,7 @@ bool Fpcs::add_entry(){
 bool Fpcs::data_dump_onto_file(){
     for(Entry entry : workingEntryList){
         workingEntry = entry;
-        add_entry();
+        add_entry_to_file();
     }
     return true;
 }
@@ -239,92 +238,82 @@ bool Fpcs::data_dump_onto_file(){
  * Note that after extensive testing, it never occurred that the units for frequency of an exported file ever deviated from "(Hz)". Thus, this function assumes this static condition
  *
  */
-void Fpcs::add_entries_from_existing_file(){
+void Fpcs::import_entries_from_existing_file(){
     //parse through the header to determine mapping of values available to values
     streamer.seek(0);
-    QString readHeader = streamer.readLine().remove("\n");
+    QStringList readHeader = streamer.readLine().remove("\n").split(QRegExp(","), Qt::SkipEmptyParts);
+    qDebug() << "header list : " << readHeader;
     QString throwAwayRow = streamer.readLine().remove("\n");
-
-    //use these next two values to know how to map each row in the csv into an entry in the fpcs
-    QString defaultType; //either Freq, Phase, or Both. This helps us understand how the file header looks
-    int maxBitsPerSubPulse; //1,2,3,or4
-
-    if(readHeader.contains("Freq")){
-        if(readHeader.contains("Phase")){
-            //both
-            defaultType = "Both";
-        }else{
-            //only freq
-            defaultType = "Freq";
-        }
-    }else{
-        //only phase
-        defaultType = "Phase";
-    }
-
-    if(readHeader.contains("15")){
-        maxBitsPerSubPulse = 4;
-    }else if(readHeader.contains("7")){
-        maxBitsPerSubPulse = 3;
-    }else if(readHeader.contains("3")){
-        maxBitsPerSubPulse = 2;
-    }else{
-        maxBitsPerSubPulse = 1;
-    }
 
     while(true){
         //read the next line
         QString row = streamer.readLine().remove("\n");
+
         //check if we are at the end of the file
         if(row.size() == 0){
-            //break;
+            break;
         }
 
-        //depending on the mapping of the header, input the entry values based on the string
-        workingEntryList << add_entries_from_existing_file_helper(row,maxBitsPerSubPulse,defaultType);
+        QStringList rowList = row.split(QRegExp(","), Qt::SkipEmptyParts);
+        qDebug() << "rowList : " << rowList;
+
+        Entry *tempEntry = new Entry();
+
+        tempEntry->comment = rowList.at(0);
+        tempEntry->state = rowList.at(1);
+        tempEntry->codingType = rowList.at(2);
+        tempEntry->length = rowList.at(3).toInt();
+        tempEntry->bitsPerSubpulse = rowList.at(4).toInt();
+        tempEntry->hexPattern = rowList.at(rowList.indexOf("Hex Pattern"));
+
+        //assign appropriate phases based on indexes
+        int tempPhaseIndex;
+        for(int i=0; i<16; i++){
+            tempPhaseIndex = rowList.indexOf("Phase State " + QString::number(i) + " (deg)");
+            if (tempPhaseIndex != -1)
+                tempEntry->phases.replace(i, rowList.at(tempPhaseIndex));
+        }
+
+        //assign appropriate freqs based on indexes
+        int tempFreqIndex;
+        unsigned long long freq;
+        for(int i=0; i<16; i++){
+            tempFreqIndex = rowList.indexOf("Frequency State " + QString::number(i) + " (Hz)");
+            if (tempFreqIndex != -1){
+                freq = rowList.at(tempFreqIndex).toULongLong();
+                if(freq > 999999999){
+                    //use Giga
+                    tempEntry->freqUnits.replace(i, "G");
+                    freq = freq / 1000000000;
+                }else if(freq > 999999){
+                    //use Mega
+                    tempEntry->freqUnits.replace(i, "M");
+                    freq = freq / 1000000;
+                }else{
+                    //use kilo
+                    tempEntry->freqUnits.replace(i, "");
+                    freq = freq / 1000;
+                }
+                tempEntry->freqs.replace(i, QString::number(freq));
+            }
+        }
+
+        //convert from hex QString to binary QString
+        tempEntry->hexPattern.remove("#h");
+        tempEntry->bitPattern = tempEntry->hex_to_binary_converter(tempEntry->hexPattern);
+
+        //create the plaintext pattern
+        tempEntry->parse_entry_for_plain_text_pattern();
+
+        workingEntryList << *tempEntry;
     }
 }
 
-Entry Fpcs::add_entries_from_existing_file_helper(QString row, int maxBits, QString defaultType){
-    Entry *tempEntry = new Entry();
-    //sepperate the QString by "," into a QStringList
-    QStringList rowParsed = row.split(QRegExp(","), Qt::SkipEmptyParts);
-    tempEntry->comment = rowParsed.at(0);
-    rowParsed.removeFirst();
-    tempEntry->state = rowParsed.at(0);
-    rowParsed.removeFirst();
-    tempEntry->codingType = rowParsed.at(0);
-    rowParsed.removeFirst();
-    tempEntry->length = rowParsed.at(0).toInt();
-    rowParsed.removeFirst();
-    tempEntry->bitsPerSubpulse = rowParsed.at(0).toInt();
-    rowParsed.removeFirst();
-
-    rowParsed.erase(0);
-
-    switch(maxBits){
-    case 1:
-        //numbers 0,1
-
-        break;
-    case 2:
-        //numbers 0,1,2,3
-
-        break;
-    case 3:
-        //numbers 0,1,2,3,4,5,6,7
-
-        break;
-    case 4:
-        //number 0->15
-
-        break;
-    default:
-        qDebug() << "error for number of bits per subpulse of read in file";
-        break;
-    }
-    return *tempEntry;
+bool Fpcs::add_entry(){
+    return true;
 }
+
+
 
 
 

@@ -33,6 +33,7 @@ public:
         QString customFilePath;
         QString customTableName;
         QString existingTableFilePath; //contains the path and name, unlike the others in this struct
+        int preferredFormat = 0;
     };
 
     QFile workingFile;
@@ -53,9 +54,10 @@ public:
     QString mapped_file_path();
     bool check_file_header();
     bool add_entry();
+    bool add_entry_to_file();
     bool data_dump_onto_file();
-    void add_entries_from_existing_file();
-    Entry add_entries_from_existing_file_helper(QString,int,QString);
+    void import_entries_from_existing_file();
+
 };
 
 #endif // FPCS_H

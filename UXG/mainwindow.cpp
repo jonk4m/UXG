@@ -112,7 +112,8 @@ void MainWindow::on_create_new_table_button_box_accepted()
         qDebug() << "File unable to initialize";
     }
 
-    //TODO Update table visualization with the new data
+    //update the table visualization
+    update_table_visualization();
 }
 
 void MainWindow::on_create_new_table_button_box_helpRequested()
@@ -150,6 +151,7 @@ void MainWindow::on_update_current_table_with_pattern_push_button_clicked()
 {
     window_fpcs.add_entry();
     ui->table_or_pattern_toolbox->setCurrentIndex(0); //this then opens the part of the GUI toolbox that is used for visualizing the table
+    update_table_visualization();
 }
 
 /*
@@ -159,9 +161,10 @@ void MainWindow::on_update_current_table_with_pattern_push_button_clicked()
 void MainWindow::on_add_another_pattern_to_this_table_push_button_clicked()
 {
     if(window_fpcs.settings.fileInPlay){
-        window_fpcs.streamer.readAll(); // this will cause the position to be set to the end of the file.
+        window_fpcs.workingEntryList << *new Entry(); //add a new entry to the fpcs list of entries
+        window_fpcs.workingEntry = window_fpcs.workingEntryList.at(window_fpcs.workingEntryList.size() - 1); //set that entry to be the workingEntry
+
         ui->table_or_pattern_toolbox->setCurrentIndex(1); //this then opens the part of the GUI toolbox that is used for editing the pattern
-        update_pattern_table();
     }else{
         output_to_console("No Table Currently Selected to Add a Pattern to.");
         qDebug() << "No Table Currently Selected to Add a Pattern to.";
@@ -260,32 +263,6 @@ void MainWindow::on_how_many_different_phase_or_freq_spin_box_valueChanged(int a
 
 void MainWindow::add_button_in_pattern_table_setup(int row)
 {
-        //First update the user-end text display to show the plain text pattern they are creating
-        QString plainText = "[";
-        if(window_fpcs.workingEntry.codingType == "PHASE"){
-            //add the phase value to the pattern visualizer
-            plainText.append(ui->phase_freq_pattern_entry_table->item(row, 0)->text());
-
-        }else if(window_fpcs.workingEntry.codingType == "FREQUENCY"){
-            //add the freq value to the pattern visualizer with units
-            plainText.append(ui->phase_freq_pattern_entry_table->item(row, 1)->text());
-            plainText.append(ui->phase_freq_pattern_entry_table->item(row, 2)->text());
-
-        }else if(window_fpcs.workingEntry.codingType == "BOTH"){
-            //add both values to the pattern visualizer
-            plainText.append(ui->phase_freq_pattern_entry_table->item(row, 0)->text());
-            plainText.append(",");
-            plainText.append(ui->phase_freq_pattern_entry_table->item(row, 1)->text());
-            plainText.append(ui->phase_freq_pattern_entry_table->item(row, 2)->text());
-        }else{
-            output_to_console("Unrecognizable Pattern Coding Type Entry : " + window_fpcs.workingEntry.state);
-            qDebug() << "Unrecognizable Pattern Coding Type Entry : " << window_fpcs.workingEntry.state;
-            return;
-        }
-        plainText.append("], ");
-        ui->pattern_nonBinary_values_shown_text_editor->insertPlainText(plainText);
-        window_fpcs.workingEntry.plainTextRepresentation.append(plainText);
-
         //Then update the binary pattern QString and display this as well in the binary pattern text window
         switch(window_fpcs.workingEntry.bitsPerSubpulse){
         case 1:
@@ -337,6 +314,10 @@ void MainWindow::add_button_in_pattern_table_setup(int row)
             qDebug() << "Bits per subpulse value is invalid";
             break;
         }
+
+        window_fpcs.workingEntry.parse_entry_for_plain_text_pattern();
+        ui->pattern_nonBinary_values_shown_text_editor->clear();
+        ui->pattern_nonBinary_values_shown_text_editor->insertPlainText(window_fpcs.workingEntry.plainTextRepresentation);
 }
 
 void MainWindow::on_phase_freq_pattern_entry_table_cellChanged(int row, int column)
@@ -391,16 +372,6 @@ void MainWindow::on_phase_freq_pattern_entry_table_cellClicked(int row, int colu
 
 void MainWindow::on_remove_last_entry_pushbutton_clicked()
 {
-    //remove last part of the textPattern on the text Editor
-    QString currentText = ui->pattern_nonBinary_values_shown_text_editor->toPlainText();
-    int startingIndex = currentText.lastIndexOf('[');
-    currentText = currentText.remove(startingIndex, 20);
-    //update the gui
-    ui->pattern_nonBinary_values_shown_text_editor->clear();
-    ui->pattern_nonBinary_values_shown_text_editor->insertPlainText(currentText);
-    //update the working entry struct
-    window_fpcs.workingEntry.plainTextRepresentation.clear();
-    window_fpcs.workingEntry.plainTextRepresentation.append(currentText);
 
     //remove that entry from the binaryPattern of the entry struct
     switch(window_fpcs.workingEntry.bitsPerSubpulse){
@@ -420,6 +391,11 @@ void MainWindow::on_remove_last_entry_pushbutton_clicked()
 
     //remove last part of the binaryPattern on the binary text editor
     ui->pattern_binary_pattern_shown_text_editor->setText(window_fpcs.workingEntry.bitPattern);
+
+    //update the plainText Pattern and update the gui
+    window_fpcs.workingEntry.parse_entry_for_plain_text_pattern();
+    ui->pattern_nonBinary_values_shown_text_editor->clear();
+    ui->pattern_nonBinary_values_shown_text_editor->insertPlainText(window_fpcs.workingEntry.plainTextRepresentation);
 }
 
 //TODO
@@ -524,8 +500,9 @@ void MainWindow::on_clear_pattern_push_button_clicked()
 {
     window_fpcs.workingEntry.bitPattern.clear();
     ui->pattern_binary_pattern_shown_text_editor->clear();
-    window_fpcs.workingEntry.plainTextRepresentation.clear();
+    window_fpcs.workingEntry.parse_entry_for_plain_text_pattern();
     ui->pattern_nonBinary_values_shown_text_editor->clear();
+    ui->pattern_nonBinary_values_shown_text_editor->insertPlainText(window_fpcs.workingEntry.plainTextRepresentation);
 }
 
 void MainWindow::on_power_off_uxg_push_button_clicked()
@@ -809,12 +786,16 @@ void MainWindow::on_create_or_select_table_tab_widget_currentChanged(int index)
 
 void MainWindow::on_binary_data_view_push_button_stateChanged(int arg1)
 {
-    //TODO
+    window_fpcs.settings.preferredFormat = arg1;
+    update_table_visualization();
 }
 
 void MainWindow::on_delete_selected_row_push_button_clicked()
 {
-    //TODO
+    //Delete the Entry in the entryList that has the index of the index of the highlighted row
+    //window_fpcs.workingEntry = NULL; // set a default entry to be the workingEntry
+    //window_fpcs.workingEntryList.removeAt(ROW NUMBER HERE);
+    update_pattern_table();
 }
 
 /*
@@ -822,46 +803,24 @@ void MainWindow::on_delete_selected_row_push_button_clicked()
  * Thus, the workingFile CSV will be the reference for all changes made in this function call.
  */
 void MainWindow::update_table_visualization(){
-    //
-    //set the position of the beginning of the file
-
-    //parse through the header incase the header doesn't follow the standard mapping of positions
-
-    //go through row by row of the csv, checking if it's the end of the file each time, and assign the current row to the workingEntry
-    //check if it's the end of the file, if not, keep looping
-    //clear the current workingEntry
-    //start assigning values for the current entry
-    //populate this row of the csv with the newly mapped positions and values of the workingEntry
-    //populate the table visualization with the
-}
-
-/*
- * Format options are either binary or the plainText user-friendly format
- */
-void MainWindow::update_table_visualization_format(){
-
-}
-
-/*
- * Takes a single QString and parses the values into the WorkingEntry
- */
-void MainWindow::translate_csv_row_into_entry_format(){
-
-}
-
-void MainWindow::on_edit_selected_row_push_button_clicked()
-{
-    QStringList lister;
-    lister.append("hello, ");
-    lister.append("hi there");
-    lister << "next row";
-    lister << "yet another row";
-    lister.insert(1,"second row down");
-
-    int row = 0;
-    for(QString item: lister){
-        qDebug() << "item at row " << row << " : " << item;
-        ui->table_visualization_table_widget->item(row,0)->setText(item);
-        row++;
+    if(window_fpcs.settings.preferredFormat == 0){
+        //the box is unchecked so display in plaintext format
+        int rowIndex = 0;
+        for(Entry entry:window_fpcs.workingEntryList){
+            ui->table_visualization_table_widget->item(rowIndex,0)->setText(entry.plainTextRepresentation);
+            rowIndex++;
+        }
+    }else{
+        //the box is checked so display in binary format
+        int rowIndex = 0;
+        for(Entry entry:window_fpcs.workingEntryList){
+            ui->table_visualization_table_widget->item(rowIndex,0)->setText(entry.bitPattern);
+            rowIndex++;
+        }
     }
+}
+
+void MainWindow::on_edit_selected_row_push_button_clicked(){
+    //TODO whatever the index of the row currently highlighted is, set the entry in the workingEntryList associated with that row to be the workingEntry
+   // window_fpcs.workingEntry = window_fpcs.workingEntryList.at(ROW NUMBER THAT'S HIGHLIGHTED ); //set that entry to be the workingEntry
 }
