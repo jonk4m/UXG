@@ -12,27 +12,12 @@
 #include <QDir>
 #include <QProcess>
 #include <QThread>
+#include <entry.h>
 
 
 class Fpcs
 {
 public:
-
-    struct fpcs_entry{
-        int comment = 0; //will be changed to increment for each entry in table
-        QString state = "ON"; //default.
-        QString codingType = "BOTH"; //FREQUENCY, PHASE, or BOTH
-        int length = 0; //the length here is NOT the number of entries in the pattern but rather the count of the number of bits in the pattern
-        int bitsPerSubpulse = 4; //default
-        QString phaseStates = "0000000000000000"; //starting out the pattern is all 16 zeros. (4 bits is max option)
-        QString freqStates = "0000000000000000"; //starting out the pattern is all 16 zeros. (4 bits is max option)
-        QString hexPattern = ""; //might need to make a function for this conversion
-        int phases[16] = {0, 180, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; //16 is max number of entries
-        unsigned long long int freqs[16] = {10, 20, 30, 40, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; //16 is max number of entries. we must use unsigned long long int since our frequencies can get into the gigaHertz
-        QString freqUnits[16] = {"M","k","M","M","M","M","M","M","M","M","M","M","M","M","M","M"};
-        QString bitPattern = ""; //the length will be the .size() of this field.
-        QString plainTextRepresentation = "";
-    };
 
     struct fpcs_settings{
         bool usingCustomTableName = false;
@@ -43,7 +28,6 @@ public:
         //this fileInPlay checkflag is true when a file has either been created or opened, AND the header has been created/checked AND the streamer is in the right position using that file
         bool fileInPlay = false;
         int defaultTableNumber = 0;
-        int workingEntryRowNumber = 1;
         QString defaultFilePath = QDir::currentPath() + "/fileFolder/uploads"; //note that the "fileFolder" and "uploads" folders needs to be created next to the executable on deployment
         QString defaultTableName = "Table0"; //TODO this will be incremented each time using: "Table" + QString::number(defaultTableNumber);
         QString customFilePath;
@@ -54,7 +38,8 @@ public:
     QFile workingFile;
     QTextStream streamer; //used for writing and reading from the QFile
     fpcs_settings settings;
-    fpcs_entry workingEntry;
+    Entry workingEntry;
+    QList<Entry> workingEntryList;
 
 
     Fpcs();
@@ -68,6 +53,9 @@ public:
     QString mapped_file_path();
     bool check_file_header();
     bool add_entry();
+    bool data_dump_onto_file();
+    void add_entries_from_existing_file();
+    Entry add_entries_from_existing_file_helper(QString,int,QString);
 };
 
 #endif // FPCS_H

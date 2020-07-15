@@ -12,11 +12,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->uxg_fpcs_files_combo_box->hide();
     ui->delete_table_from_uxg_push_button->hide();
-    /*for(int i = 0; i < ui->table_visualization_table_widget->rowCount(); i++){
-        QTableWidgetItem *filler = new QTableWidgetItem();
-        ui->table_visualization_table_widget->setItem(i,0,filler);
-    }*/
-    waitingForFPCSFileList = false;
     output_to_console("---------------------------------------------------------Program started.");
     qDebug() << "---------------------------------------------------------Program started.";
 }
@@ -36,7 +31,6 @@ void MainWindow::fpcs_setup(){
 void MainWindow::on_specify_table_name_radio_button_clicked()
 {
     window_fpcs.settings.usingCustomTableName = true;
-
     //set the progress bar to 0%
     ui->create_progress_bar->reset();
     ui->loaded_table_progress_bar->reset();
@@ -300,7 +294,6 @@ void MainWindow::add_button_in_pattern_table_setup(int row)
                 QString rowNumberStringInBinary = QString("%1").arg(row, 1, 2, QChar('0')); //convert the row int to a binary QString
                 window_fpcs.workingEntry.bitPattern.append(rowNumberStringInBinary); //append this new chunk of bits to the bit pattern
                 ui->pattern_binary_pattern_shown_text_editor->setText(window_fpcs.workingEntry.bitPattern); //update the ui with the bit pattern
-
             }else{
                 output_to_console("bits per subpulse mismatch with row number being added");
                 qDebug() << "bits per subpulse mismatch with row number being added";
@@ -348,7 +341,6 @@ void MainWindow::add_button_in_pattern_table_setup(int row)
 
 void MainWindow::on_phase_freq_pattern_entry_table_cellChanged(int row, int column)
 {
-
     switch(column){
     case 0 : { //case 0 is the phase column
         //this gets the TableWidgetItem that was changed, gets it's QString text, converts it to an Int, then sets that equal to the phase
@@ -519,7 +511,7 @@ void MainWindow::on_select_file_from_uxg_radio_button_clicked()
      ui->uxg_fpcs_files_combo_box->show();
      ui->delete_table_from_uxg_push_button->show();
 
-     waitingForFPCSFileList = true;
+     window_ftpManager->waitingForFPCSFileList = true;
      window_ftpManager->send_SPCI(":MEMory:CATalog:FPCSetup?");
 }
 
@@ -606,7 +598,7 @@ void MainWindow::on_socket_readyRead(){
     }
 
     //this process is specifically for when the user needs to know what all available FPCS files on the UXG are.
-    if(waitingForFPCSFileList){
+    if(window_ftpManager->waitingForFPCSFileList){
         //clear the current list of available files on the dropdown menu
         ui->uxg_fpcs_files_combo_box->clear();
 
@@ -619,15 +611,15 @@ void MainWindow::on_socket_readyRead(){
                 outputList << item.remove("FPCS").remove("@").remove('"').remove('.');
             }
         }
-        waitingForFPCSFileList = false;
+        window_ftpManager->waitingForFPCSFileList = false;
         ui->uxg_fpcs_files_combo_box->addItems(outputList);
     }
 
     //this process is specifically for when the user is downloading a uxg fpcs file to then edit.
-    if(downloadState == settingCurrentTable){
+    if(window_ftpManager->downloadState == window_ftpManager->settingCurrentTable){
         output_to_console("file set to current table");
         qDebug() << "file set to current table";
-        downloadState = exportingTable;
+        window_ftpManager->downloadState = window_ftpManager->exportingTable;
         QString scpiCommand = ":MEMory:EXPort:ASCii:FPCSetup ";
         scpiCommand.append('"');
         scpiCommand.append(window_fpcs.settings.existingTableFilePath.append(".csv"));
@@ -635,8 +627,8 @@ void MainWindow::on_socket_readyRead(){
         output_to_console(scpiCommand);
         qDebug() << scpiCommand;
         window_ftpManager->send_SPCI(scpiCommand);
-    }else if(downloadState == exportingTable){
-        downloadState = finished;
+    }else if(window_ftpManager->downloadState == window_ftpManager->exportingTable){
+        window_ftpManager->downloadState = window_ftpManager->finished;
         output_to_console("file is exported, ready for ftp");
         qDebug() << "file is exported, ready for ftp";
         //pre_initialize_uxg_file();
@@ -661,7 +653,7 @@ void MainWindow::on_select_existing_table_button_box_accepted()
         //rewrite its rows for the new header
         //then we initialize the file as if it already existed locally
         // tell the uxg to export the fpcs file as a csv
-        downloadState = settingCurrentTable;
+        window_ftpManager->downloadState = window_ftpManager->settingCurrentTable;
         //select the chosen table as the current table on the UXG
         QString scpiCommand = ":SOURce:PULM:STReam:FPCSetup:SELect "; //Note this command will be rejected if the UXG is not in PDW Streaming Mode
         scpiCommand.append('"');
@@ -672,7 +664,7 @@ void MainWindow::on_select_existing_table_button_box_accepted()
         window_ftpManager->send_SPCI(scpiCommand);
 
         //export the fpcs file as a csv into the UXG's BIN directory
-        downloadState = exportingTable;
+        window_ftpManager->downloadState = window_ftpManager->exportingTable;
         scpiCommand = ":MEMory:EXPort:ASCii:FPCSetup ";
         scpiCommand.append('"');
         scpiCommand.append(window_fpcs.settings.existingTableFilePath.remove(".fpcs").append(".csv"));

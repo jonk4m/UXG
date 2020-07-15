@@ -32,13 +32,6 @@ public:
     Ui::MainWindow *ui;
     Fpcs window_fpcs; //each fpcs also has it's own fpcs_settings struct titled "settings"
     FtpManager *window_ftpManager;
-    bool  waitingForFPCSFileList;
-    enum DownloadState {
-        finished = 0,
-        exportingTable = 1,
-        settingCurrentTable = 2
-    };
-    DownloadState downloadState = finished;
 
 private slots:
 
@@ -126,11 +119,11 @@ private slots:
 
     void on_edit_selected_row_push_button_clicked();
 
+    void output_to_console(QString);
+
 private:
 
     bool pre_initialize_uxg_file();
-
-    void output_to_console(QString);
 
     //These functions are specifically for table visualization purposes
     void update_table_visualization();

@@ -34,7 +34,16 @@ public:
         sending_scpi = 3
     };
 
+    enum DownloadState {
+        finished = 0,
+        exportingTable = 1,
+        settingCurrentTable = 2
+    };
+
     state current_state;
+    bool  waitingForFPCSFileList;
+    DownloadState downloadState = finished;
+
     void start_process(QString);
     void send_SPCI(QString);
     void connect(QString,quint16);

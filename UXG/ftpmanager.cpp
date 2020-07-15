@@ -7,6 +7,7 @@ FtpManager::FtpManager(QMainWindow *window)
     current_state = state::initialized;
     tcpSocket = new QTcpSocket(window);
     QAbstractSocket::connect(tcpSocket,SIGNAL(readyRead()),window,SLOT(on_socket_readyRead()));
+    waitingForFPCSFileList = false;
 }
 
 /*

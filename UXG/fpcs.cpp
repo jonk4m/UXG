@@ -48,12 +48,17 @@ bool Fpcs::initialize_existingFile_local(){
     }
     //create the QTextStreamer to operate on this file until further notice
     this->set_streamer();
+
     //check header
     bool correctHeader = this->check_file_header();
     if(!correctHeader){
         qDebug() << "Incorrect Header found on Loaded Table File";
     }
-    //TODO put streamer's position at end of the file (do I need to after using it to check the file header?)
+
+    //whether the header is incorrect or not, we need to parse through the file and to assign the data to Entry's, write the correct header using "write_header_to_workingFile()" which also clears the file first
+    //then once we are finished editing the entries or adding some, we will rewrite the entire csv file anyway
+    add_entries_from_existing_file();
+    write_header_to_workingFile();
 
     //checkflag so widgets know a valid file is in play
     this->settings.fileInPlay = true;
@@ -140,12 +145,18 @@ void Fpcs::set_streamer(){
 /*
  * Writes the correct header to the csv file, and writes over the current header if one already exists. workingFile MUST be set before calling.
  * header is "Comment,State,Coding Type,Length,Bits Per Subpulse,Phase State 0 (deg),Phase State 1 (deg),Phase State 2 (deg),Phase State 3 (deg),Phase State 4 (deg),Phase State 5 (deg),Phase State 6 (deg),Phase State 7 (deg),Phase State 8 (deg),Phase State 9 (deg),Phase State 10 (deg),Phase State 11 (deg),Phase State 12 (deg),Phase State 13 (deg),Phase State 14 (deg),Phase State 15 (deg),Frequency State 0 (Hz),Frequency State 1 (Hz),Frequency State 2 (Hz),Frequency State 3 (Hz),Frequency State 4 (Hz),Frequency State 5 (Hz),Frequency State 6 (Hz),Frequency State 7 (Hz),Frequency State 8 (Hz),Frequency State 9 (Hz),Frequency State 10 (Hz),Frequency State 11 (Hz),Frequency State 12 (Hz),Frequency State 13 (Hz),Frequency State 14 (Hz),Frequency State 15 (Hz),Hex Pattern"
+ * clear the file, insert the header string at the start, then add an OFF row (required for the UXg according to documentation)
  */
 void Fpcs::write_header_to_workingFile(){
-    //insert the string in the file
+    //clear the file
+    workingFile.resize(0);
+    //insert the header string at the start
     streamer.seek(0); //make sure the TextStream starts at the beginning of the file
     QString header = "Comment,State,Coding Type,Length,Bits Per Subpulse,Phase State 0 (deg),Phase State 1 (deg),Phase State 2 (deg),Phase State 3 (deg),Phase State 4 (deg),Phase State 5 (deg),Phase State 6 (deg),Phase State 7 (deg),Phase State 8 (deg),Phase State 9 (deg),Phase State 10 (deg),Phase State 11 (deg),Phase State 12 (deg),Phase State 13 (deg),Phase State 14 (deg),Phase State 15 (deg),Frequency State 0 (Hz),Frequency State 1 (Hz),Frequency State 2 (Hz),Frequency State 3 (Hz),Frequency State 4 (Hz),Frequency State 5 (Hz),Frequency State 6 (Hz),Frequency State 7 (Hz),Frequency State 8 (Hz),Frequency State 9 (Hz),Frequency State 10 (Hz),Frequency State 11 (Hz),Frequency State 12 (Hz),Frequency State 13 (Hz),Frequency State 14 (Hz),Frequency State 15 (Hz),Hex Pattern\n";
     streamer << header;
+    //add an OFF row (required for the UXg according to documentation)
+    QString blankRow = ",OFF,PHASE,0,1,0,180,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n";
+    streamer << blankRow;
     streamer.flush(); //ensure all the data is written to the file before moving on
 };
 
@@ -157,8 +168,8 @@ bool Fpcs::check_file_header(){
     QString header = "Comment,State,Coding Type,Length,Bits Per Subpulse,Phase State 0 (deg),Phase State 1 (deg),Phase State 2 (deg),Phase State 3 (deg),Phase State 4 (deg),Phase State 5 (deg),Phase State 6 (deg),Phase State 7 (deg),Phase State 8 (deg),Phase State 9 (deg),Phase State 10 (deg),Phase State 11 (deg),Phase State 12 (deg),Phase State 13 (deg),Phase State 14 (deg),Phase State 15 (deg),Frequency State 0 (Hz),Frequency State 1 (Hz),Frequency State 2 (Hz),Frequency State 3 (Hz),Frequency State 4 (Hz),Frequency State 5 (Hz),Frequency State 6 (Hz),Frequency State 7 (Hz),Frequency State 8 (Hz),Frequency State 9 (Hz),Frequency State 10 (Hz),Frequency State 11 (Hz),Frequency State 12 (Hz),Frequency State 13 (Hz),Frequency State 14 (Hz),Frequency State 15 (Hz),Hex Pattern";
     QString headerRead = streamer.readLine().remove("\n");
     if(headerRead != header){
-        qDebug() << "Correct : " + header;
-        qDebug() << "Given   : " + headerRead;
+        //qDebug() << "Correct : " + header;
+        //qDebug() << "Given   : " + headerRead;
         return false;
     }
     return true;
@@ -169,10 +180,8 @@ bool Fpcs::check_file_header(){
  */
 bool Fpcs::add_entry(){
     if(this->settings.fileInPlay == true){
-       // streamer << "Testing\n";
         //parse through the fpcs_entry and add those values to the table csv file
-        workingEntry.comment++;
-        streamer << QString::number(workingEntry.comment) + ","; //comment gets incremented then converted to a QString
+        streamer << workingEntry.comment + ","; //comment gets incremented then converted to a QString
         streamer << workingEntry.state + ",";
         streamer << workingEntry.codingType + ",";
         workingEntry.length = workingEntry.bitPattern.size();
@@ -217,4 +226,117 @@ bool Fpcs::add_entry(){
     }
     return false;
 }
+
+bool Fpcs::data_dump_onto_file(){
+    for(Entry entry : workingEntryList){
+        workingEntry = entry;
+        add_entry();
+    }
+    return true;
+}
+
+/*
+ * Note that after extensive testing, it never occurred that the units for frequency of an exported file ever deviated from "(Hz)". Thus, this function assumes this static condition
+ *
+ */
+void Fpcs::add_entries_from_existing_file(){
+    //parse through the header to determine mapping of values available to values
+    streamer.seek(0);
+    QString readHeader = streamer.readLine().remove("\n");
+    QString throwAwayRow = streamer.readLine().remove("\n");
+
+    //use these next two values to know how to map each row in the csv into an entry in the fpcs
+    QString defaultType; //either Freq, Phase, or Both. This helps us understand how the file header looks
+    int maxBitsPerSubPulse; //1,2,3,or4
+
+    if(readHeader.contains("Freq")){
+        if(readHeader.contains("Phase")){
+            //both
+            defaultType = "Both";
+        }else{
+            //only freq
+            defaultType = "Freq";
+        }
+    }else{
+        //only phase
+        defaultType = "Phase";
+    }
+
+    if(readHeader.contains("15")){
+        maxBitsPerSubPulse = 4;
+    }else if(readHeader.contains("7")){
+        maxBitsPerSubPulse = 3;
+    }else if(readHeader.contains("3")){
+        maxBitsPerSubPulse = 2;
+    }else{
+        maxBitsPerSubPulse = 1;
+    }
+
+    while(true){
+        //read the next line
+        QString row = streamer.readLine().remove("\n");
+        //check if we are at the end of the file
+        if(row.size() == 0){
+            //break;
+        }
+
+        //depending on the mapping of the header, input the entry values based on the string
+        workingEntryList << add_entries_from_existing_file_helper(row,maxBitsPerSubPulse,defaultType);
+    }
+}
+
+Entry Fpcs::add_entries_from_existing_file_helper(QString row, int maxBits, QString defaultType){
+    Entry *tempEntry = new Entry();
+    //sepperate the QString by "," into a QStringList
+    QStringList rowParsed = row.split(QRegExp(","), Qt::SkipEmptyParts);
+    tempEntry->comment = rowParsed.at(0);
+    rowParsed.removeFirst();
+    tempEntry->state = rowParsed.at(0);
+    rowParsed.removeFirst();
+    tempEntry->codingType = rowParsed.at(0);
+    rowParsed.removeFirst();
+    tempEntry->length = rowParsed.at(0).toInt();
+    rowParsed.removeFirst();
+    tempEntry->bitsPerSubpulse = rowParsed.at(0).toInt();
+    rowParsed.removeFirst();
+
+    rowParsed.erase(0);
+
+    switch(maxBits){
+    case 1:
+        //numbers 0,1
+
+        break;
+    case 2:
+        //numbers 0,1,2,3
+
+        break;
+    case 3:
+        //numbers 0,1,2,3,4,5,6,7
+
+        break;
+    case 4:
+        //number 0->15
+
+        break;
+    default:
+        qDebug() << "error for number of bits per subpulse of read in file";
+        break;
+    }
+    return *tempEntry;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
