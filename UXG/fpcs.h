@@ -53,9 +53,9 @@ public:
     void write_header_to_workingFile();
     QString mapped_file_path();
     bool check_file_header();
-    bool add_entry();
+    bool add_entry(Entry &newEntry);
     bool add_entry_to_file();
-    bool data_dump_onto_file();
+    void data_dump_onto_file();
     void import_entries_from_existing_file();
 
 };

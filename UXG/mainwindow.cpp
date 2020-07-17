@@ -12,12 +12,15 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->uxg_fpcs_files_combo_box->hide();
     ui->delete_table_from_uxg_push_button->hide();
-    output_to_console("---------------------------------------------------------Program started.");
-    qDebug() << "---------------------------------------------------------Program started.";
+    ui->table_or_pattern_toolbox->setCurrentIndex(0);
+    ui->table_or_pattern_toolbox->setItemEnabled(1,false);
+    output_to_console("Program started.");
+    qDebug() << "Program started.";
 }
 
 MainWindow::~MainWindow()
 {
+    window_fpcs.data_dump_onto_file();
     window_fpcs.close_file(); //close the file (which also flushes the buffer) before exiting
     delete ui;
 }
@@ -97,6 +100,9 @@ void MainWindow::on_use_default_file_directory_check_box_stateChanged(int arg1)
 //Dialog Buttons for Creating Table
 void MainWindow::on_create_new_table_button_box_accepted()
 {
+    window_fpcs.data_dump_onto_file();
+    window_fpcs.close_file(); //close the file (which also flushes the buffer) before exiting
+
     window_fpcs.settings.usingExistingTable = false;
     bool fileInitialized = window_fpcs.initialize_workingFile();
     if(fileInitialized){
@@ -104,7 +110,7 @@ void MainWindow::on_create_new_table_button_box_accepted()
         ui->loaded_table_progress_bar->reset();
         for(int j=0; j<=100; j++){
             ui->create_progress_bar->setValue(j);
-            QThread::msleep(10);
+            QThread::msleep(3);
         }
         ui->current_table_line_edit->setText(window_fpcs.workingFile.fileName());
     }else{
@@ -149,9 +155,20 @@ void MainWindow::on_select_file_push_button_clicked()
 
 void MainWindow::on_update_current_table_with_pattern_push_button_clicked()
 {
-    window_fpcs.add_entry();
-    ui->table_or_pattern_toolbox->setCurrentIndex(0); //this then opens the part of the GUI toolbox that is used for visualizing the table
-    update_table_visualization();
+    if(window_fpcs.workingEntry.bitPattern != ""){
+        if(highlightedFpcsRow == -1){
+            //add a new pattern
+            window_fpcs.add_entry(window_fpcs.workingEntry);
+        }else{
+            //replace the existing pattern
+            window_fpcs.workingEntryList.replace(highlightedFpcsRow, window_fpcs.workingEntry);
+        }
+
+        ui->table_or_pattern_toolbox->setCurrentIndex(0); //this then opens the part of the GUI toolbox that is used for visualizing the table
+        update_table_visualization();
+    }else{
+        qDebug() << "The pattern you have created is empty, so it was not added to the table!";
+    }
 }
 
 /*
@@ -161,9 +178,19 @@ void MainWindow::on_update_current_table_with_pattern_push_button_clicked()
 void MainWindow::on_add_another_pattern_to_this_table_push_button_clicked()
 {
     if(window_fpcs.settings.fileInPlay){
-        window_fpcs.workingEntryList << *new Entry(); //add a new entry to the fpcs list of entries
-        window_fpcs.workingEntry = window_fpcs.workingEntryList.at(window_fpcs.workingEntryList.size() - 1); //set that entry to be the workingEntry
+        Entry newEntry = *new Entry();
+        highlightedFpcsRow = -1;
+        //copy over basic settings of the previous entry to be the same as this entry so the GUI doesn't need to be updated
+        newEntry.codingType = window_fpcs.workingEntry.codingType;
+        newEntry.bitsPerSubpulse = window_fpcs.workingEntry.bitsPerSubpulse;
+        newEntry.phases = window_fpcs.workingEntry.phases;
+        newEntry.freqs = window_fpcs.workingEntry.freqs;
+        newEntry.freqUnits = window_fpcs.workingEntry.freqUnits;
+        newEntry.numOfPhasesOrFreqs = window_fpcs.workingEntry.numOfPhasesOrFreqs;
 
+        //set that new entry to be the workingEntry
+        window_fpcs.workingEntry = newEntry;
+        update_pattern_edit_visualization();
         ui->table_or_pattern_toolbox->setCurrentIndex(1); //this then opens the part of the GUI toolbox that is used for editing the pattern
     }else{
         output_to_console("No Table Currently Selected to Add a Pattern to.");
@@ -171,20 +198,6 @@ void MainWindow::on_add_another_pattern_to_this_table_push_button_clicked()
         return;
     }
 }
-
-/*
- * TODO, this would only be used once, when the very first time the "add a pattern to this table" button is used. My work around for this currently is to have the default values in the struct
- * and the default widget values in the pattern table match to start with.
- *
- * Edit: Actually it will be used more than once since everytime we select an existing row on the table to edit, we need the table to reflect those values as well as the working_Entry values
- *
- */
-void MainWindow::update_pattern_table(){
-    for(int i = 0; i < 16; i++){
-       // ui->phase_freq_pattern_entry_table.seti
-    }
-}
-
 
 //TODO when an existing pattern is selected by checking the checkbox in it's row of the visualizer, a function is called that updates the fields of window_fpcs's workingEntry. the streamer's
 //position is then updated to be the start of that row on the file. The widgets in the "Edit Pattern" groupbox simply reflect the field values or change them if the widget is edited. This way
@@ -258,7 +271,7 @@ void MainWindow::on_how_many_different_phase_or_freq_spin_box_valueChanged(int a
         ui->phase_freq_pattern_entry_table->hideRow(i);
     }
 
-    window_fpcs.workingEntry.length = arg1;
+    window_fpcs.workingEntry.numOfPhasesOrFreqs = arg1;
 }
 
 void MainWindow::add_button_in_pattern_table_setup(int row)
@@ -325,7 +338,7 @@ void MainWindow::on_phase_freq_pattern_entry_table_cellChanged(int row, int colu
     switch(column){
     case 0 : { //case 0 is the phase column
         //this gets the TableWidgetItem that was changed, gets it's QString text, converts it to an Int, then sets that equal to the phase
-        window_fpcs.workingEntry.phases[row] = ui->phase_freq_pattern_entry_table->item(row, column)->text().remove("°").toInt();
+        window_fpcs.workingEntry.phases.replace(row, ui->phase_freq_pattern_entry_table->item(row, column)->text().remove("°"));
         QString currentText = ui->phase_freq_pattern_entry_table->item(row,column)->text();
         if(currentText.contains("°")){
                 break; //prevent infinite loop
@@ -336,12 +349,12 @@ void MainWindow::on_phase_freq_pattern_entry_table_cellChanged(int row, int colu
         break;
     }
     case 1: { //case 1 is the freq column
-        window_fpcs.workingEntry.freqs[row] = ui->phase_freq_pattern_entry_table->item(row, column)->text().toInt();
+        window_fpcs.workingEntry.freqs.replace(row, ui->phase_freq_pattern_entry_table->item(row, column)->text());
         break;
     }
     case 2: { //case 2 is the freq units
         //set the freq units but remove the ending "hz"
-        window_fpcs.workingEntry.freqUnits[row] = ui->phase_freq_pattern_entry_table->item(row, column)->text().remove("hz");
+        window_fpcs.workingEntry.freqUnits.replace(row, ui->phase_freq_pattern_entry_table->item(row, column)->text().remove("hz"));
         QString currentText = ui->phase_freq_pattern_entry_table->item(row,column)->text();
         if(currentText.contains("hz")){
                 break; //prevent infinite loop
@@ -405,15 +418,6 @@ void MainWindow::on_remove_last_entry_pushbutton_clicked()
     ui->progressBar->setValue(100 * bytesSent/bytesTotal);
 }*/
 
-void MainWindow::on_batch_pattern_entry_push_button_clicked()
-{
-    //prompt the user to select a folder
-    QString filePath = QFileDialog::getOpenFileName(this, tr("Open File"),
-                "/fileFolder", tr("Text Files (*.txt);;CSV Files (*.csv)"));
-    //TODO setup a temp qTextStreamer to read in the file and basically create a table out of this text file input assuming all patterns follow the current settings
-
-}
-
 /*
  * An important part of the functionality of this function is that window_fpcs.workingFile.fileName() is the filename and directory whereas we set
  * the uploadingFileOrFolderName field to just be the name of the file without the directory. The reason behind this is so that the included directory
@@ -424,6 +428,7 @@ void MainWindow::on_qprocess_upload_push_button_clicked()
 {
     if(window_ftpManager->tcpSocket->state() == QAbstractSocket::ConnectedState){
         if(window_fpcs.settings.fileInPlay == true){
+            window_fpcs.data_dump_onto_file();
             window_ftpManager->current_state = FtpManager::state::uploading;
             QString filename = window_fpcs.workingFile.fileName();
 
@@ -593,23 +598,30 @@ void MainWindow::on_socket_readyRead(){
     }
 
     //this process is specifically for when the user is downloading a uxg fpcs file to then edit.
-    if(window_ftpManager->downloadState == window_ftpManager->settingCurrentTable){
-        output_to_console("file set to current table");
-        qDebug() << "file set to current table";
-        window_ftpManager->downloadState = window_ftpManager->exportingTable;
-        QString scpiCommand = ":MEMory:EXPort:ASCii:FPCSetup ";
-        scpiCommand.append('"');
-        scpiCommand.append(window_fpcs.settings.existingTableFilePath.append(".csv"));
-        scpiCommand.append('"');
-        output_to_console(scpiCommand);
-        qDebug() << scpiCommand;
-        window_ftpManager->send_SPCI(scpiCommand);
-    }else if(window_ftpManager->downloadState == window_ftpManager->exportingTable){
+    /*if(window_ftpManager->downloadState == window_ftpManager->exportingTable){
         window_ftpManager->downloadState = window_ftpManager->finished;
         output_to_console("file is exported, ready for ftp");
         qDebug() << "file is exported, ready for ftp";
-        //pre_initialize_uxg_file();
-    }
+        //download the table from the uxg into the downloads folder
+        window_ftpManager->current_state = FtpManager::state::downloading;
+        //then feed it into the process
+        window_ftpManager->start_process(window_fpcs.settings.existingTableFilePath); //note that start_process() only needs the name of the file
+        //note we can immediately use the file after starting the process since it's a blocking call
+        bool fileInitialized = window_fpcs.initialize_workingFile();
+        if(fileInitialized){
+            //make the progress bar move
+            ui->create_progress_bar->reset();
+            for(int j=0; j<=100; j++){
+                ui->loaded_table_progress_bar->setValue(j);
+                QThread::msleep(3);
+            }
+            ui->current_table_line_edit->setText(window_fpcs.workingFile.fileName());
+            update_table_visualization();
+        }else{
+            output_to_console("File unable to initialize");
+            qDebug() << "File unable to initialize";
+        }
+    }*/
 }
 
 void MainWindow::on_uxg_fpcs_files_combo_box_currentTextChanged(const QString &arg1)
@@ -621,16 +633,22 @@ void MainWindow::on_uxg_fpcs_files_combo_box_currentTextChanged(const QString &a
 /*
  * Dialog Buttons for loading Table
  * Assumes a file name has been chosen before pressed, but also checks if that's the case.
+ *
  */
 void MainWindow::on_select_existing_table_button_box_accepted()
 {
+    window_fpcs.data_dump_onto_file();
+    window_fpcs.close_file(); //close the file (which also flushes the buffer) before exiting
+
     window_fpcs.settings.usingExistingTable = true;
+    window_fpcs.workingEntryList.clear();
+
     if(window_fpcs.settings.usingExistingTableLocal == false){
-        //extra steps required here to import the file from the uxg, correct its header, and
-        //rewrite its rows for the new header
-        //then we initialize the file as if it already existed locally
-        // tell the uxg to export the fpcs file as a csv
-        window_ftpManager->downloadState = window_ftpManager->settingCurrentTable;
+        /*
+         * extra steps required here to import the file from the uxg, then we initialize the file as if it already existed locally
+         * tell the uxg to export the fpcs file as a csv
+         */
+
         //select the chosen table as the current table on the UXG
         QString scpiCommand = ":SOURce:PULM:STReam:FPCSetup:SELect "; //Note this command will be rejected if the UXG is not in PDW Streaming Mode
         scpiCommand.append('"');
@@ -640,34 +658,59 @@ void MainWindow::on_select_existing_table_button_box_accepted()
         qDebug() << "sending: " << scpiCommand;
         window_ftpManager->send_SPCI(scpiCommand);
 
-        //export the fpcs file as a csv into the UXG's BIN directory
+        output_to_console("file set to current table");
+        qDebug() << "file set to current table";
         window_ftpManager->downloadState = window_ftpManager->exportingTable;
+         //export the fpcs file as a csv into the UXG's BIN directory
         scpiCommand = ":MEMory:EXPort:ASCii:FPCSetup ";
         scpiCommand.append('"');
         scpiCommand.append(window_fpcs.settings.existingTableFilePath.remove(".fpcs").append(".csv"));
         scpiCommand.append('"');
-        output_to_console("sending: " + scpiCommand);
-        qDebug() << "sending: " << scpiCommand;
+        output_to_console(scpiCommand);
+        qDebug() << "now sending: " << scpiCommand;
         window_ftpManager->send_SPCI(scpiCommand);
 
-        pre_initialize_uxg_file();
-        return;
-    }
-    bool fileInitialized = window_fpcs.initialize_workingFile();
-    if(fileInitialized){
-        //make the progress bar move
-        ui->create_progress_bar->reset();
-        for(int j=0; j<=100; j++){
-            ui->loaded_table_progress_bar->setValue(j);
-            QThread::msleep(3);
+        //-------------------------
+        output_to_console("file is exported, ready for ftp");
+        qDebug() << "file is exported, ready for ftp";
+        //download the table from the uxg into the downloads folder
+        window_ftpManager->current_state = FtpManager::state::downloading;
+        //then feed it into the process
+        window_ftpManager->start_process(window_fpcs.settings.existingTableFilePath); //note that start_process() only needs the name of the file
+        //note we can immediately use the file after starting the process since it's a blocking call
+        window_fpcs.settings.existingTableFilePath = QDir::currentPath() + "/fileFolder/downloads/" + window_fpcs.settings.existingTableFilePath;
+        bool fileInitialized = window_fpcs.initialize_workingFile();
+        if(fileInitialized){
+            //make the progress bar move
+            ui->create_progress_bar->reset();
+            for(int j=0; j<=100; j++){
+                ui->loaded_table_progress_bar->setValue(j);
+                QThread::msleep(3);
+            }
+            ui->current_table_line_edit->setText(window_fpcs.workingFile.fileName());
+            update_table_visualization();
+        }else{
+            output_to_console("File unable to initialize");
+            qDebug() << "File unable to initialize";
         }
-        ui->current_table_line_edit->setText(window_fpcs.workingFile.fileName());
-    }else{
-        output_to_console("File unable to initialize");
-        qDebug() << "File unable to initialize";
-    }
+        //--------------------------------
 
-    //TODO Update table visualization with the new data
+    }else{
+        bool fileInitialized = window_fpcs.initialize_workingFile();
+        if(fileInitialized){
+            //make the progress bar move
+            ui->create_progress_bar->reset();
+            for(int j=0; j<=100; j++){
+                ui->loaded_table_progress_bar->setValue(j);
+                QThread::msleep(3);
+            }
+            ui->current_table_line_edit->setText(window_fpcs.workingFile.fileName());
+            update_table_visualization();
+        }else{
+            output_to_console("File unable to initialize");
+            qDebug() << "File unable to initialize";
+        }
+    }
 }
 
 /*
@@ -675,7 +718,7 @@ void MainWindow::on_select_existing_table_button_box_accepted()
  * qDebug() << "initializing : " << settings.existingTableFileNameUxg;
     workingFile.setFileName(this->settings.existingTableFileNameUxg); //set this file path to be for the working file
  */
-bool MainWindow::pre_initialize_uxg_file(){
+/*bool MainWindow::pre_initialize_uxg_file(){
     //download the table from the uxg into the downloads folder
     window_ftpManager->current_state = FtpManager::state::downloading;
     //then feed it into the process
@@ -733,7 +776,7 @@ bool MainWindow::pre_initialize_uxg_file(){
 
     return true;
     //TODO Update table visualization with the new data
-}
+}*/
 
 void MainWindow::on_delete_table_from_uxg_push_button_clicked(){
     //make sure the correct radio button is selected
@@ -793,9 +836,8 @@ void MainWindow::on_binary_data_view_push_button_stateChanged(int arg1)
 void MainWindow::on_delete_selected_row_push_button_clicked()
 {
     //Delete the Entry in the entryList that has the index of the index of the highlighted row
-    //window_fpcs.workingEntry = NULL; // set a default entry to be the workingEntry
-    //window_fpcs.workingEntryList.removeAt(ROW NUMBER HERE);
-    update_pattern_table();
+    window_fpcs.workingEntryList.removeAt(highlightedFpcsRow);
+    update_table_visualization();
 }
 
 /*
@@ -803,24 +845,118 @@ void MainWindow::on_delete_selected_row_push_button_clicked()
  * Thus, the workingFile CSV will be the reference for all changes made in this function call.
  */
 void MainWindow::update_table_visualization(){
+    int rowIndex = 0;
+
+    //clear all the current text first
+    int tableSize = ui->table_visualization_table_widget->size().height();
+    for(int i = 0; i < tableSize; i++){
+        ui->table_visualization_table_widget->item(i,0)->setText("");
+    }
+
     if(window_fpcs.settings.preferredFormat == 0){
         //the box is unchecked so display in plaintext format
-        int rowIndex = 0;
+        rowIndex = 0;
+        //qDebug() << "format 0 updating Table Visualization";
         for(Entry entry:window_fpcs.workingEntryList){
+            //qDebug() << "plainText : " << entry.plainTextRepresentation;
             ui->table_visualization_table_widget->item(rowIndex,0)->setText(entry.plainTextRepresentation);
             rowIndex++;
         }
     }else{
         //the box is checked so display in binary format
-        int rowIndex = 0;
+        rowIndex = 0;
+        //qDebug() << "format 1 updating Table Visualization";
         for(Entry entry:window_fpcs.workingEntryList){
+            qDebug() << "plainText : " << entry.plainTextRepresentation;
             ui->table_visualization_table_widget->item(rowIndex,0)->setText(entry.bitPattern);
             rowIndex++;
         }
     }
 }
 
+/*
+ * Select a pattern to edit and begin syncronizing the gui to match
+ *
+ * Note that when we "edit" an entry, we really create a whole new entry with the values of the entry at that row copied into it. This is because if the user selects "cancel"
+ * we can simply delete that entry object with the copied values and nothing in the fpcs's entry list changes. If the user commits to their changes we simply replace the
+ * original entry object in the list with our new one.
+ */
 void MainWindow::on_edit_selected_row_push_button_clicked(){
-    //TODO whatever the index of the row currently highlighted is, set the entry in the workingEntryList associated with that row to be the workingEntry
-   // window_fpcs.workingEntry = window_fpcs.workingEntryList.at(ROW NUMBER THAT'S HIGHLIGHTED ); //set that entry to be the workingEntry
+
+    //if the selected row does not represent an entry in our list
+    if(window_fpcs.workingEntryList.size() - 1 < highlightedFpcsRow){
+        qDebug() << "Please select a valid pattern from the table.";
+    }
+    Entry newEntry = *new Entry();
+    //copy over basic settings of the previous entry to be the same as this entry so the GUI doesn't need to be updated
+    newEntry.codingType = window_fpcs.workingEntryList.at(highlightedFpcsRow).codingType;
+    newEntry.bitsPerSubpulse = window_fpcs.workingEntryList.at(highlightedFpcsRow).bitsPerSubpulse;
+    newEntry.phases = window_fpcs.workingEntryList.at(highlightedFpcsRow).phases;
+    newEntry.freqs = window_fpcs.workingEntryList.at(highlightedFpcsRow).freqs;
+    newEntry.freqUnits = window_fpcs.workingEntryList.at(highlightedFpcsRow).freqUnits;
+    newEntry.bitPattern = window_fpcs.workingEntryList.at(highlightedFpcsRow).bitPattern;
+    newEntry.numOfPhasesOrFreqs = window_fpcs.workingEntryList.at(highlightedFpcsRow).numOfPhasesOrFreqs;
+    newEntry.plainTextRepresentation = window_fpcs.workingEntryList.at(highlightedFpcsRow).plainTextRepresentation;
+
+    //set that new entry to be the workingEntry
+    window_fpcs.workingEntry = newEntry;
+    update_pattern_edit_visualization();
+    ui->table_or_pattern_toolbox->setCurrentIndex(1); //this then opens the part of the GUI toolbox that is used for editing the pattern
 }
+
+void MainWindow::on_table_visualization_table_widget_cellClicked(int row, int)
+{
+    highlightedFpcsRow = row;
+}
+
+void MainWindow::update_pattern_edit_visualization(){
+    ui->pattern_nonBinary_values_shown_text_editor->clear();
+    ui->pattern_binary_pattern_shown_text_editor->clear();
+
+    //use the workingEntry as the source of data for calling on signals of the pattern edit page
+    ui->how_many_different_phase_or_freq_spin_box->setValue(window_fpcs.workingEntry.numOfPhasesOrFreqs);
+
+    if(window_fpcs.workingEntry.codingType == "BOTH"){
+        ui->both_pattern_type_radio_button->setChecked(true);
+        ui->both_pattern_type_radio_button->click();
+        ui->freq_pattern_type_radio_button->setChecked(false);
+        ui->phase_pattern_type_radio_button->setChecked(false);
+    }else if(window_fpcs.workingEntry.codingType == "FREQUENCY"){
+        ui->both_pattern_type_radio_button->setChecked(false);
+        ui->freq_pattern_type_radio_button->setChecked(true);
+        ui->freq_pattern_type_radio_button->click();
+        ui->phase_pattern_type_radio_button->setChecked(false);
+    }else if(window_fpcs.workingEntry.codingType == "PHASE"){
+        ui->both_pattern_type_radio_button->setChecked(false);
+        ui->freq_pattern_type_radio_button->setChecked(false);
+        ui->phase_pattern_type_radio_button->setChecked(true);
+        ui->phase_pattern_type_radio_button->click();
+    }else{
+        qDebug() << "Error, unknown codingType for working Entry";
+    }
+
+    ui->pattern_nonBinary_values_shown_text_editor->setText(window_fpcs.workingEntry.plainTextRepresentation);
+    ui->pattern_binary_pattern_shown_text_editor->setText(window_fpcs.workingEntry.bitPattern);
+
+    //enter in the phase values
+    int count = 0;
+    for(QString phase:window_fpcs.workingEntry.phases){
+        ui->phase_freq_pattern_entry_table->item(count, 0)->setText(phase + "°");
+        count++;
+    }
+
+    //enter in the freq values
+    count = 0;
+    for(QString freq:window_fpcs.workingEntry.freqs){
+        ui->phase_freq_pattern_entry_table->item(count, 1)->setText(freq);
+        count++;
+    }
+
+    //enter in the freq values
+    count = 0;
+    for(QString freqUnits:window_fpcs.workingEntry.freqUnits){
+        ui->phase_freq_pattern_entry_table->item(count, 2)->setText(freqUnits + "hz");
+        count++;
+    }
+}
+

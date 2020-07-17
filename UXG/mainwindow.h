@@ -32,6 +32,7 @@ public:
     Ui::MainWindow *ui;
     Fpcs window_fpcs; //each fpcs also has it's own fpcs_settings struct titled "settings"
     FtpManager *window_ftpManager;
+    int highlightedFpcsRow = -1;
 
 private slots:
 
@@ -67,8 +68,6 @@ private slots:
 
     void on_how_many_different_phase_or_freq_spin_box_valueChanged(int arg1);
 
-    void update_pattern_table();
-
     void on_phase_freq_pattern_entry_table_cellChanged(int row, int column);
 
     void add_button_in_pattern_table_setup(int row);
@@ -76,8 +75,6 @@ private slots:
     void on_phase_freq_pattern_entry_table_cellClicked(int row, int column);
 
     void on_remove_last_entry_pushbutton_clicked();
-
-    void on_batch_pattern_entry_push_button_clicked();
 
     void on_qprocess_upload_push_button_clicked();
 
@@ -121,12 +118,16 @@ private slots:
 
     void output_to_console(QString);
 
+    void on_table_visualization_table_widget_cellClicked(int row, int column);
+
 private:
 
-    bool pre_initialize_uxg_file();
+    //bool pre_initialize_uxg_file();
 
     //These functions are specifically for table visualization purposes
     void update_table_visualization();
+
+    void update_pattern_edit_visualization();
 
 
 };

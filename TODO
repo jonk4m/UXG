@@ -36,6 +36,8 @@ Add these SCPI commands to happen after the ftp process uploads a file:
 Allow user to choose from list of hostnames or IP's in the "connect to UXG" tab for choosing the current UXG
 Using :MEMory:FREE[:ALL]? have the code check if there's enough room on the UXG for the file before uploading it (there's got to be a function with QFile to check the size and make sure there's enough room comparing that size)
 Have a startup function routine that does things like turn the display off, turn Modulation On, etc.
+Add checks for max length of patterns and table
+Add checks for resolution limits of fpcs values (0.01 degree resolution, 1kHz resolution) 
 ----------------------------------------------------------------------------------------------Add a self-test button on the connect page
 ----------------------------------------------------------------------------------------------Add a power-off button to the connect page
 Add checks for the user inputs that they're in fact numbers when we expect them to be 
@@ -46,30 +48,116 @@ On the documentation User's Guide/Streaming Mode Use/FrequencyPhase Coding Files
 It appears I should be using FPC not FPCS since FPCS is for FCP operation whereas FPC is for streaming. 
 
 
-
-
-
-ALWAYS SELECT AND LOAD FROM AN FPCS FILE
-
-
-
-
-
-UPLOAD BUTTON CLICKED
-Put the csv file on the uxg using ftp - check that the table isn't empty on the uxg
-import the csv file into the current table - check that the current table's values match the csv's 
-export the current table's values into an fpcs file of the same name - check that the file that was exported when viewed is in hex. IT ISN'T THIS IS WHERE SHIT IS GOING WRONG
-set the current table to be that fpcs file - just check the name of the current file on the UXG
-
+TODO
+add a text window BELOW the main tabs so it persists for every page and change all the qDebug()'s to output on that text window
+fully implement the initialize_uxg() function  
+come up with way to parse through a file to populate the table visualization 
+get rid of waitingForFPCSFileList, and downloadState as fields in MainWindow by putting them in their respective classes and just checking with the class anytime you need it in mainwindow
 
 IN ORDER TO EXPORT THE CURRENT TABLE AS A CSV, YOU HAVE TO LOAD IT THEN EXPORT IT. BUT TO STORE THE CURRENT TABLE AS A FPCS, YOU JUST HAVE TO 
-
 
 SETTING AN FPCS FILE TO BE THE CURRENT TABLE DOES NOTHING. THE VALUES OF THE CURRENT TABLE DON'T CHANGE. YOU HAVE TO IMPORT FROM THE FPCS FILE FOR THE CURRENT TABLE'S VALUES TO MATCH THE FILE'S 
 
 :MEMory:EXPort:ASCii:FPCSetup "testFile.fpcs" WILL ALWAYS OUTPUT THE FILE AS A CSV EVEN IF YOU TELL IT TO DO IT AS AN FPCS (THAT COMES STRAIGHT FROM THE DOCUMENTATION)
-SO HOW DO I GO FROM A CSV TO AN FPCS???? WHY ISN'T THERE A :MEMory:STORE:ASCii:FPCSetup "testFile.fpcs"  SCPI COMMAND? There is, it's SOURce:PULM:STReam:FPCSetup:STORe 
+SO HOW DO I GO FROM A CSV TO AN FPCS???? WHY ISN'T THERE A :MEMory:STORE:ASCii:FPCSetup "testFile.fpcs"  SCPI COMMAND? There is, it's SOURce:PULM:STReam:FPCSetup:STORe
 
 
+
+
+
+
+
+
+
+
+
+so window_fpcs.settings.workingEntryRowNumber = 1; is what I'll use to determine which entry to focus on. 
+
+
+
+
+
+we need to update the table visualization when the following are clicked:
+
+on_create_new_table_button_box_accepted();
+on_select_existing_table_button_box_accepted();
+on_update_current_table_with_pattern_push_button_clicked();
+on_binary_data_view_push_button_stateChanged(int arg1); //switch views here not update the whole table
+on_delete_selected_row_push_button_clicked();
+
+
+step 1
+create method that will populate the table for all the above circumstances
+
+step 2
+add functionality to delete a particular row in the table visualization 
+
+step 3 
+add functionality to edit a particular row in the table visualization 
+
+step 4 
+add functionality so that you can type in a comment for a particular row in the table and that becomes that entry's comment (something like barker) 
+
+
+
+how populating the table will work
+
+LET'S NOT CREATE THE CSV FILE UNTIL RIGHT BEFORE WE UPLOAD IT TO THE UXG. IF WE DOWNLOAD A CSV, WE PARSE THE VALUES INTO OUR FPCS CLASS THEN DELETE THE FILE, THEN CREATE A FILE
+
+WHEN WE CLOSE THE PROGRAM WE POPULATE THE CSV FILE REGARDLESS OF UPLOADING 
+
+
+
+GET IT AS AN EXECUTABLE FOR FRIDAY INCASE WE CAN'T USE OUR LAPTOPS 
+ 
+strip out the functionality that edits the csv in realtime 
+create method that creates the whole csv file 
+
+QString comment = "0"; //will be changed to increment for each entry in table
+    QString state = "ON"; //default.
+    QString codingType = "BOTH"; //FREQUENCY, PHASE, or BOTH
+    int length = 0; //the length here is NOT the number of entries in the pattern but rather the count of the number of bits in the pattern
+    int bitsPerSubpulse = 4; //default
+    QString hexPattern = ""; //might need to make a function for this conversion
+    QList<QString> phases = {"0", "180", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"}; //16 is max number of entries
+    QList<QString> freqs = {"10", "20", "30", "40", "50", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"}; //16 is max number of entries. we must use unsigned long long int since our frequencies can get into the gigaHertz
+    QList<QString> freqUnits = {"M","k","M","M","M","M","M","M","M","M","M","M","M","M","M","M"};
+    QString bitPattern = ""; //the length will be the .size() of this field.
+    QString plainTextRepresentation = "";
+	
+	
+	
+	largest possible kHz value is 999,999
+	largest possible Mhz value is 999,999,999
+	
+	
+	is length the number of bits (DOES NOT NEED TO BE A MULTIPLE OF TWO) or is it the number of entries (i.e. if it's 3bitsPerSubPulse and it's 8 bits long that's length of 2)
+	
+	so if I have 3 bits per subpulse and my subpulse is 110, then I need to add the leading 0 to get 0110 for x6 right? or is it the trailing zero 1100 making xE since it's in transmission order? 
+	
+	INCLUDE IN PRESENTATION THE ISSUE YOU RAN INTO WITH THE TRAILING ZEROS FOR THE HEX CONVERSION OF THE BITPATTERN. SINCE THE UXG READS THE PATTERN IN TRANSMISSION ORDER, A PATTERN OF 110 NEEDS TO HAVE A TRAILING ZERO (1100) FOR THE HEX CONVERSION, NOT A LEADING ZERO (0110) SINCE IT STARTS READING FROM THE FRONT OF THE PATTERN NOT THE BACK. AKA THAT TRAILING ZERO WILL BE IGNORED
+	
+	
+	
+	pattern_nonBinary_values_shown_text_editor
+	pattern_binary_pattern_shown_text_editor
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 

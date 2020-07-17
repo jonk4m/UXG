@@ -24,7 +24,7 @@ public:
     QList<QString> freqUnits = {"M","k","M","M","M","M","M","M","M","M","M","M","M","M","M","M"};
     QString bitPattern = ""; //the length will be the .size() of this field.
     QString plainTextRepresentation = "";
-
+    int numOfPhasesOrFreqs = 16; //mainly used for consistency with the GUI
 };
 
 #endif // ENTRY_H

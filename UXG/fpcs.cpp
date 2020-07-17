@@ -43,9 +43,12 @@ bool Fpcs::initialize_existingFile_local(){
             return false;
         }
     }else{
-        qDebug() << "File Not Found : " << settings.existingTableFilePath;
+        qDebug() << "File Not Found in Local System: " << settings.existingTableFilePath;
         return false;
     }
+
+    workingEntryList.clear();
+
     //create the QTextStreamer to operate on this file until further notice
     this->set_streamer();
 
@@ -58,7 +61,6 @@ bool Fpcs::initialize_existingFile_local(){
     //whether the header is incorrect or not, we need to parse through the file and to assign the data to Entry's, write the correct header using "write_header_to_workingFile()" which also clears the file first
     //then once we are finished editing the entries or adding some, we will rewrite the entire csv file anyway
     import_entries_from_existing_file();
-    write_header_to_workingFile();
 
     //checkflag so widgets know a valid file is in play
     this->settings.fileInPlay = true;
@@ -81,10 +83,10 @@ bool Fpcs::initialize_newFile(){
         qDebug() << " Could not create File : " + this->mapped_file_path();
         return false;
     }
+
+    workingEntryList.clear();
     //create the QTextStreamer to operate on this file until further notice
     this->set_streamer();
-    //write the header at the beginning of the file
-    this->write_header_to_workingFile();
     //checkflag so widgets know a valid file is in play
     this->settings.fileInPlay = true;
     return true;
@@ -94,8 +96,10 @@ bool Fpcs::initialize_newFile(){
  * Closes current workingFile
  */
 void Fpcs::close_file(){
-    workingFile.close();
-    this->settings.fileInPlay = false;
+    if(settings.fileInPlay == true){
+        workingFile.close();
+        this->settings.fileInPlay = false;
+    }
 };
 
 /*
@@ -203,7 +207,7 @@ bool Fpcs::add_entry_to_file(){
             }else if(workingEntry.freqUnits.at(i) == QString("K") || workingEntry.freqUnits.at(i) == QString("k")){
                 tempMultiplier = 1000;
             }else{
-                qDebug() << "Unknown Scaling Factor used for a frequency in a pattern";
+                qDebug() << "Unknown Scaling Factor used for a frequency in a pattern : " << workingEntry.freqUnits.at(i);
                 return false;
             }
 
@@ -226,12 +230,14 @@ bool Fpcs::add_entry_to_file(){
     return false;
 }
 
-bool Fpcs::data_dump_onto_file(){
-    for(Entry entry : workingEntryList){
-        workingEntry = entry;
-        add_entry_to_file();
+void Fpcs::data_dump_onto_file(){
+    if(settings.fileInPlay == true){
+        write_header_to_workingFile();
+        for(Entry entry : workingEntryList){
+            workingEntry = entry;
+            add_entry_to_file();
+        }
     }
-    return true;
 }
 
 /*
@@ -242,7 +248,7 @@ void Fpcs::import_entries_from_existing_file(){
     //parse through the header to determine mapping of values available to values
     streamer.seek(0);
     QStringList readHeader = streamer.readLine().remove("\n").split(QRegExp(","), Qt::SkipEmptyParts);
-    qDebug() << "header list : " << readHeader;
+    //qDebug() << "header list : " << readHeader;
     QString throwAwayRow = streamer.readLine().remove("\n");
 
     while(true){
@@ -255,7 +261,7 @@ void Fpcs::import_entries_from_existing_file(){
         }
 
         QStringList rowList = row.split(QRegExp(","), Qt::SkipEmptyParts);
-        qDebug() << "rowList : " << rowList;
+        //qDebug() << "rowList : " << rowList;
 
         Entry *tempEntry = new Entry();
 
@@ -264,21 +270,24 @@ void Fpcs::import_entries_from_existing_file(){
         tempEntry->codingType = rowList.at(2);
         tempEntry->length = rowList.at(3).toInt();
         tempEntry->bitsPerSubpulse = rowList.at(4).toInt();
-        tempEntry->hexPattern = rowList.at(rowList.indexOf("Hex Pattern"));
+        if(readHeader.indexOf("Hex Pattern") == -1){
+            qDebug() << "Error, hex pattern not found in file. Index is : " << readHeader.indexOf("Hex Pattern");
+            return;
+        }
+        tempEntry->hexPattern = rowList.at(readHeader.indexOf("Hex Pattern"));
 
         //assign appropriate phases based on indexes
         int tempPhaseIndex;
         for(int i=0; i<16; i++){
-            tempPhaseIndex = rowList.indexOf("Phase State " + QString::number(i) + " (deg)");
+            tempPhaseIndex = readHeader.indexOf("Phase State " + QString::number(i) + " (deg)");
             if (tempPhaseIndex != -1)
                 tempEntry->phases.replace(i, rowList.at(tempPhaseIndex));
         }
-
         //assign appropriate freqs based on indexes
         int tempFreqIndex;
         unsigned long long freq;
         for(int i=0; i<16; i++){
-            tempFreqIndex = rowList.indexOf("Frequency State " + QString::number(i) + " (Hz)");
+            tempFreqIndex = readHeader.indexOf("Frequency State " + QString::number(i) + " (Hz)");
             if (tempFreqIndex != -1){
                 freq = rowList.at(tempFreqIndex).toULongLong();
                 if(freq > 999999999){
@@ -291,13 +300,12 @@ void Fpcs::import_entries_from_existing_file(){
                     freq = freq / 1000000;
                 }else{
                     //use kilo
-                    tempEntry->freqUnits.replace(i, "");
+                    tempEntry->freqUnits.replace(i, "K");
                     freq = freq / 1000;
                 }
                 tempEntry->freqs.replace(i, QString::number(freq));
             }
         }
-
         //convert from hex QString to binary QString
         tempEntry->hexPattern.remove("#h");
         tempEntry->bitPattern = tempEntry->hex_to_binary_converter(tempEntry->hexPattern);
@@ -307,9 +315,11 @@ void Fpcs::import_entries_from_existing_file(){
 
         workingEntryList << *tempEntry;
     }
+
 }
 
-bool Fpcs::add_entry(){
+bool Fpcs::add_entry(Entry &newEntry){
+    workingEntryList.append(newEntry); //add a new entry to the fpcs list of entries
     return true;
 }
 

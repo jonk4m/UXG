@@ -129,7 +129,7 @@
           <string>Binary Data View</string>
          </property>
          <property name="checked">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
         </widget>
         <widget class="QTableWidget" name="table_visualization_table_widget">
@@ -3274,7 +3274,7 @@
          </rect>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="tab0">
          <attribute name="title">
@@ -3301,6 +3301,9 @@
             <widget class="QRadioButton" name="use_default_name_radio_button">
              <property name="text">
               <string>Use Default Name</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
@@ -3500,7 +3503,7 @@
           <property name="geometry">
            <rect>
             <x>10</x>
-            <y>80</y>
+            <y>100</y>
             <width>281</width>
             <height>23</height>
            </rect>
@@ -3546,6 +3549,13 @@
            <string>Delete Table from UXG</string>
           </property>
          </widget>
+         <zorder>loaded_table_progress_bar</zorder>
+         <zorder>horizontalLayoutWidget_3</zorder>
+         <zorder>uxg_fpcs_files_combo_box</zorder>
+         <zorder>select_file_push_button</zorder>
+         <zorder>select_file_line_edit</zorder>
+         <zorder>delete_table_from_uxg_push_button</zorder>
+         <zorder>select_existing_table_button_box</zorder>
         </widget>
        </widget>
        <widget class="QPushButton" name="qprocess_upload_push_button">
@@ -3745,9 +3755,9 @@
         <property name="geometry">
          <rect>
           <x>340</x>
-          <y>350</y>
+          <y>310</y>
           <width>451</width>
-          <height>71</height>
+          <height>111</height>
          </rect>
         </property>
         <property name="readOnly">
@@ -4233,7 +4243,7 @@
         <property name="geometry">
          <rect>
           <x>340</x>
-          <y>330</y>
+          <y>290</y>
           <width>141</width>
           <height>16</height>
          </rect>
@@ -4246,9 +4256,9 @@
         <property name="geometry">
          <rect>
           <x>340</x>
-          <y>220</y>
+          <y>140</y>
           <width>451</width>
-          <height>71</height>
+          <height>111</height>
          </rect>
         </property>
         <property name="readOnly">
@@ -4259,7 +4269,7 @@
         <property name="geometry">
          <rect>
           <x>340</x>
-          <y>200</y>
+          <y>120</y>
           <width>141</width>
           <height>16</height>
          </rect>
@@ -4268,50 +4278,11 @@
          <string>Pattern:</string>
         </property>
        </widget>
-       <widget class="QGroupBox" name="groupBox">
-        <property name="geometry">
-         <rect>
-          <x>340</x>
-          <y>120</y>
-          <width>451</width>
-          <height>80</height>
-         </rect>
-        </property>
-        <property name="title">
-         <string>Batch Pattern Entry</string>
-        </property>
-        <widget class="QWidget" name="horizontalLayoutWidget_2">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>20</y>
-           <width>431</width>
-           <height>51</height>
-          </rect>
-         </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_2">
-          <item>
-           <widget class="QPushButton" name="batch_pattern_entry_push_button">
-            <property name="text">
-             <string>Select File</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="select_file_line_edit_2">
-            <property name="readOnly">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </widget>
        <widget class="QPushButton" name="remove_last_entry_pushbutton">
         <property name="geometry">
          <rect>
           <x>340</x>
-          <y>300</y>
+          <y>260</y>
           <width>111</width>
           <height>23</height>
          </rect>
@@ -4324,7 +4295,7 @@
         <property name="geometry">
          <rect>
           <x>460</x>
-          <y>300</y>
+          <y>260</y>
           <width>111</width>
           <height>23</height>
          </rect>
