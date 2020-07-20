@@ -120,6 +120,10 @@ private slots:
 
     void on_table_visualization_table_widget_cellClicked(int row, int column);
 
+    void on_host_name_edit_line_textChanged(const QString &arg1);
+
+    void on_comboBox_activated(const QString &arg1);
+
 private:
 
     //bool pre_initialize_uxg_file();

@@ -43,10 +43,11 @@ public:
     state current_state;
     bool  waitingForFPCSFileList;
     DownloadState downloadState = finished;
+    QString hostName = "169.254.24.85";
 
     void start_process(QString);
-    void send_SPCI(QString);
-    void connect(QString,quint16);
+    void send_SCPI(QString);
+    void connect(quint16);
     void closeTcpSocket();
 
 private slots:

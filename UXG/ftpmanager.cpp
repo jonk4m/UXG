@@ -98,7 +98,7 @@ void FtpManager::process_finished(){
         scpiCommand.append(uploadingFileOrFolderName);
         scpiCommand.append('"');
         qDebug() << "sending: " << scpiCommand;
-        send_SPCI(scpiCommand);
+        send_SCPI(scpiCommand);
 
         scpiCommand.clear();
         scpiCommand = "SOURce:PULM:STReam:FPCSetup:STORe ";
@@ -106,7 +106,7 @@ void FtpManager::process_finished(){
         scpiCommand.append(uploadingFileOrFolderName.remove(".csv"));  //no need to append the .fpcs here, uxg does it automatically
         scpiCommand.append('"');
         qDebug() << "sending: " << scpiCommand;
-        send_SPCI(scpiCommand);
+        send_SCPI(scpiCommand);
 
         scpiCommand.clear();
         scpiCommand = "SOURce:PULM:STReam:FPCSetup:SELect "; //Note this command will be rejected if the UXG is not in PDW Streaming Mode
@@ -114,7 +114,7 @@ void FtpManager::process_finished(){
         scpiCommand.append(uploadingFileOrFolderName);
         scpiCommand.append('"');
         qDebug() << "sending: " << scpiCommand;
-        send_SPCI(scpiCommand);
+        send_SCPI(scpiCommand);
 
         current_state = state::initialized;
     }
@@ -139,7 +139,7 @@ void FtpManager::process_ready_read_output(){
     }
 }
 
-void FtpManager::send_SPCI(QString message){
+void FtpManager::send_SCPI(QString message){
     if(tcpSocket->state() == QAbstractSocket::ConnectedState){
         QString str = message + "\n";
         tcpSocket->write(str.toUtf8());
@@ -156,11 +156,11 @@ void FtpManager::send_SPCI(QString message){
     }
 }
 
-void FtpManager::connect(QString host, quint16 port){
+void FtpManager::connect(quint16 port){
     if(tcpSocket->state() == QAbstractSocket::ConnectedState){
         qDebug() << "Socket already connected";
     }else{
-        tcpSocket->connectToHost(host,port,QIODevice::ReadWrite);
+        tcpSocket->connectToHost(hostName,port,QIODevice::ReadWrite);
         QAbstractSocket::connect(tcpSocket,SIGNAL(connected()),this,SLOT(socket_connected()));
         QAbstractSocket::connect(tcpSocket,SIGNAL(disconnected()),this,SLOT(socket_disconnected()));
         QAbstractSocket::connect(tcpSocket,SIGNAL(errorOccurred(QAbstractSocket::SocketError*)),this,SLOT(socket_errorOccurred(QAbstractSocket::SocketError*)));
@@ -173,8 +173,8 @@ void FtpManager::closeTcpSocket(){
 
 void FtpManager::socket_connected(){
     qDebug() << "Socket connected";
-    send_SPCI("DISPlay:REMote ON");
-    send_SPCI("INSTrument STReaming");
+    send_SCPI("DISPlay:REMote ON");
+    send_SCPI("INSTrument STReaming");
 }
 
 void FtpManager::socket_disconnected(){

@@ -12,6 +12,7 @@ public:
     void parse_entry_for_plain_text_pattern();
     QString hex_to_binary_converter(QString hex);
     QString binary_to_hex_converter(QString binary);
+    void clear_pattern();
 
     QString comment = "0"; //will be changed to increment for each entry in table
     QString state = "ON"; //default.

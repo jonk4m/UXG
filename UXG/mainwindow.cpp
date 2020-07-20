@@ -14,15 +14,33 @@ MainWindow::MainWindow(QWidget *parent)
     ui->delete_table_from_uxg_push_button->hide();
     ui->table_or_pattern_toolbox->setCurrentIndex(0);
     ui->table_or_pattern_toolbox->setItemEnabled(1,false);
+    ui->host_name_edit_line->setText(window_ftpManager->hostName);
     output_to_console("Program started.");
     qDebug() << "Program started.";
 }
 
 MainWindow::~MainWindow()
 {
-    window_fpcs.data_dump_onto_file();
-    window_fpcs.close_file(); //close the file (which also flushes the buffer) before exiting
-    delete ui;
+    switch( QMessageBox::question(
+                this,
+                tr("Save Before Exiting"),
+                tr("Save Current Table to File Before Exiting?\n"),
+                QMessageBox::Yes |
+                QMessageBox::No) )
+    {
+      case QMessageBox::Yes:
+        window_fpcs.data_dump_onto_file();
+        window_fpcs.close_file(); //close the file (which also flushes the buffer) before exiting
+        delete ui;
+        break;
+      case QMessageBox::No:
+        window_fpcs.close_file(); //close the file (which also flushes the buffer) before exiting
+        delete ui;
+      break;
+      default:
+        //do nothing, the messageBox will close itself upon a selection
+        break;
+    }
 }
 
 void MainWindow::fpcs_setup(){
@@ -271,6 +289,8 @@ void MainWindow::on_how_many_different_phase_or_freq_spin_box_valueChanged(int a
         ui->phase_freq_pattern_entry_table->hideRow(i);
     }
 
+    //window_fpcs.workingEntry.bitPattern.clear();
+    //window_fpcs.workingEntry.plainTextRepresentation.clear();
     window_fpcs.workingEntry.numOfPhasesOrFreqs = arg1;
 }
 
@@ -458,14 +478,13 @@ void MainWindow::on_download_all_files_from_uxg_push_button_clicked()
 
 void MainWindow::on_pushButton_clicked()
 {
-    QString host = "169.254.24.85";
-    window_ftpManager->connect(host, 5025);  //K-N5193A-90114 or 169.254.24.85
+    window_ftpManager->connect(5025);  //K-N5193A-90114
 }
 
 void MainWindow::on_pushButton_2_clicked()
 {
     QString message = "*IDN?";
-    window_ftpManager->send_SPCI(message);
+    window_ftpManager->send_SCPI(message);
 }
 
 void MainWindow::on_download_all_files_from_uxg_push_button_2_clicked()
@@ -493,7 +512,7 @@ void MainWindow::on_select_file_from_uxg_radio_button_clicked()
      ui->delete_table_from_uxg_push_button->show();
 
      window_ftpManager->waitingForFPCSFileList = true;
-     window_ftpManager->send_SPCI(":MEMory:CATalog:FPCSetup?");
+     window_ftpManager->send_SCPI(":MEMory:CATalog:FPCSetup?");
 }
 
 void MainWindow::on_cancel_editing_pattern_push_button_clicked()
@@ -503,9 +522,8 @@ void MainWindow::on_cancel_editing_pattern_push_button_clicked()
 
 void MainWindow::on_clear_pattern_push_button_clicked()
 {
-    window_fpcs.workingEntry.bitPattern.clear();
+    window_fpcs.workingEntry.clear_pattern();
     ui->pattern_binary_pattern_shown_text_editor->clear();
-    window_fpcs.workingEntry.parse_entry_for_plain_text_pattern();
     ui->pattern_nonBinary_values_shown_text_editor->clear();
     ui->pattern_nonBinary_values_shown_text_editor->insertPlainText(window_fpcs.workingEntry.plainTextRepresentation);
 }
@@ -521,7 +539,7 @@ void MainWindow::on_power_off_uxg_push_button_clicked()
                 QMessageBox::Cancel ) )
     {
       case QMessageBox::Yes:
-        window_ftpManager->send_SPCI(":SYSTem:PDOWn");
+        window_ftpManager->send_SCPI(":SYSTem:PDOWn");
         break;
       case QMessageBox::Cancel:
         //do nothing, the messageBox will close itself upon a selection
@@ -534,7 +552,7 @@ void MainWindow::on_power_off_uxg_push_button_clicked()
 
 void MainWindow::on_initiate_uxg_self_test_push_button_clicked()
 {
-    window_ftpManager->send_SPCI("*TST?");
+    window_ftpManager->send_SCPI("*TST?");
 }
 
 void MainWindow::on_delete_all_files_on_uxg_push_button_clicked()
@@ -549,7 +567,7 @@ void MainWindow::on_delete_all_files_on_uxg_push_button_clicked()
                 QMessageBox::Cancel ) )
     {
       case QMessageBox::Yes:
-        window_ftpManager->send_SPCI(":MEMory:DELete:ALL");
+        window_ftpManager->send_SCPI(":MEMory:DELete:ALL");
         break;
       //case QMessageBox::No:
         //do nothing, the messageBox will close itself upon a selection
@@ -656,7 +674,7 @@ void MainWindow::on_select_existing_table_button_box_accepted()
         scpiCommand.append('"');
         output_to_console("sending: " + scpiCommand);
         qDebug() << "sending: " << scpiCommand;
-        window_ftpManager->send_SPCI(scpiCommand);
+        window_ftpManager->send_SCPI(scpiCommand);
 
         output_to_console("file set to current table");
         qDebug() << "file set to current table";
@@ -668,7 +686,7 @@ void MainWindow::on_select_existing_table_button_box_accepted()
         scpiCommand.append('"');
         output_to_console(scpiCommand);
         qDebug() << "now sending: " << scpiCommand;
-        window_ftpManager->send_SPCI(scpiCommand);
+        window_ftpManager->send_SCPI(scpiCommand);
 
         //-------------------------
         output_to_console("file is exported, ready for ftp");
@@ -786,14 +804,14 @@ void MainWindow::on_delete_table_from_uxg_push_button_clicked(){
         command.append('"');
         command.append(window_fpcs.settings.existingTableFilePath.append(".fpcs"));
         command.append('"');
-        window_ftpManager->send_SPCI(command);
+        window_ftpManager->send_SCPI(command);
         //delete the csv file under that name
         command.clear();
         command = "MEMory:DELete:NAME ";
         command.append('"');
         command.append(window_fpcs.settings.existingTableFilePath.remove(".fpcs").append(".csv"));
         command.append('"');
-        window_ftpManager->send_SPCI(command);
+        window_ftpManager->send_SCPI(command);
         //reset the list of available files on the UXG
         on_select_file_from_uxg_radio_button_clicked();
 
@@ -960,3 +978,74 @@ void MainWindow::update_pattern_edit_visualization(){
     }
 }
 
+void MainWindow::on_host_name_edit_line_textChanged(const QString &arg1)
+{
+    window_ftpManager->hostName = arg1;
+}
+
+void MainWindow::on_comboBox_activated(const QString &arg1)
+{
+    if(arg1 == "2A"){
+        on_phase_freq_pattern_entry_table_cellClicked(1, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(0, 3);
+    }else if(arg1 == "2B"){
+        on_phase_freq_pattern_entry_table_cellClicked(1, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(1, 3);
+    }else if(arg1 == "3"){
+        on_phase_freq_pattern_entry_table_cellClicked(1, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(1, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(0, 3);
+    }else if(arg1 == "4A"){
+        on_phase_freq_pattern_entry_table_cellClicked(1, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(1, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(0, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(1, 3);
+    }else if(arg1 == "4B"){
+        on_phase_freq_pattern_entry_table_cellClicked(1, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(1, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(1, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(0, 3);
+    }else if(arg1 == "5"){
+        on_phase_freq_pattern_entry_table_cellClicked(1, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(1, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(1, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(0, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(1, 3);
+    }else if(arg1 == "7"){
+        on_phase_freq_pattern_entry_table_cellClicked(1, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(1, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(1, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(0, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(0, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(1, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(0, 3);
+    }else if(arg1 == "11"){
+        on_phase_freq_pattern_entry_table_cellClicked(1, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(1, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(1, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(0, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(0, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(0, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(1, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(0, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(0, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(1, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(0, 3);
+    }else if(arg1 == "13"){
+        on_phase_freq_pattern_entry_table_cellClicked(1, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(1, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(1, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(1, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(1, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(0, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(0, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(1, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(1, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(0, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(1, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(0, 3);
+        on_phase_freq_pattern_entry_table_cellClicked(1, 3);
+    }else{
+        qDebug() << "Error, unknown Barker Code selected";
+    }
+}

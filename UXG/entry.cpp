@@ -179,3 +179,8 @@ QString Entry::hex_to_binary_converter(QString hex){
 
     return binaryString;
 }
+
+void Entry::clear_pattern(){
+    bitPattern.clear();
+    parse_entry_for_plain_text_pattern();
+}

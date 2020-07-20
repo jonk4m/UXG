@@ -124,8 +124,10 @@ cd means change directory on the machine you are connected to over ftp
 
 QFileName.resize(0); clears all the text in a file :  https://forum.qt.io/topic/12307/qt-clear-the-contents-of-a-qfile
 
+how pointers work really good overview : http://www.cplusplus.com/doc/tutorial/pointers/
 
 
+010101010101 
 
 
 

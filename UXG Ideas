@@ -36,41 +36,8 @@ for pdw streaming from a file, the file is stored on ssd and can be massive. Abs
 list mode is limited to 700,000ish pulses since it's on the FPGA
 
 
-GET IT SO YOU CAN OPEN AN EXISTING FILE ON THE UXG, THEN WORRY ABOUT VISUALIZING THE TABLES
 
-
-
-
-radio buttons change window_fpcs.settings.usingExistingTableLocal = true;
-
-select File button then gets the filepath and name and sets it to window_fpcs.settings.existingTableFilePath = filePath;
- - this is where we need to display the list of files on the uxg to the user. 
- 
-the OPEN button sets window_fpcs.settings.usingExistingTable = true; then does initialize_workingFile()
-
-initialize_workingFile() calls initialize_existingFile_local(); (would be initialize_existingFile_onUxg();
-
-initialize_existingFile_local(); creates a QFile from that filepath, checks its header, and sets the streamer
- - 
-
-DONE
-
-
-
-
-when the user presses select file, display the list of fpcs files to the user,
-when they select one and click open, tell the UXG to export that fpcs file to a csv. (even if it already exists as a csv it will just overright it)
-then use ftpManager.startProcess() to get that file. Then do the initialize_file() shit to rewrite the header and basically rewrite the whole file preserving that data.
-
-
-
-
-
-
-
-
-
-
+so if I have 3 bits per subpulse and my subpulse is 110, then I need to add the leading 0 to get 0110 for x6 right? or is it the trailing zero 1100 making xE since it's in transmission order? 
 
 
 

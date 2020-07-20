@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>3</number>
     </property>
     <widget class="QWidget" name="signal_creator_tab">
      <attribute name="title">
@@ -33,7 +33,7 @@
     </widget>
     <widget class="QWidget" name="freq_phase_tab">
      <attribute name="title">
-      <string>Freq/Phase Pattern Setup</string>
+      <string>Freq/Phase Pattern Setup (MOP)</string>
      </attribute>
      <widget class="QToolBox" name="table_or_pattern_toolbox">
       <property name="enabled">
@@ -48,7 +48,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="table_tab">
        <property name="geometry">
@@ -3607,18 +3607,36 @@
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout">
-         <item row="1" column="0">
-          <spacer name="horizontalSpacer_4">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>Pattern Type : </string>
            </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QRadioButton" name="freq_pattern_type_radio_button">
+           <property name="text">
+            <string>Frequency</string>
            </property>
-          </spacer>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QRadioButton" name="phase_pattern_type_radio_button">
+           <property name="text">
+            <string>Phase</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QRadioButton" name="both_pattern_type_radio_button">
+           <property name="text">
+            <string>Both</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
          </item>
          <item row="1" column="3">
           <spacer name="horizontalSpacer_6">
@@ -3666,21 +3684,8 @@
            </property>
           </spacer>
          </item>
-         <item row="2" column="2">
-          <spacer name="horizontalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="2" column="3">
-          <spacer name="horizontalSpacer_3">
+         <item row="1" column="0">
+          <spacer name="horizontalSpacer_4">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -3705,35 +3710,71 @@
            </property>
           </spacer>
          </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_2">
+         <item row="2" column="2">
+          <widget class="QLabel" name="add_barker_code_label">
+           <property name="layoutDirection">
+            <enum>Qt::LeftToRight</enum>
+           </property>
            <property name="text">
-            <string>Pattern Type : </string>
+            <string>Add Barker Code:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
            </property>
           </widget>
          </item>
-         <item row="0" column="1">
-          <widget class="QRadioButton" name="phase_pattern_type_radio_button">
-           <property name="text">
-            <string>Phase</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QRadioButton" name="freq_pattern_type_radio_button">
-           <property name="text">
-            <string>Frequency</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QRadioButton" name="both_pattern_type_radio_button">
-           <property name="text">
-            <string>Both</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
+         <item row="2" column="3">
+          <widget class="QComboBox" name="comboBox">
+           <item>
+            <property name="text">
+             <string>None</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>2A</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>2B</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>3</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>4A</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>4B</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>5</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>7</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>11</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>13</string>
+            </property>
+           </item>
           </widget>
          </item>
         </layout>
@@ -4352,49 +4393,59 @@
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
-       <item row="2" column="1">
+       <item row="3" column="2">
         <widget class="QPushButton" name="initiate_uxg_self_test_push_button">
          <property name="text">
           <string>Initiate UXG Self-Test</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
-        <widget class="QPushButton" name="delete_all_files_on_uxg_push_button">
-         <property name="text">
-          <string>Delete All Files on UXG</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
+       <item row="2" column="1">
         <widget class="QPushButton" name="pushButton_2">
          <property name="text">
           <string>send *IDN?</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="1">
-        <widget class="QPushButton" name="download_all_files_from_uxg_push_button_2">
-         <property name="text">
-          <string>Download All Files Available on UXG</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0">
+       <item row="1" column="1">
         <widget class="QPushButton" name="pushButton">
          <property name="text">
           <string>connect</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="0">
+       <item row="3" column="1">
         <widget class="QPushButton" name="power_off_uxg_push_button">
          <property name="text">
           <string>Power Off UXG</string>
          </property>
         </widget>
        </item>
+       <item row="1" column="2">
+        <widget class="QPushButton" name="download_all_files_from_uxg_push_button_2">
+         <property name="text">
+          <string>Download All Files Available on UXG</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="2">
+        <widget class="QPushButton" name="delete_all_files_on_uxg_push_button">
+         <property name="text">
+          <string>Delete All Files on UXG</string>
+         </property>
+        </widget>
+       </item>
       </layout>
+     </widget>
+     <widget class="QLineEdit" name="host_name_edit_line">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>480</y>
+        <width>586</width>
+        <height>20</height>
+       </rect>
+      </property>
      </widget>
     </widget>
    </widget>
