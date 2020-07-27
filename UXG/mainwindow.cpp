@@ -1049,3 +1049,17 @@ void MainWindow::on_comboBox_activated(const QString &arg1)
         qDebug() << "Error, unknown Barker Code selected";
     }
 }
+
+void MainWindow::on_pushButton_3_clicked()
+{
+    //209
+    QString header = "Operation,Pulse Start Time (s),Pulse Width (s),Frequency (Hz),Phase Mode,Phase (deg),Relative Power (dB),Pulse Mode,Markers,Band Adjust,Chirp Shape,Freq/Phase Coding Index,Chirp Rate (Hz/s),Frequency Band Map\n";
+    window_ftpManager->send_SCPI("MEM:DATA 'joshIsGay.csv',#3209" + header);
+    QString pdw1 = "1,0,1.00E+00,1.00E+09,COH,0,1,ON,NONE,0,SAW,1,0.00E+00,A\n"; //57
+    QString pdw2 = "0,2.00E+00,1.00E-04,1.08E+09,COH,0,1,ON,NONE,0,SAW,0,0.00E+00,A\n"; //64
+    QString pdw3 = "2,3,1.00E-04,1.10E+09,COH,0,1,ON,NONE,0,SAW,0,0.00E+00,A\n"; //57
+    window_ftpManager->send_SCPI("MEM:DATA:APP 'joshIsGay.csv',#257" + pdw1);
+    window_ftpManager->send_SCPI("MEM:DATA:APP 'joshIsGay.csv',#264" + pdw2);
+    window_ftpManager->send_SCPI("MEM:DATA:APP 'joshIsGay.csv',#257" + pdw3);
+    window_ftpManager->send_SCPI("MEM:IMP:STR 'joshisgay.csv','joshisgay'");
+}

@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>3</number>
     </property>
     <widget class="QWidget" name="signal_creator_tab">
      <attribute name="title">
@@ -55,8 +55,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>791</width>
-         <height>467</height>
+         <width>100</width>
+         <height>30</height>
         </rect>
        </property>
        <attribute name="label">
@@ -4393,27 +4393,6 @@
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
-       <item row="3" column="2">
-        <widget class="QPushButton" name="initiate_uxg_self_test_push_button">
-         <property name="text">
-          <string>Initiate UXG Self-Test</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QPushButton" name="pushButton_2">
-         <property name="text">
-          <string>send *IDN?</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QPushButton" name="pushButton">
-         <property name="text">
-          <string>connect</string>
-         </property>
-        </widget>
-       </item>
        <item row="3" column="1">
         <widget class="QPushButton" name="power_off_uxg_push_button">
          <property name="text">
@@ -4428,10 +4407,38 @@
          </property>
         </widget>
        </item>
+       <item row="3" column="2">
+        <widget class="QPushButton" name="initiate_uxg_self_test_push_button">
+         <property name="text">
+          <string>Initiate UXG Self-Test</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QPushButton" name="pushButton_2">
+         <property name="text">
+          <string>send *IDN?</string>
+         </property>
+        </widget>
+       </item>
        <item row="2" column="2">
         <widget class="QPushButton" name="delete_all_files_on_uxg_push_button">
          <property name="text">
           <string>Delete All Files on UXG</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QPushButton" name="pushButton">
+         <property name="text">
+          <string>connect</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QPushButton" name="pushButton_3">
+         <property name="text">
+          <string>send one</string>
          </property>
         </widget>
        </item>

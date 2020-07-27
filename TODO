@@ -77,24 +77,23 @@ how is the python code uploading the pdw file to the uxg?
 
 This week 
 --- Josh
-- getting in touch with Jeremy and David to make NEMA shit work 
+- getting in touch with Jeremy and David to make NEMA shit work
 - working partially on setup routine of list of SCPI commands 
 - cleaning up code (it's about to be incorporated into my code)
 - talk to Mucks about GPS thing 
 - start looking at Jonathan's code on github 
 --- Jonathan 
+- resume shit 
 - signal creator tab - fuck 
 - test code on different UXG (tuesday)
 - talk to Mike about what he wants that he mentioned 
 - test that the output signal is in fact using the fpcs using spec analyzer  
 - add the increment button for that one use-case chris mentioned 
-
-
-Next week (last week)
---- Both
 - incorporate Josh's code into Jonathan's code
-- I come to Josh's on Monday 
-- Go into the hanger Thursday to test things before doing a demo on Friday 
+
+a pdw is 24 bytes (byte is 4 bits) 
+
+
 
 
 
