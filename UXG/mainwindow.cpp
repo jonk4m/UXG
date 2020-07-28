@@ -9,6 +9,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     MainWindow::fpcs_setup();
     window_ftpManager = new FtpManager(this);
+    window_yatg = new YATG(window_ftpManager);
 
     ui->uxg_fpcs_files_combo_box->hide();
     ui->delete_table_from_uxg_push_button->hide();
@@ -374,13 +375,15 @@ void MainWindow::on_phase_freq_pattern_entry_table_cellChanged(int row, int colu
     }
     case 2: { //case 2 is the freq units
         //set the freq units but remove the ending "hz"
-        window_fpcs.workingEntry.freqUnits.replace(row, ui->phase_freq_pattern_entry_table->item(row, column)->text().remove("hz"));
-        QString currentText = ui->phase_freq_pattern_entry_table->item(row,column)->text();
-        if(currentText.contains("hz")){
+        QString enteredValue = ui->phase_freq_pattern_entry_table->item(row, column)->text().remove("hz");
+        if(enteredValue == "m")
+            enteredValue = "M"; // don't allow the user to put lower-case "m" only upper case "M"
+        window_fpcs.workingEntry.freqUnits.replace(row, enteredValue);
+        if(enteredValue.contains("hz")){
                 break; //prevent infinite loop
         }
-        currentText = currentText + "hz";
-        ui->phase_freq_pattern_entry_table->item(row,column)->setText(currentText);
+        enteredValue = enteredValue + "hz";
+        ui->phase_freq_pattern_entry_table->item(row,column)->setText(enteredValue);
         break;
     }
     case 3: { //case 3 is the add button
@@ -1062,4 +1065,41 @@ void MainWindow::on_pushButton_3_clicked()
     window_ftpManager->send_SCPI("MEM:DATA:APP 'joshIsGay.csv',#264" + pdw2);
     window_ftpManager->send_SCPI("MEM:DATA:APP 'joshIsGay.csv',#257" + pdw3);
     window_ftpManager->send_SCPI("MEM:IMP:STR 'joshisgay.csv','joshisgay'");
+}
+
+void MainWindow::on_select_yatg_file_push_button_clicked()
+{
+    window_yatg->uploadingMultipleFiles = false;
+
+    //prompt the user to select a folder from the local system
+    QString filePath = QFileDialog::getOpenFileName(this, tr("Open File"),
+                "/fileFolder/uploads", tr("CSV Files (*.csv);;Text Files (*.txt)"));
+    window_yatg->workingFilePath = filePath; //set the filepath
+
+    ui->selected_yatg_file_line_editor->setText(window_yatg->workingFilePath); //update the EditLine Box so the user can see the filePath they just chose
+    ui->select_multiple_files_by_folder_line_editor->clear();
+}
+
+void MainWindow::on_select_multiple_files_by_folder_push_button_clicked()
+{
+    window_yatg->uploadingMultipleFiles = true;
+
+    //prompt the user to select a folder
+    QString folderName = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
+                "/home", QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+
+    window_yatg->workingFilePath = folderName; //set the filepath
+
+    ui->select_multiple_files_by_folder_line_editor->setText(window_yatg->workingFilePath);
+    ui->selected_yatg_file_line_editor->clear();
+
+}
+
+void MainWindow::on_upload_yatg_file_to_uxg_push_button_clicked()
+{
+    if(window_yatg->uploadingMultipleFiles){
+        window_yatg->upload_multiple_files_to_uxg();
+    }else{
+        window_yatg->upload_file_to_uxg();
+    }
 }

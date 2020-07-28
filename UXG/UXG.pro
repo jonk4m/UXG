@@ -22,12 +22,14 @@ SOURCES += \
     ftpmanager.cpp \
     main.cpp \
     mainwindow.cpp \
+    yatg.cpp
 
 HEADERS += \
     entry.h \
     fpcs.h \
     ftpmanager.h \
-    mainwindow.h
+    mainwindow.h \
+    yatg.h
 
 FORMS += \
     mainwindow.ui

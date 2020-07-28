@@ -16,6 +16,7 @@
 #include "QStringList"
 #include "QTableWidget"
 #include "QTableWidgetItem"
+#include "yatg.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -32,6 +33,7 @@ public:
     Ui::MainWindow *ui;
     Fpcs window_fpcs; //each fpcs also has it's own fpcs_settings struct titled "settings"
     FtpManager *window_ftpManager;
+    YATG *window_yatg;
     int highlightedFpcsRow = -1;
 
 private slots:
@@ -125,6 +127,12 @@ private slots:
     void on_comboBox_activated(const QString &arg1);
 
     void on_pushButton_3_clicked();
+
+    void on_select_yatg_file_push_button_clicked();
+
+    void on_select_multiple_files_by_folder_push_button_clicked();
+
+    void on_upload_yatg_file_to_uxg_push_button_clicked();
 
 private:
 

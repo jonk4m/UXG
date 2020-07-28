@@ -40,12 +40,48 @@ list mode is limited to 700,000ish pulses since it's on the FPGA
 so if I have 3 bits per subpulse and my subpulse is 110, then I need to add the leading 0 to get 0110 for x6 right? or is it the trailing zero 1100 making xE since it's in transmission order? 
 
 
+MEMory:DATA "DD.csv",#3200Operation,Pulse Start Time (s),Pulse Width (s),Frequency (Hz), Phase Mode,Phase (deg),Relative Power (dB),Pulse Mode,Markers,Band Adjust,Chirp Shape\r\n1,0,5.00,1000000000,COH,0,0,ON,1,0,SAW,0,0,A\r\n
+MEMory:IMPort:STReam "DD.csv", "BALLS.csv"
 
 
 
 
 
+:MEMory:DATA "DD.csv",#3194
+Operation,Pulse Start Time (s),Pulse Width (s),Frequency (Hz), Phase Mode,Phase (deg),Relative Power (dB),Pulse Mode,Markers,Band Adjust,Chirp Shape\r,1,0,1,1000000000,COH,0,0,ON,1,0,SAW,0,0,A\r
 
 
 	
+Ideas for the YATG input -----------------------
+
+They can make the count say "loop" 
+
+They user can make 100 files and identify the folder
+that they are in to the GUI which will upload them 
+one by one as long as their names are 1 through 
+whatever
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

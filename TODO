@@ -3,6 +3,8 @@ include in manual that you don't have to type hz or degrees everytime
 include in manual why you can't just download an fpcs file from the web ftp and then it will say the header is wrong. (it's because you have to import from my application so the application can rewrite the header)
 include in manual why you decided not to include functionality for batch files - user can simply create a blank csv using the program, then type in what they want manually (biggest hassle would be just converting their pattern to hex and making sure they all trailing not leading zeros) 
 include in manual what broken out code is specifically for ftp
+INCLUDE IN PRESENTATION THE ISSUE YOU RAN INTO WITH THE TRAILING ZEROS FOR THE HEX CONVERSION OF THE BITPATTERN. SINCE THE UXG READS THE PATTERN IN TRANSMISSION ORDER, A PATTERN OF 110 NEEDS TO HAVE A TRAILING ZERO (1100) FOR THE HEX CONVERSION, NOT A LEADING ZERO (0110) SINCE IT STARTS READING FROM THE FRONT OF THE PATTERN NOT THE BACK. AKA THAT TRAILING ZERO WILL BE IGNORED
+	
 
 incorporate Josh's code with yours 
 Right now the user has to clear the bitpattern manually if they change the number of freq/phases or the type (phase/freq/both) 
@@ -36,42 +38,7 @@ Add checks for resolution limits of fpcs values (0.01 degree resolution, 1kHz re
 --------------------------------------Add a power-off button to the connect page
 Add checks for the user inputs that they're in fact numbers when we expect them to be 
 change all the qDebug()'s to output on the text window at the bottom of the page
-
-C:\Users\abms1\Desktop\UXG\build-UXG-Desktop_Qt_5_15_0_MSVC2019_64bit-Debug
-
-On the documentation User's Guide/Streaming Mode Use/FrequencyPhase Coding Files  at the top, the third "NOTE" down says "This topic does not apply to Streaming when File is the Streaming Source selection." So wtf do we use as a reference for that?
-It appears I should be using FPC not FPCS since FPCS is for FCP operation whereas FPC is for streaming. 
-
-
-TODO
-add a text window BELOW the main tabs so it persists for every page and change all the qDebug()'s to output on that text window
-
-SETTING AN FPCS FILE TO BE THE CURRENT TABLE DOES NOTHING. THE VALUES OF THE CURRENT TABLE DON'T CHANGE. YOU HAVE TO IMPORT FROM THE FPCS FILE FOR THE CURRENT TABLE'S VALUES TO MATCH THE FILE'S 
-
-:MEMory:EXPort:ASCii:FPCSetup "testFile.fpcs" WILL ALWAYS OUTPUT THE FILE AS A CSV EVEN IF YOU TELL IT TO DO IT AS AN FPCS (THAT COMES STRAIGHT FROM THE DOCUMENTATION)
-SO HOW DO I GO FROM A CSV TO AN FPCS???? WHY ISN'T THERE A :MEMory:STORE:ASCii:FPCSetup "testFile.fpcs"  SCPI COMMAND? There is, it's SOURce:PULM:STReam:FPCSetup:STORe
-
-
-
-newEntry.numOfPhasesOrFreqs = window_fpcs.workingEntryList.at(highlightedFpcsRow).numOfPhasesOrFreqs;
-on_socket_readyRead()
-
-
-
-LET'S NOT CREATE THE CSV FILE UNTIL RIGHT BEFORE WE UPLOAD IT TO THE UXG. IF WE DOWNLOAD A CSV, WE PARSE THE VALUES INTO OUR FPCS CLASS THEN DELETE THE FILE, THEN CREATE A FILE
-
-WHEN WE CLOSE THE PROGRAM WE POPULATE THE CSV FILE REGARDLESS OF UPLOADING 
-
-
-INCLUDE IN PRESENTATION THE ISSUE YOU RAN INTO WITH THE TRAILING ZEROS FOR THE HEX CONVERSION OF THE BITPATTERN. SINCE THE UXG READS THE PATTERN IN TRANSMISSION ORDER, A PATTERN OF 110 NEEDS TO HAVE A TRAILING ZERO (1100) FOR THE HEX CONVERSION, NOT A LEADING ZERO (0110) SINCE IT STARTS READING FROM THE FRONT OF THE PATTERN NOT THE BACK. AKA THAT TRAILING ZERO WILL BE IGNORED
-	
-
-
-
-if the python code actually streams the binary to the UXG, why not convert it into the pdw format as a text file then use ftp to upload the file?
-is there a SCPI command to tell the uxg to convert a csv into pdw? (prolly not) 
-how is the python code uploading the pdw file to the uxg? 
-
+--------------------------------------test that the output signal is in fact using the fpcs using spec analyzer  
 
 
 
@@ -83,17 +50,16 @@ This week
 - talk to Mucks about GPS thing 
 - start looking at Jonathan's code on github 
 --- Jonathan 
-- resume shit 
 - signal creator tab - fuck 
 - test code on different UXG (tuesday)
 - talk to Mike about what he wants that he mentioned 
-- test that the output signal is in fact using the fpcs using spec analyzer  
+- setup routine of list of SCPI commands 
 - add the increment button for that one use-case chris mentioned 
 - incorporate Josh's code into Jonathan's code
 
 a pdw is 24 bytes (byte is 4 bits) 
 
-
+1,0,5.00,1000000000,COH,0,0,ON,1,0,SAW,0,0,A
 
 
 
