@@ -3,6 +3,7 @@
 
 //Josh is gay
 //for sure
+//gg
 
 #include <QMainWindow>
 #include <QObject>
