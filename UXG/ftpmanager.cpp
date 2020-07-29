@@ -171,6 +171,10 @@ void FtpManager::closeTcpSocket(){
     tcpSocket->close();
 }
 
+void FtpManager::abortTcpSocket(){
+    tcpSocket->abort();
+}
+
 void FtpManager::socket_connected(){
     qDebug() << "Socket connected";
     send_SCPI("DISPlay:REMote ON");

@@ -24,118 +24,182 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>3</number>
+     <number>0</number>
     </property>
-    <widget class="QWidget" name="signal_creator_tab">
+    <widget class="QWidget" name="uxg_rotor_tab">
      <attribute name="title">
-      <string>Signal Creator</string>
+      <string>UXG/Rotor Configuration Settings</string>
      </attribute>
-     <widget class="QPushButton" name="pushButton_3">
-      <property name="geometry">
-       <rect>
-        <x>440</x>
-        <y>120</y>
-        <width>341</width>
-        <height>23</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>send one</string>
-      </property>
-     </widget>
-     <widget class="QGroupBox" name="groupBox">
+     <widget class="QGroupBox" name="groupBox_4">
       <property name="geometry">
        <rect>
         <x>10</x>
         <y>10</y>
-        <width>411</width>
-        <height>161</height>
+        <width>381</width>
+        <height>501</height>
        </rect>
       </property>
       <property name="title">
-       <string>YATG Format Signal Creation</string>
+       <string>UXG</string>
       </property>
-      <widget class="QWidget" name="gridLayoutWidget_3">
+      <widget class="QGroupBox" name="groupBox">
        <property name="geometry">
         <rect>
-         <x>9</x>
-         <y>19</y>
-         <width>391</width>
-         <height>131</height>
+         <x>10</x>
+         <y>20</y>
+         <width>361</width>
+         <height>161</height>
         </rect>
        </property>
-       <layout class="QGridLayout" name="gridLayout_3">
-        <item row="1" column="2">
-         <widget class="QLineEdit" name="select_multiple_files_by_folder_line_editor"/>
-        </item>
-        <item row="0" column="0">
-         <widget class="QPushButton" name="select_yatg_file_push_button">
-          <property name="text">
-           <string>Select File</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0" colspan="3">
-         <widget class="QPushButton" name="upload_yatg_file_to_uxg_push_button">
-          <property name="font">
-           <font>
-            <strikeout>false</strikeout>
-           </font>
-          </property>
-          <property name="acceptDrops">
-           <bool>false</bool>
-          </property>
-          <property name="autoFillBackground">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Upload File(s) to UXG</string>
-          </property>
-          <property name="autoDefault">
-           <bool>false</bool>
-          </property>
-          <property name="default">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0" colspan="2">
-         <widget class="QPushButton" name="select_multiple_files_by_folder_push_button">
-          <property name="text">
-           <string>Select Multiple Files by Folder</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1" colspan="2">
-         <widget class="QLineEdit" name="selected_yatg_file_line_editor"/>
-        </item>
-       </layout>
+       <property name="title">
+        <string>YATG Format Signal Creation</string>
+       </property>
+       <widget class="QWidget" name="gridLayoutWidget_3">
+        <property name="geometry">
+         <rect>
+          <x>9</x>
+          <y>19</y>
+          <width>341</width>
+          <height>131</height>
+         </rect>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_3">
+         <item row="1" column="2">
+          <widget class="QLineEdit" name="select_multiple_files_by_folder_line_editor"/>
+         </item>
+         <item row="0" column="0">
+          <widget class="QPushButton" name="select_yatg_file_push_button">
+           <property name="text">
+            <string>Select File</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0" colspan="2">
+          <widget class="QPushButton" name="select_multiple_files_by_folder_push_button">
+           <property name="text">
+            <string>Select Multiple Files by Folder</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1" colspan="2">
+          <widget class="QLineEdit" name="selected_yatg_file_line_editor"/>
+         </item>
+         <item row="2" column="0" colspan="3">
+          <widget class="QPushButton" name="upload_yatg_file_to_uxg_push_button">
+           <property name="font">
+            <font>
+             <strikeout>false</strikeout>
+            </font>
+           </property>
+           <property name="acceptDrops">
+            <bool>false</bool>
+           </property>
+           <property name="autoFillBackground">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Upload File(s) to UXG</string>
+           </property>
+           <property name="autoDefault">
+            <bool>false</bool>
+           </property>
+           <property name="default">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+      <widget class="QGroupBox" name="groupBox_2">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>190</y>
+         <width>361</width>
+         <height>301</height>
+        </rect>
+       </property>
+       <property name="title">
+        <string>Common Commands</string>
+       </property>
+       <widget class="QWidget" name="formLayoutWidget_2">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>20</y>
+          <width>341</width>
+          <height>271</height>
+         </rect>
+        </property>
+        <layout class="QFormLayout" name="formLayout_2">
+         <item row="0" column="0">
+          <widget class="QPushButton" name="pushButton">
+           <property name="text">
+            <string>connect</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="host_name_edit_line"/>
+         </item>
+         <item row="1" column="0" colspan="2">
+          <widget class="QPushButton" name="pushButton_2">
+           <property name="text">
+            <string>send *IDN?</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0" colspan="2">
+          <widget class="QPushButton" name="initiate_uxg_self_test_push_button">
+           <property name="text">
+            <string>Initiate UXG Self-Test</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0" colspan="2">
+          <widget class="QPushButton" name="power_off_uxg_push_button">
+           <property name="text">
+            <string>Power Off UXG</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0" colspan="2">
+          <widget class="QPushButton" name="delete_all_files_on_uxg_push_button">
+           <property name="text">
+            <string>Delete All Files on UXG</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0" colspan="2">
+          <widget class="QPushButton" name="download_all_files_from_uxg_push_button_2">
+           <property name="text">
+            <string>Download All Files Available on UXG</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0" colspan="2">
+          <widget class="QPushButton" name="pushButton_3">
+           <property name="text">
+            <string>send one</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
       </widget>
      </widget>
-     <widget class="QPushButton" name="delete_all_files_on_uxg_push_button">
+     <widget class="QGroupBox" name="groupBox_5">
       <property name="geometry">
        <rect>
-        <x>440</x>
-        <y>40</y>
-        <width>341</width>
-        <height>23</height>
+        <x>400</x>
+        <y>10</y>
+        <width>381</width>
+        <height>501</height>
        </rect>
       </property>
-      <property name="text">
-       <string>Delete All Files on UXG</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="download_all_files_from_uxg_push_button_2">
-      <property name="geometry">
-       <rect>
-        <x>440</x>
-        <y>80</y>
-        <width>341</width>
-        <height>23</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Download All Files Available on UXG</string>
+      <property name="title">
+       <string>Rotor</string>
       </property>
      </widget>
     </widget>
@@ -3698,8 +3762,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>98</width>
-         <height>28</height>
+         <width>791</width>
+         <height>467</height>
         </rect>
        </property>
        <attribute name="label">
@@ -4454,92 +4518,6 @@
         </property>
        </widget>
       </widget>
-     </widget>
-    </widget>
-    <widget class="QWidget" name="uxg_rotor_tab">
-     <attribute name="title">
-      <string>UXG/Rotor Configuration Settings</string>
-     </attribute>
-     <widget class="QGroupBox" name="groupBox_4">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>10</y>
-        <width>381</width>
-        <height>501</height>
-       </rect>
-      </property>
-      <property name="title">
-       <string>UXG</string>
-      </property>
-     </widget>
-     <widget class="QGroupBox" name="groupBox_5">
-      <property name="geometry">
-       <rect>
-        <x>400</x>
-        <y>10</y>
-        <width>381</width>
-        <height>501</height>
-       </rect>
-      </property>
-      <property name="title">
-       <string>Rotor</string>
-      </property>
-     </widget>
-    </widget>
-    <widget class="QWidget" name="connection_tab">
-     <attribute name="title">
-      <string>Connect to UXG</string>
-     </attribute>
-     <widget class="QWidget" name="gridLayoutWidget_2">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>10</y>
-        <width>771</width>
-        <height>461</height>
-       </rect>
-      </property>
-      <layout class="QGridLayout" name="gridLayout_2">
-       <item row="3" column="1">
-        <widget class="QPushButton" name="power_off_uxg_push_button">
-         <property name="text">
-          <string>Power Off UXG</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QPushButton" name="pushButton_2">
-         <property name="text">
-          <string>send *IDN?</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QPushButton" name="pushButton">
-         <property name="text">
-          <string>connect</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="1">
-        <widget class="QPushButton" name="initiate_uxg_self_test_push_button">
-         <property name="text">
-          <string>Initiate UXG Self-Test</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QLineEdit" name="host_name_edit_line">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>480</y>
-        <width>586</width>
-        <height>20</height>
-       </rect>
-      </property>
      </widget>
     </widget>
    </widget>

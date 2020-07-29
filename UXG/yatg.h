@@ -23,7 +23,7 @@ public:
     YATG(FtpManager*);
     bool upload_file_to_uxg();
     bool upload_multiple_files_to_uxg();
-    bool append_rows_to_uxg_file(QHash<QString,int>);
+    bool append_rows_to_uxg_file(QHash<QString,int>,QString,double);
 
     QFile workingFile;
     QString workingFilePath;

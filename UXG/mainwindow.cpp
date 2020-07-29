@@ -481,6 +481,7 @@ void MainWindow::on_download_all_files_from_uxg_push_button_clicked()
 
 void MainWindow::on_pushButton_clicked()
 {
+    window_ftpManager->abortTcpSocket();
     window_ftpManager->connect(5025);  //K-N5193A-90114
 }
 
@@ -1086,7 +1087,7 @@ void MainWindow::on_select_multiple_files_by_folder_push_button_clicked()
 
     //prompt the user to select a folder
     QString folderName = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
-                "/home", QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+                "/fileFolder/uploads", QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 
     window_yatg->workingFilePath = folderName; //set the filepath
 
@@ -1097,9 +1098,13 @@ void MainWindow::on_select_multiple_files_by_folder_push_button_clicked()
 
 void MainWindow::on_upload_yatg_file_to_uxg_push_button_clicked()
 {
+    bool success = true;
     if(window_yatg->uploadingMultipleFiles){
-        window_yatg->upload_multiple_files_to_uxg();
+        success = window_yatg->upload_multiple_files_to_uxg();
     }else{
-        window_yatg->upload_file_to_uxg();
+        success = window_yatg->upload_file_to_uxg();
+    }
+    if(!success){
+        qDebug() << "File unable to upload to UXG : ERROR";
     }
 }

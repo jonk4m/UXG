@@ -49,6 +49,7 @@ public:
     void send_SCPI(QString);
     void connect(quint16);
     void closeTcpSocket();
+    void abortTcpSocket();
 
 private slots:
     void process_started();
