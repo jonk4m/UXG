@@ -5,6 +5,7 @@
 #include <QObject>
 #include <QDebug>
 
+//suck it
 class Entry
 {
 public:
