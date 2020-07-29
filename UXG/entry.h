@@ -1,6 +1,8 @@
 #ifndef ENTRY_H
 #define ENTRY_H
 
+//Josh is gay
+
 #include <QMainWindow>
 #include <QObject>
 #include <QDebug>
