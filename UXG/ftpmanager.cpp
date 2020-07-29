@@ -179,6 +179,7 @@ void FtpManager::socket_connected(){
     qDebug() << "Socket connected";
     send_SCPI("DISPlay:REMote ON");
     send_SCPI("INSTrument STReaming");
+    UXGSetup();
 }
 
 void FtpManager::socket_disconnected(){
@@ -188,6 +189,38 @@ void FtpManager::socket_disconnected(){
 void FtpManager::socket_errorOccurred(QAbstractSocket::SocketError *error){
     qDebug() << "Socket error occurred : ";
     qDebug() << error;
+}
+
+//returns true when done with the second phase
+void FtpManager::UXGSetup(){
+    switch (setup){
+    case UXGSetup::Phase1 :{
+        send_SCPI(":OUTPut OFF");
+        send_SCPI(":OUTPut:MODulation OFF");
+        send_SCPI(":INSTrument:SELect STReaming");
+        send_SCPI("*OPC?");
+        setup = UXGSetup::Phase2;
+
+        break;
+    }
+    case UXGSetup::Phase2 :{
+        send_SCPI(":OUTPut OFF");
+        send_SCPI(":STReam:STATe OFF");
+        send_SCPI(":STReam:SOURce FILE");
+        send_SCPI(":STReam:TRIGger:PLAY:SOURce BUS");
+        send_SCPI(":POWer:ATTenuation:BYPass 0");
+        send_SCPI(":POWer -100");
+        send_SCPI(":STReam:SETup:TIME:AUTO OFF");
+        send_SCPI(":STReam:SETup:TIME 0");
+        //send_SCPI(":STReam:TRIGger:PLAY:FILE:TYPE SINGle");
+        send_SCPI(":STReam:STATe OFF");
+        send_SCPI("*OPC?");
+        setup = UXGSetup::Phase1;
+        UXGSetupFinished=true;
+        break;
+    }
+
+    }
 }
 
 

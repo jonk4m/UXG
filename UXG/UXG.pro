@@ -2,7 +2,7 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 greaterThan(QT_MAJOR_VERSION, 4): QT += network
-
+greaterThan(QT_MAJOR_VERSION, 4): QT += serialport
 CONFIG += c++11
 
 # The following define makes your compiler emit warnings if you use
@@ -22,6 +22,8 @@ SOURCES += \
     ftpmanager.cpp \
     main.cpp \
     mainwindow.cpp \
+    rotorcontrol.cpp \
+    udpsocket.cpp \
     yatg.cpp
 
 HEADERS += \
@@ -29,6 +31,8 @@ HEADERS += \
     fpcs.h \
     ftpmanager.h \
     mainwindow.h \
+    rotorcontrol.h \
+    udpsocket.h \
     yatg.h
 
 FORMS += \

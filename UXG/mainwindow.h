@@ -17,6 +17,8 @@
 #include "QTableWidget"
 #include "QTableWidgetItem"
 #include "yatg.h"
+#include "rotorcontrol.h"
+#include "udpsocket.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -31,11 +33,37 @@ public:
     ~MainWindow();
     void fpcs_setup();
     Ui::MainWindow *ui;
+    UdpSocket *udpSocket;
     Fpcs window_fpcs; //each fpcs also has it's own fpcs_settings struct titled "settings"
     FtpManager *window_ftpManager;
     YATG *window_yatg;
     int highlightedFpcsRow = -1;
 
+    void setup();
+     //serial fields
+     //test fields
+     QList<QString> testPositions;
+     bool positionTestHasBeenOpened=false;
+     bool triggerSent=false;
+     int fileNumber=1;
+     //serial fields
+     RotorControl *serial;
+     int rotorInPositionCounter=0;
+     //table fields
+     int currentTableNumber = 0;
+     QList<QTableWidgetItem *> tableWidgetItemList;
+     int tableAzResolution=1;
+     int tableElResolution=1;
+     int tableCreatorRowOffset=180;
+     bool rightMouseButtonPressed=false;
+     //test functions
+     void startPositionTest();
+     void startSimpleTest();
+     //table functions
+     QString getFileName();
+     void resetTable(int azResolution, int elResolution);
+     bool leftMouseButtonReleaseEvent(QMouseEvent *event);
+     bool eventFilter(QObject *object, QEvent *event);
 private slots:
 
     void on_specify_table_name_radio_button_clicked();
@@ -133,6 +161,39 @@ private slots:
     void on_select_multiple_files_by_folder_push_button_clicked();
 
     void on_upload_yatg_file_to_uxg_push_button_clicked();
+    //serial slots
+void on_elevationPushButton_clicked();
+void on_azimuthPushButton_clicked();
+void on_changeBothPushButton_clicked();
+void on_connectUSBPushButton_clicked();
+void on_maxSpeedSlider_sliderReleased();
+void on_minSpeedSlider_sliderReleased();
+void on_rampSlider_sliderReleased();
+void serialRead();
+void updatePositions();
+void on_stopButton_clicked();
+void on_elevationMotorSpeedRadioButton_toggled(bool checked);
+void on_positionRadioButton_toggled(bool checked);
+void on_fixElevationPushButton_clicked();
+void on_fixAzimuthPushButton_clicked();
+void stopMotion();
+void resendTimerTimeout();
+//test slots
+void on_openTestFilePushButton_clicked();
+void on_startTestButton_clicked();
+void on_OpenTestPushButton_clicked();
+void on_startDroneTestPushButton_clicked();
+void on_stopTestPushButton_clicked();
+//table slots
+void on_selectBoxesRadioButton_toggled(bool checked);
+void on_clearTablePushButton_clicked();
+void on_testCreatorTableWidget_cellEntered(int row, int column);
+void on_testCreatorTableWidget_itemChanged(QTableWidgetItem *item);
+void on_createTextFilePushButton_clicked();
+void on_changeTableResolutionPushButton_clicked();
+//Udp slots
+void UdpRead();
+void on_turnStreamOffPushButton_clicked();
 
 private:
 
@@ -143,6 +204,9 @@ private:
 
     void update_pattern_edit_visualization();
 
+    QTimer *mainTimer;
+
+    QTimer *stopMotionTimer;
 
 };
 #endif // MAINWINDOW_H

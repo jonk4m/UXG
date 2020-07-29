@@ -18,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->host_name_edit_line->setText(window_ftpManager->hostName);
     output_to_console("Program started.");
     qDebug() << "Program started.";
+    setup();
 }
 
 MainWindow::~MainWindow()
@@ -42,6 +43,30 @@ MainWindow::~MainWindow()
         //do nothing, the messageBox will close itself upon a selection
         break;
     }
+    udpSocket->closeUdpSocket();
+        serial->closeSerialPorts();
+}
+
+void MainWindow::setup(){
+    udpSocket = new UdpSocket(this);
+    serial = new RotorControl(this);//initialize the serial pointer
+    serial->findSerialPorts();//connects the serial ports between the rotor and the
+    mainTimer = new QTimer(this);//starts a timer to update the LCD displays in real time
+    connect(mainTimer, SIGNAL(timeout()), this, SLOT(updatePositions()));//connect the timer to the updatePositions slot (down below)
+    mainTimer->start(200);//the timer will go off every 200ms
+    stopMotionTimer = new QTimer(this);
+    connect(stopMotionTimer, SIGNAL(timeout()), this, SLOT(stopMotion()));
+
+    ui->testCreatorTableWidget->viewport()->installEventFilter(this);
+    ui->testCreatorTableWidget->installEventFilter(this);
+    QList<QString> resolution = ui->tableResolutionLineEdit->text().split(',');
+    resetTable(resolution.at(0).toInt(), resolution.at(1).toInt());
+    //scrolling to an item doesn't put it in the center of the table, so this scrolls past the origin
+    //by 15
+    QTableWidgetItem *originOffset = ui->testCreatorTableWidget->item(102,105);
+    ui->testCreatorTableWidget->scrollToItem(originOffset);
+    //set the origin to black to make it easy to see
+    ui->testCreatorTableWidget->item(90,90)->setBackground(Qt::black);
 }
 
 void MainWindow::fpcs_setup(){
@@ -619,6 +644,35 @@ void MainWindow::on_socket_readyRead(){
         ui->uxg_fpcs_files_combo_box->addItems(outputList);
     }
 
+    if(!window_ftpManager->UXGSetupFinished&&allRead== "1\n"){
+        window_ftpManager->UXGSetup();
+    }
+    else if(serial->simpleTestStarted&&allRead == "ARMED\n"){
+        window_ftpManager->send_SCPI(":OUTPut OFF");
+        window_ftpManager->send_SCPI(":OUTPut:MODulation OFF");
+        window_ftpManager->send_SCPI(":STReam:STATe OFF");
+        triggerSent=false;
+        if(serial->manageSimpleGridTest()){
+            ui->console_text_editor->appendPlainText("Test Finished");
+            serial->simpleTestStarted=false;
+            on_stopTestPushButton_clicked();
+
+        }
+
+    }else if(serial->advancedTestStarted&&allRead== "ARMED\n"){
+
+        window_ftpManager->send_SCPI(":OUTPut OFF");
+        window_ftpManager->send_SCPI(":OUTPut:MODulation OFF");
+         window_ftpManager->send_SCPI(":STReam:STATe OFF");
+        triggerSent=false;
+        if(serial->manageAdvancedTest()){
+            ui->console_text_editor->appendPlainText("Test Finished");
+            serial->advancedTestStarted=false;
+            on_stopTestPushButton_clicked();
+
+        }
+    }
+
     //this process is specifically for when the user is downloading a uxg fpcs file to then edit.
     /*if(window_ftpManager->downloadState == window_ftpManager->exportingTable){
         window_ftpManager->downloadState = window_ftpManager->finished;
@@ -1107,4 +1161,758 @@ void MainWindow::on_upload_yatg_file_to_uxg_push_button_clicked()
     if(!success){
         qDebug() << "File unable to upload to UXG : ERROR";
     }
+}
+
+//serial functions
+
+/*when the elevation push button is clicked, it takes the information from the
+ * elevation line edit and sends it to the move rotor command in the serial class
+ **/
+void MainWindow::on_elevationPushButton_clicked()
+{
+    QString el_value= ui->elevationLineEdit->text();
+    bool isPosition = ui->positionRadioButton->isChecked();
+    serial->moveRotor(el_value, true, isPosition);//the true is for the isElevation boolean
+
+
+
+}
+/*same as the elevation slot above but for azimuth
+ * */
+void MainWindow::on_azimuthPushButton_clicked()
+{
+    QString az_value= ui->azimuthLineEdit->text();
+    bool isPosition = ui->positionRadioButton->isChecked();
+    serial->moveRotor(az_value, false, isPosition);//the false is for the isElevation boolean (it's not elevation, its azimuth)
+
+}
+//if both line edits have a value then they will both change
+void MainWindow::on_changeBothPushButton_clicked()
+{
+    QString az_value= ui->azimuthLineEdit->text();
+    QString el_value= ui->elevationLineEdit->text();
+    bool isPosition = ui->positionRadioButton->isChecked();
+    serial->moveRotor(el_value, true, isPosition);
+    serial->moveRotor(az_value, false, isPosition);
+}
+//reconnects the usb ports, if the gui was opened before the USBs were plugged in
+void MainWindow::on_connectUSBPushButton_clicked()
+{
+    ui->elevationMotorSpeedRadioButton->setChecked(true);
+    ui->azimuthMotorSpeedRadioButton->setChecked(false);
+    serial->closeSerialPorts();
+    serial->findSerialPorts();
+
+}
+//when the max speed slider is released, the value of the slider is sent to the
+//changeMotorSpeed function in the RotorControl class
+void MainWindow::on_maxSpeedSlider_sliderReleased()
+{
+    bool isElevation = ui->elevationMotorSpeedRadioButton->isChecked();
+    serial->changeMotorSpeed(ui->maxSpeedSlider->value(), RotorControl::controllerParameter::maxSpeed, isElevation);
+}
+//when the min speed slider is released, this does the same thing as the slot above
+void MainWindow::on_minSpeedSlider_sliderReleased()
+{
+    bool isElevation = ui->elevationMotorSpeedRadioButton->isChecked();
+    serial->changeMotorSpeed(ui->minSpeedSlider->value(), RotorControl::controllerParameter::minSpeed, isElevation);
+}
+//when the ramp slider is released, this does the same thing as the max slider slot
+void MainWindow::on_rampSlider_sliderReleased()
+{
+    bool isElevation = ui->elevationMotorSpeedRadioButton->isChecked();
+    serial->changeMotorSpeed(ui->rampSlider->value(), RotorControl::controllerParameter::ramp, isElevation);
+}
+
+//updates the positions on the LCDs
+void MainWindow::updatePositions(){
+
+    serial->getPosition();
+    bool isHeadingEqualtoPosition =false;
+    if(!udpSocket->isBound){
+
+        QList<QString> *list = udpSocket->getIPAddressAndPort();
+        if(!list->at(0).isEmpty()){
+            ui->console_text_editor->appendPlainText("IP Address: " + list->at(0)+ ", Port: " + list->at(1));
+        }
+    }
+    if(!serial->stoppingMotion){
+        isHeadingEqualtoPosition = serial->headingEqualsPosition();
+    }
+
+    if((serial->advancedTestStarted||serial->simpleTestStarted)){
+        if(triggerSent){
+            window_ftpManager->send_SCPI(":SOURce:STReam:INFormation:SSTate?");
+        }else{
+
+            if(!positionTestHasBeenOpened&&serial->azSpeedsCorrectForTest&&serial->elSpeedsCorrectForTest){
+                if(serial->advancedTestStarted){
+                    startPositionTest();
+                }else if(serial->simpleTestStarted){
+                    startSimpleTest();
+                }
+                positionTestHasBeenOpened=true;
+            }
+            if(isHeadingEqualtoPosition){
+                if(rotorInPositionCounter==5){
+                    serial->stopMotion();
+                    if(ui->continuousTriggerCheckBox->isChecked()){
+                        window_ftpManager->send_SCPI("STReam:TRIGger:PLAY:FILE:TYPE CONTinuous");
+                        window_ftpManager->send_SCPI(":STReam:TRIGger:PLAY:FILE:TYPE:CONTinuous TRIGger");
+                    }else{
+                        window_ftpManager->send_SCPI(":STReam:TRIGger:PLAY:FILE:TYPE SINGle");
+                    }
+                    /*test code*/
+                    QString file = "'1.csv'";
+
+                    /*test code*/
+
+                    QString fileName = "'" + QString::number(fileNumber) + ".csv'";
+                    window_ftpManager->send_SCPI(":STReam:SOURce:FILE " + fileName);
+                    fileNumber++;
+                    //window_ftpManager->send_SCPI(":STReam:SOURce:FILE " + file);
+                    window_ftpManager->send_SCPI(":OUTPut ON");
+                    window_ftpManager->send_SCPI(":OUTPut:MODulation ON");
+                    window_ftpManager->send_SCPI(":STReam:STATe ON");
+                    window_ftpManager->send_SCPI("*TRG");
+
+                    triggerSent=true;
+                }
+                rotorInPositionCounter++;
+            }else{
+                rotorInPositionCounter=0;
+            }
+        }
+    }
+
+}
+/*called when the readyRead signal goes off.  reads the data and then takes the will update
+ * the gui depending on what data came in.
+ * */
+void MainWindow::serialRead(){
+    QObject *serialPort = sender();
+    bool isElevation;
+    if(serialPort==serial->el){
+        isElevation=true;
+    }else{
+        isElevation=false;
+    }
+
+    RotorControl::ParameterAndWriteNumber read = serial->serialRead(isElevation);
+    switch (read.parameter){
+    case(RotorControl::controllerParameter::maxSpeed) :{
+        if(serial->simpleTestStarted||serial->advancedTestStarted){
+            ui->maxSpeedSlider->setSliderPosition(4);
+            serial->write("WF22;",isElevation);
+        }else if(serial->droneTestStarted&&read.writeNumber==-1){
+            ui->maxSpeedSlider->setSliderPosition(7);
+            serial->write("WF22;",isElevation);
+        }else if(read.writeNumber!=-1){
+            ui->maxSpeedSlider->setSliderPosition(read.writeNumber);
+        }
+        break;
+    }
+    case(RotorControl::controllerParameter::minSpeed) :{
+        if(serial->simpleTestStarted||serial->advancedTestStarted){
+            ui->minSpeedSlider->setSliderPosition(2);
+            serial->write("WN02;",isElevation);
+        }else if(serial->droneTestStarted&&read.writeNumber==-1){
+            ui->minSpeedSlider->setSliderPosition(2);
+            serial->write("WN02;",isElevation);
+        }else if(read.writeNumber!=-1){
+            ui->minSpeedSlider->setSliderPosition(read.writeNumber);
+        }
+        break;
+    }
+    case(RotorControl::controllerParameter::ramp) :{
+        if(serial->simpleTestStarted||serial->advancedTestStarted){
+            ui->rampSlider->setSliderPosition(2);
+            if(isElevation){
+                serial->elSpeedsCorrectForTest=true;
+            }else{
+                serial->azSpeedsCorrectForTest=true;
+            }
+
+            mainTimer->start(200);
+        }else if(serial->advancedTestStarted){
+            ui->rampSlider->setSliderPosition(2);
+        }
+        else if(read.writeNumber!=-1){
+            ui->rampSlider->setSliderPosition(read.writeNumber);
+        }
+        break;
+    }
+    case(RotorControl::controllerParameter::position) :{
+        if(isElevation){
+            ui->elevationLCD->display(read.writeNumber);
+        }else{
+            ui->azimuthLCD->display(read.writeNumber);
+        }
+
+        break;
+    }
+    case(RotorControl::controllerParameter::elevationMode) :{
+        serial->write("WK01080;",isElevation);
+        break;
+    }
+    case(RotorControl::controllerParameter::pulseDivider) :{
+        serial->write("WI00;",isElevation);
+        break;
+    }
+    case(RotorControl::controllerParameter::CWLimit) :{
+        serial->write("WH00;",isElevation);
+        break;
+    }
+    case(RotorControl::controllerParameter::CCWLimit) :{
+        ui->console_text_editor->appendPlainText("Finished Fixing Elevation");
+
+
+        break;
+    }
+    case(RotorControl::controllerParameter::notReady) :{
+        break;
+    }
+    }
+
+
+
+}
+
+
+//stops the motion of both rotors
+void MainWindow::on_stopButton_clicked()
+{
+    serial->stoppingMotion=true;
+    stopMotionTimer->start(1500);
+    serial->stopMotion();
+
+}
+
+//moves the max, min, and ramp sliders on the gui depending on if the elevation motor speed radio button is checked
+void MainWindow::on_elevationMotorSpeedRadioButton_toggled(bool checked)
+{
+    serial->getMaxMinAndRampValues(checked);
+}
+
+void MainWindow::on_positionRadioButton_toggled(bool checked)
+{
+    ui->elevationLineEdit->clear();
+    ui->azimuthLineEdit->clear();
+}
+
+void MainWindow::on_fixElevationPushButton_clicked()
+{
+    serial->write("WK01080;",true);
+
+
+}
+
+void MainWindow::on_fixAzimuthPushButton_clicked()
+{
+    serial->write("WK01080;",false);
+
+}
+
+void MainWindow::resendTimerTimeout(){
+    QObject *timer = sender();
+    if(timer == serial->elResendDataTimer){
+        serial->timerTimeout(true);
+    }else if(timer == serial->azResendDataTimer){
+        serial->timerTimeout(false);
+    }
+
+}
+
+//immediately stops all rotor motion
+void MainWindow::stopMotion(){
+    serial->stoppingMotion = false;
+    stopMotionTimer->stop();
+    serial->setHeadingsToCurrentPosition();
+}
+
+//test functions
+
+//stuff for test, remove later
+void MainWindow::on_startTestButton_clicked()
+{
+    if(ui->recommendedSpeedRadioButton->isChecked()){
+        mainTimer->stop();
+        serial->simpleTestStarted=true;
+        serial->write("WG24;",true);
+        serial->write("WG24;",false);
+    }else{
+        serial->simpleTestStarted = true;
+        startSimpleTest();
+    }
+}
+
+void MainWindow::startSimpleTest(){
+    serial->advancedTestStarted=false;
+    QList<QString> azimuthValues = ui->MaxMinAzimuthLineEdit->text().split(',');
+    azimuthValues.replace(0,QString::number(azimuthValues.at(0).toInt()+180));
+    azimuthValues.replace(1,QString::number(azimuthValues.at(1).toInt()+180));
+    QList<QString> elevationValues = ui->MaxMinElevationLineEdit->text().split(',');
+    elevationValues.replace(0,QString::number(elevationValues.at(0).toInt()+180));
+    elevationValues.replace(1,QString::number(elevationValues.at(1).toInt()+180));
+    QList<QString> resolution =ui->ResolutionLineEdit->text().split(',');
+
+    serial->startSimpleTest(azimuthValues.at(0).toDouble(),azimuthValues.at(1).toDouble(),elevationValues.at(0).toDouble()
+                            ,elevationValues.at(1).toDouble(),resolution.at(0).toDouble(),resolution.at(1).toDouble());
+}
+
+QString MainWindow::getFileName(){
+    QString fileName = ui->testFileLineEdit->text();
+    QString file;
+    if(fileName.startsWith("C:")){
+        file = fileName;
+    }else{
+        QString filePath = QCoreApplication::applicationDirPath();
+
+        file=filePath + "/"+ fileName;
+    }
+    return file;
+}
+
+/*when the open test pushbutton is clicked, stream the file specified in the line edit
+ * and turn the file into either a simple test, or advanced test.  The simple test just records the
+ * max and min azimuth, max and min elevation, and step values to create a simple grid test.
+ * The advanced test takes in a List of positions and moves through them
+ * */
+void MainWindow::on_OpenTestPushButton_clicked()
+{   serial->advancedTestStarted=true;
+    if(ui->recommendedSpeedRadioButton->isChecked()){
+        mainTimer->stop();
+        //simpleTestStarted=true;
+        //tcpSocket->UXGSetup();
+        serial->write("WG24;",true);
+        serial->write("WG24;",false);
+    }else{
+        startPositionTest();
+    }
+
+}
+
+void MainWindow::startPositionTest(){
+    QFile file(getFileName());
+
+    if(file.open(QIODevice::ReadOnly | QIODevice::Text)){
+        QTextStream stream(&file);
+        QString line;
+        line = stream.readLine();
+        if(line == "simple"){
+            QList<QString> azimuthValues;
+            QList<QString> elevationValues;
+            QList<QString> stepValues;
+
+            do{
+                line = stream.readLine();
+                if(line.startsWith("az:")){
+                    QString cutLine=line.mid(3,line.length()-1);
+                    azimuthValues = cutLine.split(',');
+                    azimuthValues.replace(0,QString::number(azimuthValues.at(0).toInt()+180));
+                    azimuthValues.replace(1,QString::number(azimuthValues.at(1).toInt()+180));
+                }else if(line.startsWith("el:")){
+                    QString cutLine=line.mid(3,line.length()-1);
+                    elevationValues = cutLine.split(',');
+                    elevationValues.replace(0,QString::number(elevationValues.at(0).toInt()+180));
+                    elevationValues.replace(1,QString::number(elevationValues.at(1).toInt()+180));
+                }else if(line.startsWith("step:")){
+                    QString cutLine=line.mid(5,line.length()-1);
+                    stepValues = cutLine.split(',');
+                }
+            }while(!line.isNull());
+            //simpleTestStarted = true;
+            serial->advancedTestStarted=false;
+            serial->simpleTestStarted=true;
+            serial->startSimpleTest(azimuthValues.at(0).toDouble(),azimuthValues.at(1).toDouble(),elevationValues.at(0).toDouble()
+                                    ,elevationValues.at(1).toDouble(),stepValues.at(0).toDouble(),stepValues.at(1).toDouble());
+        }else if(line=="advanced"){
+            line = stream.readLine();
+            QString stepValues=line.mid(5,line.length()-1);
+            ui->tableResolutionLineEdit->setText(stepValues);
+            on_openTestFilePushButton_clicked();
+            do{
+                line=stream.readLine();
+                if(line!=""){
+                    QList<QString> positions = line.split(',');
+                    int az = positions.at(0).toInt()+180;
+                    int el = positions.at(1).toInt()+180;
+                    QString fixedPositions = QString::number(az)+ "," + QString::number(el);
+                    testPositions.push_back(fixedPositions);
+                }
+            }while(!line.isNull());
+            //advancedTestStarted = true;
+            serial->simpleTestStarted=false;
+            serial->advancedTestStarted=true;
+            serial->startAdvancedTest(testPositions);
+            testPositions.clear();
+        }
+        file.close();
+
+
+    }else{
+        qDebug() << file.errorString();
+    }
+}
+
+void MainWindow::on_openTestFilePushButton_clicked()
+{
+    QFile file(getFileName());
+
+    if(file.open(QIODevice::ReadOnly | QIODevice::Text)){
+        QTextStream stream(&file);
+        QString line;
+        line = stream.readLine();
+        if(line == "advanced"){
+            line = stream.readLine();
+            if(line.startsWith("step:")){
+                QString stepValues=line.mid(5,line.length()-1);
+                ui->tableResolutionLineEdit->setText(stepValues);
+            }else{
+                qDebug() << "unknown resolution";
+                file.close();
+                return;
+            }
+            on_clearTablePushButton_clicked();//clear table
+            ui->testCreatorTableWidget->blockSignals(true);
+            do{
+                line = stream.readLine();
+                if(line!=""){
+                    QList<QString> list = line.split(',');
+                    int row = tableCreatorRowOffset-((list.at(1).toInt()+90)/tableElResolution)-1;
+                    int column = (list.at(0).toInt()+90)/tableAzResolution;
+                    if(list.at(0).toInt()!=ui->testCreatorTableWidget->horizontalHeaderItem(column)->text().toInt()){
+                        column--;
+                    }else if(list.at(1).toInt()!=ui->testCreatorTableWidget->verticalHeaderItem(row)->text().toInt()){
+                        row--;
+                    }
+                    ui->testCreatorTableWidget->item(row,column)->setBackground(QColor(243,112,33));
+                    ui->testCreatorTableWidget->item(row,column)->setText(QString::number(currentTableNumber));
+                    tableWidgetItemList.append(ui->testCreatorTableWidget->item(row,column));
+                    currentTableNumber++;
+                }
+            }while(!line.isNull());
+            ui->testCreatorTableWidget->scrollToItem(tableWidgetItemList.at(0));
+            ui->testCreatorTableWidget->blockSignals(false);
+        }else{
+            qDebug() << "can't parse text file that doesn't start with ""advanced""";
+        }
+    }else{
+        qDebug() << "could not find file";
+    }
+    file.close();
+}
+
+void MainWindow::on_createTextFilePushButton_clicked()
+{
+    QFile file(getFileName());
+
+    if(file.open(QIODevice::WriteOnly)){
+        QTextStream stream(&file);
+        stream <<"advanced\r\n";
+        stream << "step:"<<QString::number(tableAzResolution)<<","<<QString::number(tableElResolution)<<"\r\n";
+        for(int i=0; i< tableWidgetItemList.length();i++){
+
+            QString elPos = QString::number(ui->testCreatorTableWidget->model()->headerData(tableWidgetItemList.at(i)->row(),Qt::Vertical).toInt());
+            QString azPos = QString::number(ui->testCreatorTableWidget->model()->headerData(tableWidgetItemList.at(i)->column(),Qt::Horizontal).toInt());
+
+            stream << azPos << "," << elPos << "\r\n";
+        }
+    }else{
+        qDebug() << "Could not open";
+    }
+    file.close();
+}
+
+//sets the ramp value on az and el to 1 so the rotor can quickly speeds up
+//and tells the program to start looking for az,az.speed,el,el.speed commands over UDP
+void MainWindow::on_startDroneTestPushButton_clicked()
+{
+    serial->droneTestStarted = true;
+    QString comboBoxText = ui->refreshRateComboBox->currentText();
+    comboBoxText.chop(3);
+    serial->refreshRate = comboBoxText.toDouble();
+    if(ui->recommendedSpeedRadioButton->isChecked()){
+        serial->write("WG27;",true);
+        serial->write("WG27;",false);
+    }
+
+
+
+
+}
+
+
+
+//stops any test the is currently running
+void MainWindow::on_stopTestPushButton_clicked()
+{
+    stopMotion();
+    serial->simpleTestStarted = false;
+    serial->advancedTestStarted = false;
+    serial->droneTestStarted = false;
+    triggerSent=false;
+    positionTestHasBeenOpened=false;
+    serial->elSpeedsCorrectForTest=false;
+    serial->azSpeedsCorrectForTest=false;
+    rotorInPositionCounter=0;
+    serial->azimuthGoingUp=true;
+    fileNumber=1;
+}
+
+//table functions
+
+void MainWindow::on_changeTableResolutionPushButton_clicked()
+{
+    QList<QString> resolution = ui->tableResolutionLineEdit->text().split(',');
+    resetTable(resolution.at(0).toInt(), resolution.at(1).toInt());
+
+}
+
+//when the select box or erase box radio button is toggled, clear the blue selection.
+//Makes everything look nicer and easier to understand
+void MainWindow::on_selectBoxesRadioButton_toggled(bool checked)
+{
+    ui->testCreatorTableWidget->clearSelection();
+}
+
+void MainWindow::resetTable(int azResolution, int elResolution){
+    ui->testCreatorTableWidget->blockSignals(true);
+    this->tableAzResolution = azResolution;
+    this->tableElResolution = elResolution;
+    int numberOfRows = 180/elResolution+1;
+    int numberOfColumns = 180/azResolution+1;
+    ui->testCreatorTableWidget->setColumnCount(numberOfColumns);
+    ui->testCreatorTableWidget->setRowCount(numberOfRows);
+    tableCreatorRowOffset=numberOfRows;
+    int originx = 90/azResolution;
+    int originy = 90/elResolution;
+    int azHeader = 0;
+    int elHeader = 0;
+    for(int i=originx; i>=0;i--){
+        ui->testCreatorTableWidget->setHorizontalHeaderItem(i,new QTableWidgetItem);
+        ui->testCreatorTableWidget->model()->setHeaderData(i,Qt::Horizontal,azHeader);
+        azHeader-=azResolution;
+        for(int j=0; j<ui->testCreatorTableWidget->columnCount(); j++){
+            ui->testCreatorTableWidget->setItem(i,j, new QTableWidgetItem);
+        }
+    }
+    azHeader = 0;
+    for(int i=originx; i<ui->testCreatorTableWidget->columnCount();i++){
+        ui->testCreatorTableWidget->setHorizontalHeaderItem(i,new QTableWidgetItem);
+        ui->testCreatorTableWidget->model()->setHeaderData(i,Qt::Horizontal,azHeader);
+        azHeader+=azResolution;
+        for(int j=0; j<ui->testCreatorTableWidget->columnCount(); j++){
+            ui->testCreatorTableWidget->setItem(i,j, new QTableWidgetItem);
+        }
+    }
+    for(int i=originy; i>=0;i--){
+        ui->testCreatorTableWidget->setVerticalHeaderItem(i,new QTableWidgetItem);
+        ui->testCreatorTableWidget->model()->setHeaderData(i,Qt::Vertical,elHeader);
+        elHeader+=elResolution;
+        for(int j=0; j<ui->testCreatorTableWidget->rowCount(); j++){
+            ui->testCreatorTableWidget->setItem(i,j, new QTableWidgetItem);
+        }
+    }
+    elHeader=0;
+    for(int i=originy; i<ui->testCreatorTableWidget->rowCount();i++){
+        ui->testCreatorTableWidget->setVerticalHeaderItem(i,new QTableWidgetItem);
+        ui->testCreatorTableWidget->model()->setHeaderData(i,Qt::Vertical,elHeader);
+        elHeader-=elResolution;
+        for(int j=0; j<ui->testCreatorTableWidget->rowCount(); j++){
+            ui->testCreatorTableWidget->setItem(i,j, new QTableWidgetItem);
+        }
+    }
+    tableWidgetItemList.clear();
+    currentTableNumber=0;
+    QTableWidgetItem *origin = ui->testCreatorTableWidget->item(90/elResolution,90/azResolution);
+    ui->testCreatorTableWidget->scrollToItem(origin);
+    //set the origin to black to make it easy to see
+    origin->setBackground(Qt::black);
+    ui->testCreatorTableWidget->blockSignals(false);
+}
+
+bool MainWindow::eventFilter(QObject *watched, QEvent *event){
+    if(watched == ui->testCreatorTableWidget->viewport()){
+        ui->testCreatorTableWidget->blockSignals(true);
+        if(event->type()== QMouseEvent::MouseButtonRelease){
+            QMouseEvent *newEvent = static_cast<QMouseEvent*> (event);
+            if(newEvent->button()==Qt::LeftButton){
+                return leftMouseButtonReleaseEvent(newEvent);
+            }else{
+                rightMouseButtonPressed=false;
+            }
+        }else if(event->type()==QMouseEvent::MouseButtonPress){
+            QMouseEvent *newEvent = static_cast<QMouseEvent*> (event);
+            if(newEvent->button() == Qt::RightButton){
+                rightMouseButtonPressed=true;
+                int row = ui->testCreatorTableWidget->itemAt(newEvent->x(),newEvent->y())->row();
+                int column = ui->testCreatorTableWidget->itemAt(newEvent->x(),newEvent->y())->column();
+                on_testCreatorTableWidget_cellEntered(row, column);
+            }
+        }
+        ui->testCreatorTableWidget->blockSignals(false);
+    }
+    return false;
+}
+
+
+bool MainWindow::leftMouseButtonReleaseEvent(QMouseEvent *event){
+    if(ui->selectBoxesRadioButton->isChecked()){
+        QList<QTableWidgetItem *> list = ui->testCreatorTableWidget->selectedItems();
+        int columnCount = list.last()->column()-list.first()->column();
+        int rowCount = list.last()->row()-list.first()->row();
+        bool rowChange = false;
+        for(int i=list.first()->row()+rowCount; i>= list.first()->row();i--){
+            int columnOffset = columnCount;
+            for(int j=list.first()->column(); j<= list.first()->column()+columnCount;j++){
+                if(!rowChange){
+                    if(ui->testCreatorTableWidget->item(i,j)->background().color()!=QColor(243,112,33)){
+                        ui->testCreatorTableWidget->item(i,j)->setBackground(QColor(243,112,33));
+                        ui->testCreatorTableWidget->item(i,j)->setText(QString::number(currentTableNumber));
+                        tableWidgetItemList.append(ui->testCreatorTableWidget->item(i,j));
+                        currentTableNumber++;
+                    }
+                }else{
+                    int changedColumn = j+columnOffset;
+                    if(ui->testCreatorTableWidget->item(i,changedColumn)->background().color()!=QColor(243,112,33)){
+                        ui->testCreatorTableWidget->item(i,changedColumn)->setBackground(QColor(243,112,33));
+                        ui->testCreatorTableWidget->item(i,changedColumn)->setText(QString::number(currentTableNumber));
+                        tableWidgetItemList.append(ui->testCreatorTableWidget->item(i,changedColumn));
+                        currentTableNumber++;
+
+                    }
+                    columnOffset-=2;
+                }
+            }
+            rowChange = !rowChange;
+        }
+        //return true;
+
+    }else if(ui->eraseBoxesRadioButton->isChecked()){
+        QList<QTableWidgetItem *> list = ui->testCreatorTableWidget->selectedItems();
+        int firstChangedIndex = list.last()->text().toInt();
+
+        for(int i=0; i<list.length() ;i++){
+            if(list.at(i)->background().color()==QColor(243,112,33)){
+                tableWidgetItemList.removeOne(list.at(i));
+                QBrush *brush = new QBrush();
+                list.at(i)->setBackground(*brush);
+                list.at(i)->setText("");
+
+            }
+            if(list.at(i)->text().toInt()<firstChangedIndex){
+                firstChangedIndex = list.at(i)->text().toInt();
+            }
+        }
+        for(int i=firstChangedIndex; i< tableWidgetItemList.length();i++){
+            if(ui->testCreatorTableWidget->item(tableWidgetItemList.at(i)->row(),tableWidgetItemList.at(i)->column())->background().color()==QColor(243,112,33)){
+                tableWidgetItemList.at(i)->setText(QString::number(i));
+            }
+        }
+        currentTableNumber = tableWidgetItemList.length();
+        //return true;
+    }
+
+    return false;
+}
+
+void MainWindow::on_clearTablePushButton_clicked()
+{
+    ui->testCreatorTableWidget->blockSignals(true);
+    QList<QString> resolution = ui->tableResolutionLineEdit->text().split(',');
+    resetTable(resolution.at(0).toInt(), resolution.at(1).toInt());
+    ui->testCreatorTableWidget->clearSelection();
+    tableWidgetItemList.clear();
+    currentTableNumber=0;
+    ui->testCreatorTableWidget->blockSignals(false);
+}
+
+void MainWindow::on_testCreatorTableWidget_cellEntered(int row, int column)
+{
+    ui->testCreatorTableWidget->blockSignals(true);
+    if(rightMouseButtonPressed){
+        if(ui->selectBoxesRadioButton->isChecked()){
+            if(ui->testCreatorTableWidget->item(row,column)->background().color()!=QColor(243,112,33)){
+                ui->testCreatorTableWidget->item(row,column)->setBackground(QColor(243,112,33));
+                ui->testCreatorTableWidget->item(row,column)->setText(QString::number(currentTableNumber));
+                tableWidgetItemList.append(ui->testCreatorTableWidget->item(row,column));
+                currentTableNumber++;
+            }
+        }else if(ui->eraseBoxesRadioButton->isChecked()){
+            if(ui->testCreatorTableWidget->item(row,column)->background().color()==QColor(243,112,33)){
+                int removedIndex = ui->testCreatorTableWidget->item(row,column)->text().toInt();
+                tableWidgetItemList.removeOne(ui->testCreatorTableWidget->item(row,column));
+                QBrush *brush = new QBrush();
+                ui->testCreatorTableWidget->item(row,column)->setBackground(*brush);
+                ui->testCreatorTableWidget->item(row,column)->setText("");
+                for(int i = removedIndex; i<tableWidgetItemList.length();i++){
+                    tableWidgetItemList.at(i)->setText(QString::number(i));
+                }
+                currentTableNumber=tableWidgetItemList.length();
+            }
+        }
+    }
+    ui->testCreatorTableWidget->blockSignals(false);
+}
+
+
+
+void MainWindow::on_testCreatorTableWidget_itemChanged(QTableWidgetItem *item)
+{
+    if(!tableWidgetItemList.isEmpty()){
+        int indexChanged = tableWidgetItemList.indexOf(item);
+        int newIndex = tableWidgetItemList.at(indexChanged)->text().toInt();
+        if(newIndex>=tableWidgetItemList.length()||newIndex<0){
+            QMessageBox *msgBox = new QMessageBox(this);
+            msgBox->setAttribute(Qt::WA_DeleteOnClose);
+            msgBox->setStandardButtons(QMessageBox::Ok);
+            msgBox->setText("Invalid Number");
+            msgBox->open( this, SLOT(msgBoxClosed(QAbstractButton*)));
+            tableWidgetItemList.at(indexChanged)->setText(QString::number(indexChanged));
+            return;
+        }
+        tableWidgetItemList.move(indexChanged,newIndex);
+        ui->testCreatorTableWidget->blockSignals(true);
+        for(int i=0; i <tableWidgetItemList.length();i++){
+            tableWidgetItemList.at(i)->setText(QString::number(i));
+        }
+        ui->testCreatorTableWidget->blockSignals(false);
+    }
+}
+
+
+//when new udp data is ready to read, this will read the data.  It also helps manage tests
+//so if a certain string is taken in, like "done", it will tell the rotor to move to its next
+//postion
+void MainWindow::UdpRead(){
+    QString readData = udpSocket->readData();
+    ui->console_text_editor->appendPlainText(readData);
+    if(serial->droneTestStarted){
+        if(!(readData=="finished")){
+            QList<QString> data = readData.split(',');
+            serial->cantKeepUp = serial->manageDroneTest(data.at(0).toInt(),data.at(1).toInt(),
+                                                 data.at(2).toInt(),data.at(3).toInt(),serial->refreshRate);
+            if(serial->cantKeepUp){
+                QMessageBox *msgBox = new QMessageBox(this);
+                msgBox->setAttribute(Qt::WA_DeleteOnClose);
+                msgBox->setStandardButtons(QMessageBox::Ok);
+                msgBox->setText("Can't Keep Up");
+                msgBox->open( this, SLOT(msgBoxClosed(QAbstractButton*)));
+            }
+        }else{
+            serial->droneTestStarted = false;
+            ui->console_text_editor->appendPlainText("Drone Test Finished");
+        }
+    }
+
+
+}
+
+
+void MainWindow::on_turnStreamOffPushButton_clicked()
+{
+    window_ftpManager->send_SCPI(":STReam:STATe OFF");
+    window_ftpManager->send_SCPI(":STReam:STATe ON");
+    //window_ftpManager->send_SCPI(":STReam:SOURce:FILE "+ QString::number(fileNumber));
 }
