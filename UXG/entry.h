@@ -2,6 +2,7 @@
 #define ENTRY_H
 
 //Josh is gay
+//for sure
 
 #include <QMainWindow>
 #include <QObject>
