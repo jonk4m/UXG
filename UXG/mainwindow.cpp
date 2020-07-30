@@ -79,9 +79,6 @@ void MainWindow::fpcs_setup(){
 void MainWindow::on_specify_table_name_radio_button_clicked()
 {
     window_fpcs->settings.usingCustomTableName = true;
-    //set the progress bar to 0%
-    ui->create_progress_bar->reset();
-    ui->loaded_table_progress_bar->reset();
 }
 
 void MainWindow::on_specified_table_name_line_edit_textChanged(const QString &arg1)
@@ -101,10 +98,6 @@ void MainWindow::on_use_default_name_radio_button_clicked()
     window_fpcs->settings.usingCustomTableName = false; //when this is false, we use the defaultTableName and defaultFilePath
 
     ui->default_name_line_edit->setText(window_fpcs->settings.defaultTableName);
-
-    //set the progress bar to 0%
-    ui->create_progress_bar->reset();
-    ui->loaded_table_progress_bar->reset();
 }
 
 void MainWindow::on_change_table_directory_push_button_clicked()
@@ -119,10 +112,6 @@ void MainWindow::on_change_table_directory_push_button_clicked()
 
     ui->table_directory_line_edit->setText(folderName);
 
-    //set the progress bar to 0%
-    ui->create_progress_bar->reset();
-    ui->loaded_table_progress_bar->reset();
-
 }
 
 void MainWindow::on_use_default_file_directory_check_box_stateChanged(int arg1)
@@ -136,10 +125,6 @@ void MainWindow::on_use_default_file_directory_check_box_stateChanged(int arg1)
         window_fpcs->settings.usingCustomFilePath = false; //we are using the default file path
         ui->table_directory_line_edit->setText(window_fpcs->settings.defaultFilePath); //show the default file path on the editLine
     }
-
-    //set the progress bar to 0%
-    ui->create_progress_bar->reset();
-    ui->loaded_table_progress_bar->reset();
 }
 
 //Dialog Buttons for Creating Table
@@ -151,12 +136,12 @@ void MainWindow::on_create_new_table_button_box_accepted()
     window_fpcs->settings.usingExistingTable = false;
     bool fileInitialized = window_fpcs->initialize_workingFile();
     if(fileInitialized){
-        //make the progress bar move
+        /*//make the progress bar move
         ui->loaded_table_progress_bar->reset();
         for(int j=0; j<=100; j++){
             ui->create_progress_bar->setValue(j);
             QThread::msleep(3);
-        }
+        }*/
         ui->current_table_line_edit->setText(window_fpcs->workingFile.fileName());
     }else{
         output_to_console("File unable to initialize");
@@ -188,10 +173,6 @@ void MainWindow::on_select_file_push_button_clicked()
     window_fpcs->settings.existingTableFilePath = filePath; //set the filePath
 
     ui->select_file_line_edit->setText(window_fpcs->settings.existingTableFilePath); //update the EditLine Box so the user can see the filePath they just chose
-
-    //set the progress bar to 0%
-    ui->create_progress_bar->reset();
-    ui->loaded_table_progress_bar->reset();
     }else{
         output_to_console("Cannot select local file with option to choose file from UXG currently selected");
         qDebug() << "Cannot select local file with option to choose file from UXG currently selected";
@@ -768,12 +749,12 @@ void MainWindow::on_select_existing_table_button_box_accepted()
         window_fpcs->settings.existingTableFilePath = QDir::currentPath() + "/fileFolder/downloads/" + window_fpcs->settings.existingTableFilePath;
         bool fileInitialized = window_fpcs->initialize_workingFile();
         if(fileInitialized){
-            //make the progress bar move
+            /*//make the progress bar move
             ui->create_progress_bar->reset();
             for(int j=0; j<=100; j++){
                 ui->loaded_table_progress_bar->setValue(j);
                 QThread::msleep(3);
-            }
+            }*/
             ui->current_table_line_edit->setText(window_fpcs->workingFile.fileName());
             update_table_visualization();
         }else{
@@ -785,12 +766,12 @@ void MainWindow::on_select_existing_table_button_box_accepted()
     }else{
         bool fileInitialized = window_fpcs->initialize_workingFile();
         if(fileInitialized){
-            //make the progress bar move
+            /*//make the progress bar move
             ui->create_progress_bar->reset();
             for(int j=0; j<=100; j++){
                 ui->loaded_table_progress_bar->setValue(j);
                 QThread::msleep(3);
-            }
+            }*/
             ui->current_table_line_edit->setText(window_fpcs->workingFile.fileName());
             update_table_visualization();
         }else{
@@ -888,12 +869,12 @@ void MainWindow::on_delete_table_from_uxg_push_button_clicked(){
         //reset the list of available files on the UXG
         on_select_file_from_uxg_radio_button_clicked();
 
-        //make the progress bar move
+        /*//make the progress bar move
         ui->create_progress_bar->reset();
         for(int j=0; j<=100; j++){
             ui->loaded_table_progress_bar->setValue(j);
             QThread::msleep(3);
-        }
+        }*/
     }else{
         output_to_console("Cannot delete a table on the uxg if radio button for selecting an existing table is not enabled.");
         qDebug() << "Cannot delete a table on the uxg if radio button for selecting an existing table is not enabled.";

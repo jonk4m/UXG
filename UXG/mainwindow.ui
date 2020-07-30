@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>WHOPPER [Wideband High-speed Operational Position Package for Experimental Research]</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QTabWidget" name="Main_Tab_widget">
@@ -29,7 +29,7 @@
      </font>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="uxg_rotor_tab">
      <attribute name="title">
@@ -1365,7 +1365,7 @@
          <x>0</x>
          <y>0</y>
          <width>1051</width>
-         <height>469</height>
+         <height>481</height>
         </rect>
        </property>
        <attribute name="label">
@@ -1386,9 +1386,9 @@
         <widget class="QLineEdit" name="current_table_line_edit">
          <property name="geometry">
           <rect>
-           <x>190</x>
+           <x>150</x>
            <y>20</y>
-           <width>201</width>
+           <width>241</width>
            <height>20</height>
           </rect>
          </property>
@@ -4549,9 +4549,9 @@
         <widget class="QPushButton" name="delete_selected_row_push_button">
          <property name="geometry">
           <rect>
-           <x>230</x>
+           <x>210</x>
            <y>420</y>
-           <width>191</width>
+           <width>201</width>
            <height>31</height>
           </rect>
          </property>
@@ -4562,9 +4562,9 @@
         <widget class="QPushButton" name="edit_selected_row_push_button">
          <property name="geometry">
           <rect>
-           <x>430</x>
+           <x>420</x>
            <y>420</y>
-           <width>161</width>
+           <width>181</width>
            <height>31</height>
           </rect>
          </property>
@@ -4578,12 +4578,12 @@
          <rect>
           <x>10</x>
           <y>0</y>
-          <width>381</width>
+          <width>411</width>
           <height>221</height>
          </rect>
         </property>
         <property name="currentIndex">
-         <number>1</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="tab0">
          <attribute name="title">
@@ -4594,8 +4594,8 @@
            <rect>
             <x>10</x>
             <y>10</y>
-            <width>291</width>
-            <height>132</height>
+            <width>391</width>
+            <height>171</height>
            </rect>
           </property>
           <layout class="QFormLayout" name="formLayout">
@@ -4681,25 +4681,6 @@
            <set>QDialogButtonBox::Help|QDialogButtonBox::Ok</set>
           </property>
          </widget>
-         <widget class="QProgressBar" name="create_progress_bar">
-          <property name="geometry">
-           <rect>
-            <x>180</x>
-            <y>130</y>
-            <width>111</width>
-            <height>21</height>
-           </rect>
-          </property>
-          <property name="value">
-           <number>0</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="invertedAppearance">
-           <bool>false</bool>
-          </property>
-         </widget>
         </widget>
         <widget class="QWidget" name="tab1">
          <attribute name="title">
@@ -4710,25 +4691,12 @@
            <rect>
             <x>10</x>
             <y>142</y>
-            <width>156</width>
+            <width>161</width>
             <height>41</height>
            </rect>
           </property>
           <property name="standardButtons">
            <set>QDialogButtonBox::Help|QDialogButtonBox::Open</set>
-          </property>
-         </widget>
-         <widget class="QProgressBar" name="loaded_table_progress_bar">
-          <property name="geometry">
-           <rect>
-            <x>180</x>
-            <y>150</y>
-            <width>111</width>
-            <height>31</height>
-           </rect>
-          </property>
-          <property name="value">
-           <number>0</number>
           </property>
          </widget>
          <widget class="QWidget" name="horizontalLayoutWidget_3">
@@ -4782,7 +4750,7 @@
          <widget class="QPushButton" name="select_file_push_button">
           <property name="geometry">
            <rect>
-            <x>4</x>
+            <x>10</x>
             <y>50</y>
             <width>111</width>
             <height>41</height>
@@ -4795,9 +4763,9 @@
          <widget class="QLineEdit" name="select_file_line_edit">
           <property name="geometry">
            <rect>
-            <x>120</x>
+            <x>130</x>
             <y>50</y>
-            <width>221</width>
+            <width>271</width>
             <height>41</height>
            </rect>
           </property>
@@ -4813,7 +4781,7 @@
            <rect>
             <x>10</x>
             <y>100</y>
-            <width>281</width>
+            <width>391</width>
             <height>41</height>
            </rect>
           </property>
@@ -4858,7 +4826,6 @@
            <string>Delete Table from UXG</string>
           </property>
          </widget>
-         <zorder>loaded_table_progress_bar</zorder>
          <zorder>horizontalLayoutWidget_3</zorder>
          <zorder>uxg_fpcs_files_combo_box</zorder>
          <zorder>select_file_push_button</zorder>
@@ -4872,7 +4839,7 @@
          <rect>
           <x>10</x>
           <y>230</y>
-          <width>401</width>
+          <width>411</width>
           <height>41</height>
          </rect>
         </property>
@@ -4885,7 +4852,7 @@
          <rect>
           <x>10</x>
           <y>280</y>
-          <width>401</width>
+          <width>411</width>
           <height>41</height>
          </rect>
         </property>
@@ -4900,7 +4867,7 @@
          <x>0</x>
          <y>0</y>
          <width>1051</width>
-         <height>469</height>
+         <height>481</height>
         </rect>
        </property>
        <attribute name="label">
@@ -5091,7 +5058,7 @@
        <widget class="QPushButton" name="help_editing_pattern_push_button">
         <property name="geometry">
          <rect>
-          <x>770</x>
+          <x>760</x>
           <y>430</y>
           <width>81</width>
           <height>31</height>
@@ -5609,7 +5576,7 @@
           <x>340</x>
           <y>140</y>
           <width>651</width>
-          <height>111</height>
+          <height>101</height>
          </rect>
         </property>
         <property name="readOnly">
@@ -5679,8 +5646,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>1031</width>
-         <height>479</height>
+         <width>100</width>
+         <height>30</height>
         </rect>
        </property>
        <attribute name="label">
@@ -5990,7 +5957,7 @@
          <x>0</x>
          <y>0</y>
          <width>1031</width>
-         <height>479</height>
+         <height>491</height>
         </rect>
        </property>
        <attribute name="label">
@@ -6545,7 +6512,7 @@
      <x>0</x>
      <y>0</y>
      <width>1076</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>
