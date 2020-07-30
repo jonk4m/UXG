@@ -75,6 +75,8 @@ Never use QString*, like ever. Just use QString by itself.
 list of books QT recommends for learning how to program with threading : https://doc.qt.io/archives/qt-4.8/threads.html
 QT Article talking about what most people do wrong with threading and event loops : https://wiki.qt.io/Threads_Events_QObjects
 
+how to give the window an image, and how to give the executable an image : https://doc.qt.io/qt-5/appicon.html use this for converting the png to .ico : https://hnet.com/png-to-ico/
+
 networking -----
 network programming and FTP with QT an overview : https://doc.qt.io/qt-5/qtnetwork-programming.html
 another good overview : http://martchus.no-ip.biz/doc/qt5/qtdoc/topics-network-connectivity.html
