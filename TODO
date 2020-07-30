@@ -6,14 +6,13 @@ include in manual what broken out code is specifically for ftp
 INCLUDE IN PRESENTATION THE ISSUE YOU RAN INTO WITH THE TRAILING ZEROS FOR THE HEX CONVERSION OF THE BITPATTERN. SINCE THE UXG READS THE PATTERN IN TRANSMISSION ORDER, A PATTERN OF 110 NEEDS TO HAVE A TRAILING ZERO (1100) FOR THE HEX CONVERSION, NOT A LEADING ZERO (0110) SINCE IT STARTS READING FROM THE FRONT OF THE PATTERN NOT THE BACK. AKA THAT TRAILING ZERO WILL BE IGNORED
 	
 
-incorporate Josh's code with yours 
+--------------------------------------incorporate Josh's code with yours 
 Right now the user has to clear the bitpattern manually if they change the number of freq/phases or the type (phase/freq/both) 
 Check with a different UXG whether or not setting your network adapter in promiscuous mode is what allows it to connect (opening wireshark sets it into promicuous mode)
 --------------------------------------Test that feeding it to the UXG works after all the changes you've made this week
 --------------------------------------Barker codes
-Write code for feeding in a YATG file
+--------------------------------------Write code for feeding in a YATG file
 --------------------------------------implement "delete table from UXG" button 
-finish "connect to uxg" tab
 --------------------------------------decide on what to do about signal creator tab
 go through todo's in the code
 --------------------------------------add functionailty to edit previous patterns in a table
@@ -41,21 +40,13 @@ change all the qDebug()'s to output on the text window at the bottom of the page
 --------------------------------------test that the output signal is in fact using the fpcs using spec analyzer  
 
 
-
-This week 
---- Josh
-- getting in touch with Jeremy and David to make NEMA shit work
-- working partially on setup routine of list of SCPI commands 
-- cleaning up code (it's about to be incorporated into my code)
-- talk to Mucks about GPS thing 
-- start looking at Jonathan's code on github 
---- Jonathan 
-- signal creator tab - fuck 
-- test code on different UXG (tuesday)
-- talk to Mike about what he wants that he mentioned 
-- setup routine of list of SCPI commands 
-- add the increment button for that one use-case chris mentioned 
-- incorporate Josh's code into Jonathan's code
+add the increment button for that one use-case chris mentioned 
+add the paste a bit pattern shit (just convert it to hex and make that the hex value then signal the slot that gets hit when they click upload to table) 
+fix the db to dbm shit 
+fix the TOA not adding the 270ns shit 
+delete the "download all files available on uxg" button on the fpcs page
+get rid of the progress bars on the fpcs page 
+take a look at your setup scpi routine (in ftpManager)
 
 a pdw is 24 bytes (byte is 4 bits) 
 
