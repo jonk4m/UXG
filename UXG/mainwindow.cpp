@@ -1480,7 +1480,7 @@ void MainWindow::startSimpleTest(){
 }
 
 QString MainWindow::getFileName(){
-    QString fileName = ui->testFileLineEdit->text();
+    QString fileName = ui->openTestLineEdit->text();
     QString file;
     if(fileName.startsWith("C:")){
         file = fileName;
@@ -1936,4 +1936,15 @@ void MainWindow::on_turnStreamOffPushButton_clicked()
     window_ftpManager->send_SCPI(":STReam:STATe OFF");
     window_ftpManager->send_SCPI(":STReam:STATe ON");
 
+}
+
+void MainWindow::on_openTestLineEdit_textChanged(const QString &arg1)
+{
+    ui->testFileLineEdit->setText(arg1);
+
+}
+
+void MainWindow::on_testFileLineEdit_textChanged(const QString &arg1)
+{
+    ui->openTestLineEdit->setText(arg1);
 }

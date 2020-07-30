@@ -228,6 +228,10 @@ private slots:
 
     void on_stopPDWPushButton_clicked();
 
+    void on_openTestLineEdit_textChanged(const QString &arg1);
+
+    void on_testFileLineEdit_textChanged(const QString &arg1);
+
 private:
 
     //bool pre_initialize_uxg_file();
