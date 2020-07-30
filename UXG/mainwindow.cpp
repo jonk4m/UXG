@@ -23,25 +23,27 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
-    switch( QMessageBox::question(
-                this,
-                tr("Save Before Exiting"),
-                tr("Save Current Table to File Before Exiting?\n"),
-                QMessageBox::Yes |
-                QMessageBox::No) )
-    {
-      case QMessageBox::Yes:
-        window_fpcs->data_dump_onto_file();
-        window_fpcs->close_file(); //close the file (which also flushes the buffer) before exiting
-        delete ui;
-        break;
-      case QMessageBox::No:
-        window_fpcs->close_file(); //close the file (which also flushes the buffer) before exiting
-        delete ui;
-      break;
-      default:
-        //do nothing, the messageBox will close itself upon a selection
-        break;
+    if(fpcsWasOpenedDuringUse){
+        switch( QMessageBox::question(
+                    this,
+                    tr("Save Before Exiting"),
+                    tr("Save Current Table to File Before Exiting?\n"),
+                    QMessageBox::Yes |
+                    QMessageBox::No) )
+        {
+          case QMessageBox::Yes:
+            window_fpcs->data_dump_onto_file();
+            window_fpcs->close_file(); //close the file (which also flushes the buffer) before exiting
+            delete ui;
+            break;
+          case QMessageBox::No:
+            window_fpcs->close_file(); //close the file (which also flushes the buffer) before exiting
+            delete ui;
+          break;
+          default:
+            //do nothing, the messageBox will close itself upon a selection
+            break;
+        }
     }
     udpSocket->closeUdpSocket();
         serial->closeSerialPorts();
@@ -131,6 +133,8 @@ void MainWindow::on_use_default_file_directory_check_box_stateChanged(int arg1)
 //Dialog Buttons for Creating Table
 void MainWindow::on_create_new_table_button_box_accepted()
 {
+    fpcsWasOpenedDuringUse = true;
+
     window_fpcs->data_dump_onto_file();
     window_fpcs->close_file(); //close the file (which also flushes the buffer) before exiting
 
@@ -469,6 +473,7 @@ void MainWindow::on_qprocess_upload_push_button_clicked()
             window_ftpManager->uploadingFileOrFolderName = fileNameWithoutDirectory;
 
             //feed fileName with current directory into the process that will upload the csv to the uxg bin directory
+            QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
             window_ftpManager->start_process(filename);
         }else{
             output_to_console("Cannot upload to UXG without selecting a file");
@@ -600,14 +605,14 @@ void MainWindow::on_binary_data_view_push_button_clicked(bool checked)
 }
 
 void MainWindow::on_socket_readyRead(){
-    output_to_console("Socket readyRead");
-    qDebug() << "Socket readyRead";
     QString allRead = window_ftpManager->tcpSocket->readAll();
     QStringList allReadParsed = allRead.split(QRegExp("[\r\n]"), Qt::SkipEmptyParts);
     for(QString item : allReadParsed){
-        qDebug() << item;
-        output_to_console(item);
+        output_to_console("Socket readyRead : " + item);
+        qDebug() << "Socket readyRead : " << item;
     }
+
+    QGuiApplication::restoreOverrideCursor(); //set the cursor to stop spinning
 
     //this process is specifically for when the user needs to know what all available FPCS files on the UXG are.
     if(window_ftpManager->waitingForFPCSFileList){
@@ -655,32 +660,6 @@ void MainWindow::on_socket_readyRead(){
 
         }
     }
-
-    //this process is specifically for when the user is downloading a uxg fpcs file to then edit.
-    /*if(window_ftpManager->downloadState == window_ftpManager->exportingTable){
-        window_ftpManager->downloadState = window_ftpManager->finished;
-        output_to_console("file is exported, ready for ftp");
-        qDebug() << "file is exported, ready for ftp";
-        //download the table from the uxg into the downloads folder
-        window_ftpManager->current_state = FtpManager::state::downloading;
-        //then feed it into the process
-        window_ftpManager->start_process(window_fpcs->settings.existingTableFilePath); //note that start_process() only needs the name of the file
-        //note we can immediately use the file after starting the process since it's a blocking call
-        bool fileInitialized = window_fpcs->initialize_workingFile();
-        if(fileInitialized){
-            //make the progress bar move
-            ui->create_progress_bar->reset();
-            for(int j=0; j<=100; j++){
-                ui->loaded_table_progress_bar->setValue(j);
-                QThread::msleep(3);
-            }
-            ui->current_table_line_edit->setText(window_fpcs->workingFile.fileName());
-            update_table_visualization();
-        }else{
-            output_to_console("File unable to initialize");
-            qDebug() << "File unable to initialize";
-        }
-    }*/
 }
 
 void MainWindow::on_uxg_fpcs_files_combo_box_currentTextChanged(const QString &arg1)
@@ -706,6 +685,8 @@ void MainWindow::on_uxg_fpcs_files_combo_box_currentTextChanged(const QString &a
  */
 void MainWindow::on_select_existing_table_button_box_accepted()
 {
+    fpcsWasOpenedDuringUse = true;
+
     window_fpcs->data_dump_onto_file();
     window_fpcs->close_file(); //close the file (which also flushes the buffer) before exiting
 
@@ -1139,6 +1120,8 @@ void MainWindow::on_select_multiple_files_by_folder_push_button_clicked()
 
 void MainWindow::on_upload_yatg_file_to_uxg_push_button_clicked()
 {
+    QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+
     bool success = true;
     if(window_yatg->uploadingMultipleFiles){
         success = window_yatg->upload_multiple_files_to_uxg();
@@ -1490,7 +1473,6 @@ void MainWindow::on_OpenTestPushButton_clicked()
     }else{
         startPositionTest();
     }
-
 }
 
 void MainWindow::startPositionTest(){
@@ -1639,10 +1621,6 @@ void MainWindow::on_startDroneTestPushButton_clicked()
         serial->write("WG27;",true);
         serial->write("WG27;",false);
     }
-
-
-
-
 }
 
 

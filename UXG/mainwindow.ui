@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1076</width>
-    <height>986</height>
+    <width>1074</width>
+    <height>974</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
       <x>10</x>
       <y>0</y>
       <width>1061</width>
-      <height>631</height>
+      <height>641</height>
      </rect>
     </property>
     <property name="font">
@@ -41,7 +41,7 @@
         <x>10</x>
         <y>10</y>
         <width>521</width>
-        <height>581</height>
+        <height>591</height>
        </rect>
       </property>
       <property name="font">
@@ -74,7 +74,7 @@
          <rect>
           <x>9</x>
           <y>19</y>
-          <width>471</width>
+          <width>481</width>
           <height>141</height>
          </rect>
         </property>
@@ -160,7 +160,7 @@
          <x>10</x>
          <y>190</y>
          <width>501</width>
-         <height>381</height>
+         <height>391</height>
         </rect>
        </property>
        <property name="font">
@@ -171,54 +171,16 @@
        <property name="title">
         <string>Common Commands</string>
        </property>
-       <widget class="QWidget" name="formLayoutWidget_2">
+       <widget class="QWidget" name="gridLayoutWidget_2">
         <property name="geometry">
          <rect>
           <x>10</x>
           <y>20</y>
-          <width>471</width>
-          <height>351</height>
+          <width>481</width>
+          <height>361</height>
          </rect>
         </property>
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-         </font>
-        </property>
-        <layout class="QFormLayout" name="formLayout_2">
-         <item row="0" column="0">
-          <widget class="QPushButton" name="pushButton">
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>connect</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QLineEdit" name="host_name_edit_line">
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0" colspan="2">
-          <widget class="QPushButton" name="pushButton_2">
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>send *IDN?</string>
-           </property>
-          </widget>
-         </item>
+        <layout class="QGridLayout" name="gridLayout_2">
          <item row="2" column="0" colspan="2">
           <widget class="QPushButton" name="initiate_uxg_self_test_push_button">
            <property name="font">
@@ -231,19 +193,7 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="0" colspan="2">
-          <widget class="QPushButton" name="power_off_uxg_push_button">
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Power Off UXG</string>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="0" colspan="2">
+         <item row="5" column="0" colspan="2">
           <widget class="QPushButton" name="delete_all_files_on_uxg_push_button">
            <property name="font">
             <font>
@@ -255,7 +205,52 @@
            </property>
           </widget>
          </item>
-         <item row="5" column="0" colspan="2">
+         <item row="0" column="0">
+          <widget class="QPushButton" name="pushButton">
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Connect</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0" colspan="2">
+          <widget class="QPushButton" name="pushButton_2">
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Ask UXG to Identify Itself</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="1">
+          <widget class="QLineEdit" name="pdwNameLineEdit">
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0" colspan="2">
+          <widget class="QPushButton" name="power_off_uxg_push_button">
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Power Off UXG</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0" colspan="2">
           <widget class="QPushButton" name="download_all_files_from_uxg_push_button_2">
            <property name="font">
             <font>
@@ -267,7 +262,16 @@
            </property>
           </widget>
          </item>
-         <item row="7" column="0">
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="host_name_edit_line">
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0">
           <widget class="QPushButton" name="playPDWPushButton">
            <property name="font">
             <font>
@@ -279,16 +283,19 @@
            </property>
           </widget>
          </item>
-         <item row="7" column="1">
-          <widget class="QLineEdit" name="pdwNameLineEdit">
+         <item row="7" column="0">
+          <widget class="QPushButton" name="stopPDWPushButton">
            <property name="font">
             <font>
              <pointsize>10</pointsize>
             </font>
            </property>
+           <property name="text">
+            <string>Stop PDW</string>
+           </property>
           </widget>
          </item>
-         <item row="8" column="1">
+         <item row="7" column="1">
           <widget class="QCheckBox" name="continuousPDWCheckBox">
            <property name="font">
             <font>
@@ -303,18 +310,6 @@
            </property>
           </widget>
          </item>
-         <item row="8" column="0">
-          <widget class="QPushButton" name="stopPDWPushButton">
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Stop PDW</string>
-           </property>
-          </widget>
-         </item>
         </layout>
        </widget>
       </widget>
@@ -325,7 +320,7 @@
         <x>540</x>
         <y>10</y>
         <width>511</width>
-        <height>581</height>
+        <height>591</height>
        </rect>
       </property>
       <property name="font">
@@ -428,7 +423,7 @@
          <x>10</x>
          <y>290</y>
          <width>491</width>
-         <height>281</height>
+         <height>291</height>
         </rect>
        </property>
        <property name="font">
@@ -1414,7 +1409,7 @@
           <rect>
            <x>20</x>
            <y>20</y>
-           <width>121</width>
+           <width>91</width>
            <height>16</height>
           </rect>
          </property>
@@ -1425,8 +1420,8 @@
         <widget class="QPushButton" name="add_another_pattern_to_this_table_push_button">
          <property name="geometry">
           <rect>
-           <x>20</x>
-           <y>420</y>
+           <x>10</x>
+           <y>500</y>
            <width>201</width>
            <height>31</height>
           </rect>
@@ -1457,10 +1452,10 @@
         <widget class="QTableWidget" name="table_visualization_table_widget">
          <property name="geometry">
           <rect>
-           <x>20</x>
+           <x>10</x>
            <y>50</y>
-           <width>591</width>
-           <height>361</height>
+           <width>601</width>
+           <height>441</height>
           </rect>
          </property>
          <property name="alternatingRowColors">
@@ -4562,8 +4557,8 @@
         <widget class="QPushButton" name="delete_selected_row_push_button">
          <property name="geometry">
           <rect>
-           <x>230</x>
-           <y>420</y>
+           <x>220</x>
+           <y>500</y>
            <width>191</width>
            <height>31</height>
           </rect>
@@ -4575,9 +4570,9 @@
         <widget class="QPushButton" name="edit_selected_row_push_button">
          <property name="geometry">
           <rect>
-           <x>430</x>
-           <y>420</y>
-           <width>181</width>
+           <x>420</x>
+           <y>500</y>
+           <width>191</width>
            <height>31</height>
           </rect>
          </property>
@@ -4596,7 +4591,7 @@
          </rect>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="tab0">
          <attribute name="title">
@@ -4698,8 +4693,8 @@
            <rect>
             <x>10</x>
             <y>142</y>
-            <width>161</width>
-            <height>41</height>
+            <width>151</width>
+            <height>31</height>
            </rect>
           </property>
           <property name="standardButtons">
@@ -5642,11 +5637,11 @@
         <x>0</x>
         <y>0</y>
         <width>1051</width>
-        <height>601</height>
+        <height>611</height>
        </rect>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="page">
        <property name="geometry">
@@ -5964,7 +5959,7 @@
          <x>0</x>
          <y>0</y>
          <width>1051</width>
-         <height>541</height>
+         <height>551</height>
         </rect>
        </property>
        <attribute name="label">
@@ -5976,7 +5971,7 @@
           <x>0</x>
           <y>120</y>
           <width>1051</width>
-          <height>421</height>
+          <height>431</height>
          </rect>
         </property>
         <property name="cursor" stdset="0">
@@ -6494,10 +6489,10 @@
    <widget class="QPlainTextEdit" name="console_text_editor">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>640</y>
-      <width>1061</width>
-      <height>291</height>
+      <x>0</x>
+      <y>650</y>
+      <width>1071</width>
+      <height>281</height>
      </rect>
     </property>
     <property name="font">
@@ -6518,7 +6513,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1076</width>
+     <width>1074</width>
      <height>21</height>
     </rect>
    </property>

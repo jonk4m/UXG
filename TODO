@@ -39,19 +39,15 @@ Add checks for the user inputs that they're in fact numbers when we expect them 
 change all the qDebug()'s to output on the text window at the bottom of the page
 --------------------------------------test that the output signal is in fact using the fpcs using spec analyzer  
 
-
+uploads a folder full of pdw csv files to the uxg in batch button
 add the increment button for that one use-case chris mentioned 
 add the paste a bit pattern shit (just convert it to hex and make that the hex value then signal the slot that gets hit when they click upload to table) 
 fix the db to dbm shit 
 fix the TOA not adding the 270ns shit 
 delete the "download all files available on uxg" button on the fpcs page
-get rid of the progress bars on the fpcs page 
+add loading cursor call to the upload and download portions of the code by calling it right before you call the method to download or upload, then undoing it when it returns from that method 
 take a look at your setup scpi routine (in ftpManager)
 add help button to the main window Qt::WindowContextHelpButtonHint
-
-JOSH TODO
-make GUI bigger
-add image of whopper
 
 
 BUGS-------------------------------------------------------------------------------------------------------------------
@@ -60,3 +56,7 @@ fix the db to dbm shit
 fix the TOA not adding the 270ns shit 
 delete the "download all files available on uxg" button on the fpcs page
 get rid of the progress bars on the fpcs page 
+
+
+QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+QGuiApplication::restoreOverrideCursor();

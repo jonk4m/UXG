@@ -136,7 +136,7 @@ bool YATG::upload_file_to_uxg(){
         emit userMessage("Not all columns were defined in Yatg file.");
         qDebug() << "Not all columns were defined in Yatg file.";
         //TODO figure out how to turn hashmap to QString
-        emit userMessage("");
+        emit userMessage("Not all columns were defined in Yatg file.");
         qDebug() << indexes;
         return false;
     }else{
@@ -207,8 +207,8 @@ bool YATG::append_rows_to_uxg_file(QHash<QString,int> indexes, QString fileName,
 
         //check if we are at the end of the file
         if(rowList.size() == 0){
-            emit userMessage("last pdw reached");
-            qDebug() << "last pdw reached";
+            emit userMessage("finished parsing through pdw's");
+            qDebug() << "finished parsing through pdw's";
             break;
         }
 
@@ -223,14 +223,17 @@ bool YATG::append_rows_to_uxg_file(QHash<QString,int> indexes, QString fileName,
 
         //loop through the number of pdw's desired for that row
         for(int i = 0; i < rowList.at(indexes.value("Count")).toInt(); i++){
+
+            QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor)); //set the cursor to start spinning
+
             output = "MEM:DATA:APP '" + fileName + "',#";
             outputData = "";
             outputData.append(operationVal + ",");
             outputData.append(QString::number(currentTOA) + ","); //pulse start time
-            bool *ok;
+            bool ok = false;
             //calculate the next toa
-            double valueOfPri = rowList.at(indexes.value("Pri")).toDouble(ok);
-            double setupTime = 0.00000027 * (timeScalingFactor); //adds in 270ns for the setup time
+            double valueOfPri = rowList.at(indexes.value("Pri")).toDouble(&ok);
+            double setupTime = (double)0.00000027 * (timeScalingFactor); //adds in 270ns for the setup time
             currentTOA += valueOfPri + setupTime;
             emit userMessage("currentToa: " + QString::number(currentTOA));
             qDebug() << "currentToa: " << currentTOA;

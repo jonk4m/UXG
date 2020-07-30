@@ -15,6 +15,7 @@
 #include <QProcess>
 #include <QFileDialog>
 #include <QTcpSocket>
+#include <QGuiApplication>
 
 class FtpManager: public QObject
 {
@@ -58,6 +59,7 @@ public:
     void playPDW(QString fileName, bool isContinuous);
 
 private slots:
+
     void process_started();
     void process_finished();
     void process_error_occured();

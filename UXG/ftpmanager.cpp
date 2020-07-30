@@ -93,9 +93,9 @@ void FtpManager::process_started(){
  * The ftp process has finished downloading or uploading a file
  */
 void FtpManager::process_finished(){
-    emit userMessage("Process has finished successfully" + QString::number(process->exitCode()));
-    qDebug() << "Process has finished successfully";
-    qDebug() << process->exitCode();
+    //emit userMessage("Process has finished successfully" + QString::number(process->exitCode()));
+    //qDebug() << "Process has finished successfully";
+    //qDebug() << process->exitCode();
     if(current_state == state::uploading){
         /* now tell the UXG to IMPORT the CSV file (the one you just put on the UXG using ftp) into the current table,
          * then STORE that current table into a fpcs file of the same name as the csv
@@ -130,6 +130,9 @@ void FtpManager::process_finished(){
         send_SCPI(scpiCommand);
 
         current_state = state::initialized;
+        emit userMessage("Process has finished successfully" + QString::number(process->exitCode()));
+        qDebug() << "Process has finished successfully";
+        QGuiApplication::restoreOverrideCursor();
     }
 }
 

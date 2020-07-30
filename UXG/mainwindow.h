@@ -39,6 +39,7 @@ public:
     FtpManager *window_ftpManager;
     YATG *window_yatg;
     int highlightedFpcsRow = -1;
+    bool fpcsWasOpenedDuringUse = false; //this way the window doesn't prompt the user to save their current table when they exit the window unless they have loaded or created one
 
     void setup();
      //serial fields

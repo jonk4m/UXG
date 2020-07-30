@@ -76,6 +76,8 @@ list of books QT recommends for learning how to program with threading : https:/
 QT Article talking about what most people do wrong with threading and event loops : https://wiki.qt.io/Threads_Events_QObjects
 
 how to give the window an image, and how to give the executable an image : https://doc.qt.io/qt-5/appicon.html use this for converting the png to .ico : https://hnet.com/png-to-ico/
+how to set the cursor to "loading" indicator spinning wheel : https://doc.qt.io/qt-5/qguiapplication.html#setOverrideCursor
+bool ok = false; double valueOfPri = rowList.at(indexes.value("Pri")).toDouble(&ok); works but bool *ok; double valueOfPri = rowList.at(indexes.value("Pri")).toDouble(ok);
 
 networking -----
 network programming and FTP with QT an overview : https://doc.qt.io/qt-5/qtnetwork-programming.html
