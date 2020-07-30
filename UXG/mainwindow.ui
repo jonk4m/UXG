@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="uxg_rotor_tab">
      <attribute name="title">
@@ -129,7 +129,7 @@
           <x>10</x>
           <y>20</y>
           <width>341</width>
-          <height>271</height>
+          <height>282</height>
          </rect>
         </property>
         <layout class="QFormLayout" name="formLayout_2">
@@ -178,10 +178,30 @@
            </property>
           </widget>
          </item>
-         <item row="6" column="0" colspan="2">
-          <widget class="QPushButton" name="pushButton_3">
+         <item row="7" column="0">
+          <widget class="QPushButton" name="playPDWPushButton">
            <property name="text">
-            <string>send one</string>
+            <string>Play PDW</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="1">
+          <widget class="QLineEdit" name="pdwNameLineEdit"/>
+         </item>
+         <item row="8" column="1">
+          <widget class="QCheckBox" name="continuousPDWCheckBox">
+           <property name="text">
+            <string>Run PDW Continuously</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="0">
+          <widget class="QPushButton" name="stopPDWPushButton">
+           <property name="text">
+            <string>Stop PDW</string>
            </property>
           </widget>
          </item>
@@ -1080,7 +1100,7 @@
           <rect>
            <x>330</x>
            <y>20</y>
-           <width>111</width>
+           <width>121</width>
            <height>17</height>
           </rect>
          </property>
@@ -6111,7 +6131,7 @@
        <string>Turn Stream Off</string>
       </property>
      </widget>
-     <widget class="QCheckBox" name="singleOrMultiplePDWCheckBox">
+     <widget class="QCheckBox" name="singlePDWCheckBox">
       <property name="geometry">
        <rect>
         <x>660</x>

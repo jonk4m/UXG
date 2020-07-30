@@ -15,12 +15,13 @@
 #include <QHash>
 #include <ftpmanager.h>
 
-class YATG
+class YATG: public QObject
 {
+Q_OBJECT
 public:
 
     YATG();
-    YATG(FtpManager*);
+    YATG(FtpManager*,QMainWindow *window);
     bool upload_file_to_uxg();
     bool upload_multiple_files_to_uxg();
     bool append_rows_to_uxg_file(QHash<QString,int>,QString,double);
@@ -33,6 +34,9 @@ public:
     bool uploadingMultipleFiles = false;
 
 private:
+
+signals:
+     void userMessage(QString message);
 
 };
 

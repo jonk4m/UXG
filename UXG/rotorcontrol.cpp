@@ -1,5 +1,5 @@
 #include "rotorcontrol.h"
-#include <QDebug>
+
 
 
 
@@ -7,7 +7,7 @@
 
 RotorControl::RotorControl(QMainWindow *window)
 {
-    QMainWindow::connect(this, SIGNAL(userMessage(QString)), window, SLOT(appendText(QString)));
+    QMainWindow::connect(this, SIGNAL(userMessage(QString)), window, SLOT(output_to_console(QString)));
     elResendDataTimer= new QTimer(window);
     azResendDataTimer = new QTimer(window);
     QMainWindow::connect(elResendDataTimer, SIGNAL(timeout()), window, SLOT(resendTimerTimeout()));

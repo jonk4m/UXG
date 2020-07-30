@@ -34,7 +34,7 @@ public:
     void fpcs_setup();
     Ui::MainWindow *ui;
     UdpSocket *udpSocket;
-    Fpcs window_fpcs; //each fpcs also has it's own fpcs_settings struct titled "settings"
+    Fpcs *window_fpcs; //each fpcs also has it's own fpcs_settings struct titled "settings"
     FtpManager *window_ftpManager;
     YATG *window_yatg;
     int highlightedFpcsRow = -1;
@@ -154,8 +154,6 @@ private slots:
 
     void on_comboBox_activated(const QString &arg1);
 
-    void on_pushButton_3_clicked();
-
     void on_select_yatg_file_push_button_clicked();
 
     void on_select_multiple_files_by_folder_push_button_clicked();
@@ -194,6 +192,10 @@ void on_changeTableResolutionPushButton_clicked();
 //Udp slots
 void UdpRead();
 void on_turnStreamOffPushButton_clicked();
+
+void on_playPDWPushButton_clicked();
+
+void on_stopPDWPushButton_clicked();
 
 private:
 

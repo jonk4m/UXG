@@ -4,8 +4,9 @@ YATG::YATG(){
     //constructor
 }
 
-YATG::YATG(FtpManager *ftpManager){
+YATG::YATG(FtpManager *ftpManager, QMainWindow *window){
     this->ftp_manager = ftpManager;
+    QMainWindow::connect(this, SIGNAL(userMessage(QString)), window, SLOT(output_to_console(QString)));
 }
 
 bool YATG::upload_file_to_uxg(){
@@ -18,10 +19,12 @@ bool YATG::upload_file_to_uxg(){
     if(exists){
         if(!workingFile.open(QFile::ReadWrite | QFile::Text | QFile::ExistingOnly)) //Options: ExistingOnly, NewOnly, Append
         {
-            qDebug() << " Could not open File : " + workingFilePath;
+            emit userMessage("Could not open File : " + workingFilePath);
+            qDebug() << "Could not open File : " + workingFilePath;
             return false;
         }
     }else{
+        emit userMessage("File Not Found in Local System: " + workingFilePath);
         qDebug() << "File Not Found in Local System: " << workingFilePath;
         return false;
     }
@@ -45,10 +48,15 @@ bool YATG::upload_file_to_uxg(){
             bool containsK = unit.contains('K',Qt::CaseInsensitive);
             bool containsG = unit.contains('G',Qt::CaseInsensitive);
             if((containsG && containsM) || (containsG && containsK) || (containsM && containsK)){
+                emit userMessage("Multiple units imputted for the frequency column. Plase choose only one unit, i.e. 'M', 'G', or 'k'. unit was: " + unit);
                 qDebug() << "Multiple units imputted for the frequency column. Plase choose only one unit, i.e. 'M', 'G', or 'k'. unit was: " + unit;
                 return false;
             }
-            if(containsm){ qDebug() << "milliHz is not a valid option for the frequency units. Please modify your YATG file and try again."; return false;}
+            if(containsm){
+                emit userMessage("milliHz is not a valid option for the frequency units. Please modify your YATG file and try again.");
+                qDebug() << "milliHz is not a valid option for the frequency units. Please modify your YATG file and try again.";
+                return false;
+            }
             if(containsG)
                 units.insert("Freq"," (GHz),");
             if(containsM)
@@ -65,7 +73,9 @@ bool YATG::upload_file_to_uxg(){
             bool containsu = unit.contains('u',Qt::CaseInsensitive);
             bool containsm = unit.contains('m',Qt::CaseInsensitive); //even though this really should be case sensitive (milli versus mega) the UXG exports in all caps so this accounts for that
             if((containsn && containsu) || (containsn && containsm) || (containsu && containsm)){
+                emit userMessage("Multiple units imputted for the PRI column. Plase choose only one unit, i.e. 'n', 'u', or 'm', unit was: " + unit);
                 qDebug() << "Multiple units imputted for the PRI column. Plase choose only one unit, i.e. 'n', 'u', or 'm', unit was: " + unit;
+                emit userMessage("booleans were: " + QString(containsn) + QString(containsu) + QString(containsm));
                 qDebug() << "booleans were: " << containsn << containsu << containsm;
                 return false;
             }
@@ -114,13 +124,19 @@ bool YATG::upload_file_to_uxg(){
             unit.append(",");
             units.insert("Rate",unit);
         }else{
+            emit userMessage("undefined header column found in the YATG file : " + temp);
             qDebug() << "undefined header column found in the YATG file : " + temp;
+            emit userMessage("acceptable header columns are : ");
             qDebug() << "acceptable header columns are : ";
+            emit userMessage("Operation,Pulse Start Time (<units>),Pulse Width (<units>),Frequency (<units>),Phase Mode,Phase (<units>),Relative Power (<units>),Pulse Mode,Markers,Band Adjust,Chirp Shape,Freq/Phase Coding Index,Chirp Rate (<units>),Frequency Band Map");
             qDebug() << "Operation,Pulse Start Time (<units>),Pulse Width (<units>),Frequency (<units>),Phase Mode,Phase (<units>),Relative Power (<units>),Pulse Mode,Markers,Band Adjust,Chirp Shape,Freq/Phase Coding Index,Chirp Rate (<units>),Frequency Band Map";
         }
     }
     if(indexes.size() < 10){ //the number 10 here came from the number of if statements above
+        emit userMessage("Not all columns were defined in Yatg file.");
         qDebug() << "Not all columns were defined in Yatg file.";
+        //TODO figure out how to turn hashmap to QString
+        emit userMessage("");
         qDebug() << indexes;
         return false;
     }else{
@@ -160,6 +176,7 @@ bool YATG::upload_file_to_uxg(){
 
     //Parse through the rest of the entries in the YATG file, ignoring any line that contains "#", and appending to the file for each row
     if(!append_rows_to_uxg_file(indexes,fileName,timeScalingFactor)){
+        emit userMessage("appending rows to file failed");
         qDebug() << "appending rows to file failed";
         return false;
     }
@@ -190,12 +207,16 @@ bool YATG::append_rows_to_uxg_file(QHash<QString,int> indexes, QString fileName,
 
         //check if we are at the end of the file
         if(rowList.size() == 0){
+            emit userMessage("last pdw reached");
             qDebug() << "last pdw reached";
             break;
         }
 
         //check that there is a value for each column
         if(rowList.size() != indexes.size()){
+            //TODO rowList to qstring
+            emit userMessage("Number of values in row do not match the number of columns. rowList size: " + QString::number(rowList.size())
+                             + ", indexes size: " + QString::number(indexes.size()) +", row: " + QString(""));
             qDebug() << "Number of values in row do not match the number of columns. rowList size: " << rowList.size() << ", indexes size: " << indexes.size() << ", row: " << rowList;
             return false;
         }
@@ -211,6 +232,7 @@ bool YATG::append_rows_to_uxg_file(QHash<QString,int> indexes, QString fileName,
             double valueOfPri = rowList.at(indexes.value("Pri")).toDouble(ok);
             double setupTime = 0.00000027 * (timeScalingFactor); //adds in 270ns for the setup time
             currentTOA += valueOfPri + setupTime;
+            emit userMessage("currentToa: " + QString::number(currentTOA));
             qDebug() << "currentToa: " << currentTOA;
             outputData.append(rowList.at(indexes.value("Pw")) + ",");
             outputData.append(rowList.at(indexes.value("Freq")) + ",");
@@ -290,10 +312,12 @@ bool YATG::upload_multiple_files_to_uxg(){
     QStringList files = directory.entryList(QStringList() << "*.csv" << "*.CSV" << "*.txt" << "*.TXT",QDir::Files);
     QString workingFolderPath = QString(workingFilePath);
     foreach(QString filename, files) {
+        emit userMessage("sending file: " + filename);
         qDebug() << "sending file: " << filename;
         workingFilePath = QString(workingFolderPath);
         workingFilePath.append("/");
         workingFilePath.append(filename);
+        emit userMessage("workingFilePath: " + workingFilePath);
         qDebug() << "workingFilePath: " << workingFilePath;
         successful_upload = upload_file_to_uxg();
         if(!successful_upload)
@@ -302,9 +326,11 @@ bool YATG::upload_multiple_files_to_uxg(){
 
     //if, during the loop, any of the calls to upload_file_to_uxg returns false, we break out of the loop and the if statement below the loop returns that result
     if(successful_upload){
+        emit userMessage("Finished uploading all files");
         qDebug() << "Finished uploading all files";
         return true;
     }else{
+        emit userMessage("Error occured in uploading file: " +workingFilePath +", aborting batch file upload");
         qDebug() << "Error occured in uploading file: " << workingFilePath << ", aborting batch file upload";
         return false;
     }

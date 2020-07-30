@@ -15,8 +15,9 @@
 #include <entry.h>
 
 
-class Fpcs
+class Fpcs: public QObject
 {
+Q_OBJECT
 public:
 
     struct fpcs_settings{
@@ -35,15 +36,15 @@ public:
         QString existingTableFilePath; //contains the path and name, unlike the others in this struct
         int preferredFormat = 0;
     };
-
+    QMainWindow *window;
     QFile workingFile;
     QTextStream streamer; //used for writing and reading from the QFile
     fpcs_settings settings;
-    Entry workingEntry;
-    QList<Entry> workingEntryList;
+    Entry *workingEntry;
+    QList<Entry*> workingEntryList;
 
 
-    Fpcs();
+    Fpcs(QMainWindow *window);
     bool initialize_workingFile();
     bool initialize_existingFile_local();
     bool initialize_newFile();
@@ -53,10 +54,12 @@ public:
     void write_header_to_workingFile();
     QString mapped_file_path();
     bool check_file_header();
-    bool add_entry(Entry &newEntry);
+    bool add_entry(Entry *newEntry);
     bool add_entry_to_file();
     void data_dump_onto_file();
     void import_entries_from_existing_file();
+signals:
+     void userMessage(QString message);
 
 };
 

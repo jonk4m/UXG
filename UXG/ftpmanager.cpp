@@ -8,6 +8,7 @@ FtpManager::FtpManager(QMainWindow *window)
     tcpSocket = new QTcpSocket(window);
     QAbstractSocket::connect(tcpSocket,SIGNAL(readyRead()),window,SLOT(on_socket_readyRead()));
     waitingForFPCSFileList = false;
+    QMainWindow::connect(this, SIGNAL(userMessage(QString)), window, SLOT(output_to_console(QString)));
 }
 
 /*
@@ -16,17 +17,20 @@ FtpManager::FtpManager(QMainWindow *window)
  * the fileOrFolderName parameter includes the current directory when uploading
  */
 void FtpManager::start_process(QString fileOrFolderName){
+    emit userMessage("Starting process");
     qDebug() << "Starting process";
     QStringList arguments;
     QString program = "ftp";
 
     if(current_state == state::uploading){
+        emit userMessage("Name is : " + fileOrFolderName);
         qDebug() << "Name is : ";
         qDebug() << fileOrFolderName;
         //set the filename in the text document of the ftp commands to match the input parameter
         QString commandPath = QDir::currentPath() + "/fileFolder/uploadFtpCommands.txt";
         QFile commandFile(commandPath);
         if(!commandFile.open(QIODevice::ReadWrite | QIODevice::Text))
+            emit userMessage("Failed to open uploadFtpCommands.txt");
             qDebug() << "Failed to open uploadFtpCommands.txt";
         commandFile.resize(0); //clears the entire file
         commandFile.write(QString("user\n").toUtf8());
@@ -47,6 +51,7 @@ void FtpManager::start_process(QString fileOrFolderName){
         QString commandPath = QDir::currentPath() + "/fileFolder/downloadFtpCommands.txt";
         QFile commandFile(commandPath);
         if(!commandFile.open(QIODevice::ReadWrite | QIODevice::Text))
+            emit userMessage("Failed to open downloadFtpCommands.txt");
             qDebug() << "Failed to open downloadFtpCommands.txt";
         commandFile.resize(0); //clears the entire file
         commandFile.write(QString("user\n").toUtf8());
@@ -64,6 +69,7 @@ void FtpManager::start_process(QString fileOrFolderName){
         arguments << "-d" << "-i" << commandArg << "K-N5193A-90114";
 
     }else{
+        emit userMessage("Error in FtpManager state, should be either uploading or downloading");
         qDebug() << "Error in FtpManager state, should be either uploading or downloading";
     }
 
@@ -77,6 +83,7 @@ void FtpManager::start_process(QString fileOrFolderName){
 }
 
 void FtpManager::process_started(){
+    emit userMessage("Process has started successfully");
     qDebug() << "Process has started successfully";
 }
 
@@ -84,6 +91,7 @@ void FtpManager::process_started(){
  * The ftp process has finished downloading or uploading a file
  */
 void FtpManager::process_finished(){
+    emit userMessage("Process has finished successfully" + QString::number(process->exitCode()));
     qDebug() << "Process has finished successfully";
     qDebug() << process->exitCode();
     if(current_state == state::uploading){
@@ -97,6 +105,7 @@ void FtpManager::process_finished(){
         scpiCommand.append('"');
         scpiCommand.append(uploadingFileOrFolderName);
         scpiCommand.append('"');
+        emit userMessage("sending: " + scpiCommand);
         qDebug() << "sending: " << scpiCommand;
         send_SCPI(scpiCommand);
 
@@ -105,6 +114,7 @@ void FtpManager::process_finished(){
         scpiCommand.append('"');
         scpiCommand.append(uploadingFileOrFolderName.remove(".csv"));  //no need to append the .fpcs here, uxg does it automatically
         scpiCommand.append('"');
+        emit userMessage("sending: " + scpiCommand);
         qDebug() << "sending: " << scpiCommand;
         send_SCPI(scpiCommand);
 
@@ -113,6 +123,7 @@ void FtpManager::process_finished(){
         scpiCommand.append('"');
         scpiCommand.append(uploadingFileOrFolderName);
         scpiCommand.append('"');
+        emit userMessage("sending: " + scpiCommand);
         qDebug() << "sending: " << scpiCommand;
         send_SCPI(scpiCommand);
 
@@ -121,20 +132,26 @@ void FtpManager::process_finished(){
 }
 
 void FtpManager::process_error_occured(){
+    QString error = QString(process->error());
+    emit userMessage("Process error has occured: " + error);
     qDebug() << "Process has error occured";
-    qDebug() << process->error();
+    qDebug() << error;
 }
 
 void FtpManager::process_ready_read_error(){
+    QString standardError = process->readAllStandardError();
+    emit userMessage("Process has ready read error: " + standardError);
     qDebug() << "Process has ready read error";
-    qDebug() << process->readAllStandardError();
+    qDebug() << standardError;
 }
 
 void FtpManager::process_ready_read_output(){
+    emit userMessage("Process output -----------------:");
     qDebug() << "Process output -----------------:";
     QString allRead = process->readAllStandardOutput();
     QStringList allReadParsed = allRead.split(QRegExp("[\r\n]"), Qt::SkipEmptyParts);
     for(QString item : allReadParsed){
+        emit userMessage(item);
         qDebug() << item;
     }
 }
@@ -144,20 +161,26 @@ void FtpManager::send_SCPI(QString message){
         QString str = message + "\n";
         tcpSocket->write(str.toUtf8());
     }else if(tcpSocket->state() == QAbstractSocket::HostLookupState){
+        emit userMessage("Socket cannot send command because it is in the host lookup state");
         qDebug() << "Socket cannot send command because it is in the host lookup state";
     }else if(tcpSocket->state() == QAbstractSocket::ListeningState){
+        emit userMessage("Socket cannot send command because it is currently listening to the connection");
         qDebug() << "Socket cannot send command because it is currently listening to the connection";
     }else if(tcpSocket->state() == QAbstractSocket::UnconnectedState){
+        emit userMessage("Socket cannot send command because it is unconnected");
         qDebug() << "Socket cannot send command because it is unconnected";
     }else if(tcpSocket->state() == QAbstractSocket::ClosingState){
+        emit userMessage("Socket cannot send command because it is in the process of closing it's connection");
         qDebug() << "Socket cannot send command because it is in the process of closing it's connection";
     }else if(tcpSocket->state() == QAbstractSocket::ConnectingState){
+        emit userMessage("Socket cannot send command because it is currently in the process of connecting");
         qDebug() << "Socket cannot send command because it is currently in the process of connecting";
     }
 }
 
 void FtpManager::connect(quint16 port){
     if(tcpSocket->state() == QAbstractSocket::ConnectedState){
+        emit userMessage("Socket already connected");
         qDebug() << "Socket already connected";
     }else{
         tcpSocket->connectToHost(hostName,port,QIODevice::ReadWrite);
@@ -176,6 +199,7 @@ void FtpManager::abortTcpSocket(){
 }
 
 void FtpManager::socket_connected(){
+    emit userMessage("Socket connected");
     qDebug() << "Socket connected";
     send_SCPI("DISPlay:REMote ON");
     send_SCPI("INSTrument STReaming");
@@ -183,12 +207,29 @@ void FtpManager::socket_connected(){
 }
 
 void FtpManager::socket_disconnected(){
+    emit userMessage("Socket disconnected");
     qDebug() << "Socket disconnected";
 }
 
 void FtpManager::socket_errorOccurred(QAbstractSocket::SocketError *error){
+    //TODO turn error into string
+    emit userMessage("Socket error occurred : ");
     qDebug() << "Socket error occurred : ";
     qDebug() << error;
+}
+
+void FtpManager::playPDW(QString fileName, bool isContinuous){
+    if(isContinuous){
+        send_SCPI("STReam:TRIGger:PLAY:FILE:TYPE CONTinuous");
+        send_SCPI(":STReam:TRIGger:PLAY:FILE:TYPE:CONTinuous TRIGger");
+    }else{
+        send_SCPI(":STReam:TRIGger:PLAY:FILE:TYPE SINGle");
+    }
+    send_SCPI(":STReam:SOURce:FILE " + fileName);
+    send_SCPI(":OUTPut ON");
+    send_SCPI(":OUTPut:MODulation ON");
+    send_SCPI(":STReam:STATe ON");
+    send_SCPI("*TRG");
 }
 
 //returns true when done with the second phase

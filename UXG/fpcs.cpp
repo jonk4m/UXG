@@ -8,8 +8,11 @@
  * Possible Edit: Fpcs will keep a resource file that will be used to store the names of all previously made csv's so even if the program is exited and reopened, the delete all files method will work by viewing this text file of names
  *
  */
-Fpcs::Fpcs()
+Fpcs::Fpcs(QMainWindow *window)
 {
+    QMainWindow::connect(this, SIGNAL(userMessage(QString)), window, SLOT(output_to_console(QString)));
+    workingEntry = new Entry(window);
+    this->window=window;
     //none needed, but method kept for future debugging
 };
 
@@ -39,10 +42,12 @@ bool Fpcs::initialize_existingFile_local(){
     if(exists){
         if(!workingFile.open(QFile::ReadWrite | QFile::Text | QFile::ExistingOnly)) //Options: ExistingOnly, NewOnly, Append
         {
+            emit userMessage(" Could not open File : " + this->settings.existingTableFilePath);
             qDebug() << " Could not open File : " + this->settings.existingTableFilePath;
             return false;
         }
     }else{
+        emit userMessage("File Not Found in Local System: " + settings.existingTableFilePath);
         qDebug() << "File Not Found in Local System: " << settings.existingTableFilePath;
         return false;
     }
@@ -55,6 +60,7 @@ bool Fpcs::initialize_existingFile_local(){
     //check header
     bool correctHeader = this->check_file_header();
     if(!correctHeader){
+        emit userMessage("Incorrect Header found on Loaded Table File");
         qDebug() << "Incorrect Header found on Loaded Table File";
     }
 
@@ -74,12 +80,14 @@ bool Fpcs::initialize_newFile(){
     */
     bool exists = workingFile.exists(this->mapped_file_path());
     if(exists){
+        emit userMessage("File : " + this->mapped_file_path() + " already exists, aborting file creation...");
         qDebug() << "File : " + this->mapped_file_path() + " already exists, aborting file creation...";
         return false;
     }
     workingFile.setFileName(this->mapped_file_path()); //set this file path for the working file
     if(!workingFile.open(QFile::ReadWrite | QFile::Text)) //Options: ExistingOnly, NewOnly, Append
     {
+        emit userMessage(" Could not create File : " + this->mapped_file_path());
         qDebug() << " Could not create File : " + this->mapped_file_path();
         return false;
     }
@@ -112,6 +120,7 @@ QString Fpcs::mapped_file_path(){
         totalFilePath.append("/");
         if(this->settings.usingCustomTableName == true){ //custom file path and custom name
             if(this->settings.customTableName == ""){
+                emit userMessage("Custom Table Name is Currently Empty");
                 qDebug() << "Custom Table Name is Currently Empty";
                 return "";
             }
@@ -126,6 +135,7 @@ QString Fpcs::mapped_file_path(){
         totalFilePath.append("/");
         if(this->settings.usingCustomTableName == true){ //default file path and custom name
             if(this->settings.customTableName == ""){
+                emit userMessage("Custom Table Name is Currently Empty");
                 qDebug() << "Custom Table Name is Currently Empty";
                 return "";
             }
@@ -185,45 +195,47 @@ bool Fpcs::check_file_header(){
 bool Fpcs::add_entry_to_file(){
     if(this->settings.fileInPlay == true){
         //parse through the fpcs_entry and add those values to the table csv file
-        streamer << workingEntry.comment + ","; //comment gets incremented then converted to a QString
-        streamer << workingEntry.state + ",";
-        streamer << workingEntry.codingType + ",";
-        workingEntry.length = workingEntry.bitPattern.size();
-        streamer << QString::number(workingEntry.length) + ",";
-        streamer << QString::number(workingEntry.bitsPerSubpulse) + ",";
+        streamer << workingEntry->comment + ","; //comment gets incremented then converted to a QString
+        streamer << workingEntry->state + ",";
+        streamer << workingEntry->codingType + ",";
+        workingEntry->length = workingEntry->bitPattern.size();
+        streamer << QString::number(workingEntry->length) + ",";
+        streamer << QString::number(workingEntry->bitsPerSubpulse) + ",";
 
         //enhanced for loop going through the array of phase values
         for(int i = 0; i < 16; i++){
-            streamer << workingEntry.phases[i] + ",";
+            streamer << workingEntry->phases[i] + ",";
         }
 
         //for loop going through the array of freq values
         for(int i = 0; i < 16; i++){
             unsigned long long int tempMultiplier = 1;
-            if(workingEntry.freqUnits.at(i) == QString("G") || workingEntry.freqUnits.at(i) == QString("g")){
+            if(workingEntry->freqUnits.at(i) == QString("G") || workingEntry->freqUnits.at(i) == QString("g")){
                 tempMultiplier = 1000000000;
-            }else if(workingEntry.freqUnits.at(i) == QString("M") || workingEntry.freqUnits.at(i) == QString("m")){
+            }else if(workingEntry->freqUnits.at(i) == QString("M") || workingEntry->freqUnits.at(i) == QString("m")){
                 tempMultiplier = 1000000;
-            }else if(workingEntry.freqUnits.at(i) == QString("K") || workingEntry.freqUnits.at(i) == QString("k")){
+            }else if(workingEntry->freqUnits.at(i) == QString("K") || workingEntry->freqUnits.at(i) == QString("k")){
                 tempMultiplier = 1000;
             }else{
-                qDebug() << "Unknown Scaling Factor used for a frequency in a pattern : " << workingEntry.freqUnits.at(i);
+                emit userMessage("Unknown Scaling Factor used for a frequency in a pattern : " + workingEntry->freqUnits.at(i));
+                qDebug() << "Unknown Scaling Factor used for a frequency in a pattern : " << workingEntry->freqUnits.at(i);
                 return false;
             }
 
-            streamer << QString::number(workingEntry.freqs.at(i).toULongLong() * tempMultiplier) + ",";
+            streamer << QString::number(workingEntry->freqs.at(i).toULongLong() * tempMultiplier) + ",";
         }
 
         //add the hex pattern
-        workingEntry.hexPattern = workingEntry.binary_to_hex_converter(workingEntry.bitPattern);
+        workingEntry->hexPattern = workingEntry->binary_to_hex_converter(workingEntry->bitPattern);
 
-        streamer << "#h" << workingEntry.hexPattern;
+        streamer << "#h" << workingEntry->hexPattern;
 
         streamer << "\n"; //end of entry, new line for next entry
 
         streamer.flush();
 
     }else{
+        emit userMessage("No File is currently selected for the entry to be added to.");
         qDebug() << "No File is currently selected for the entry to be added to.";
         return false;
     }
@@ -233,7 +245,10 @@ bool Fpcs::add_entry_to_file(){
 void Fpcs::data_dump_onto_file(){
     if(settings.fileInPlay == true){
         write_header_to_workingFile();
-        for(Entry entry : workingEntryList){
+//        for(int i=0; i< workingEntryList.length();i++){
+//            workingEntry=workingEntryList.at(i);
+//        }
+        for(Entry *entry : workingEntryList){
             workingEntry = entry;
             add_entry_to_file();
         }
@@ -263,7 +278,7 @@ void Fpcs::import_entries_from_existing_file(){
         QStringList rowList = row.split(QRegExp(","), Qt::SkipEmptyParts);
         //qDebug() << "rowList : " << rowList;
 
-        Entry *tempEntry = new Entry();
+        Entry *tempEntry = new Entry(window);
 
         tempEntry->comment = rowList.at(0);
         tempEntry->state = rowList.at(1);
@@ -271,6 +286,7 @@ void Fpcs::import_entries_from_existing_file(){
         tempEntry->length = rowList.at(3).toInt();
         tempEntry->bitsPerSubpulse = rowList.at(4).toInt();
         if(readHeader.indexOf("Hex Pattern") == -1){
+            emit userMessage("Error, hex pattern not found in file. Index is : " +QString::number(readHeader.indexOf("Hex Pattern")));
             qDebug() << "Error, hex pattern not found in file. Index is : " << readHeader.indexOf("Hex Pattern");
             return;
         }
@@ -313,12 +329,12 @@ void Fpcs::import_entries_from_existing_file(){
         //create the plaintext pattern
         tempEntry->parse_entry_for_plain_text_pattern();
 
-        workingEntryList << *tempEntry;
+        workingEntryList << tempEntry;
     }
 
 }
 
-bool Fpcs::add_entry(Entry &newEntry){
+bool Fpcs::add_entry(Entry *newEntry){
     workingEntryList.append(newEntry); //add a new entry to the fpcs list of entries
     return true;
 }

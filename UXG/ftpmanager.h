@@ -55,6 +55,7 @@ public:
     void connect(quint16);
     void closeTcpSocket();
     void abortTcpSocket();
+    void playPDW(QString fileName, bool isContinuous);
 
 private slots:
     void process_started();
@@ -66,6 +67,8 @@ private slots:
     void socket_connected();
     void socket_disconnected();
     void socket_errorOccurred(QAbstractSocket::SocketError*);
+signals:
+     void userMessage(QString message);
 
 };
 

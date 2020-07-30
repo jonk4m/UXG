@@ -7,8 +7,9 @@
 #include <QUdpSocket>
 #include <QMainWindow>
 #include <QNetworkInterface>
-class UdpSocket
+class UdpSocket: public QObject
 {
+Q_OBJECT
 public:
     bool isBound = false;
     QHostAddress UXGIP;
