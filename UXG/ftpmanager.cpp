@@ -29,9 +29,10 @@ void FtpManager::start_process(QString fileOrFolderName){
         //set the filename in the text document of the ftp commands to match the input parameter
         QString commandPath = QDir::currentPath() + "/fileFolder/uploadFtpCommands.txt";
         QFile commandFile(commandPath);
-        if(!commandFile.open(QIODevice::ReadWrite | QIODevice::Text))
+        if(!commandFile.open(QIODevice::ReadWrite | QIODevice::Text)){
             emit userMessage("Failed to open uploadFtpCommands.txt");
             qDebug() << "Failed to open uploadFtpCommands.txt";
+        }
         commandFile.resize(0); //clears the entire file
         commandFile.write(QString("user\n").toUtf8());
         commandFile.write(QString("keysight\n").toUtf8());
@@ -50,9 +51,10 @@ void FtpManager::start_process(QString fileOrFolderName){
         //Download all files from the UXG
         QString commandPath = QDir::currentPath() + "/fileFolder/downloadFtpCommands.txt";
         QFile commandFile(commandPath);
-        if(!commandFile.open(QIODevice::ReadWrite | QIODevice::Text))
+        if(!commandFile.open(QIODevice::ReadWrite | QIODevice::Text)){
             emit userMessage("Failed to open downloadFtpCommands.txt");
             qDebug() << "Failed to open downloadFtpCommands.txt";
+        }
         commandFile.resize(0); //clears the entire file
         commandFile.write(QString("user\n").toUtf8());
         commandFile.write(QString("keysight\n").toUtf8());

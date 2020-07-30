@@ -705,6 +705,16 @@ void MainWindow::on_uxg_fpcs_files_combo_box_currentTextChanged(const QString &a
 {
     window_fpcs->settings.existingTableFilePath = arg1;
     window_fpcs->settings.existingTableFilePath = window_fpcs->settings.existingTableFilePath.remove('"').remove(" ");
+    /* In this next line, we need to make a copy of the file name incase the user presses the "open" button. Pressing "Open"
+     * causes the window_fpcs->settings.existingTableFilePath to change to the file in the local directory. However, we just
+     * want the name to delete it, not the whole directory, so we store a copy of the name for that purpose. Why not just strip
+     * the workingFile of it's filename you say? Well then in the "delete" part of the code we would need to distinguish whether
+     * or not we currently have a workingFile in place which would be a hassle. This approach also allows the user to delete a
+     * table without opening it first. They can just select the name and click delete.
+     */
+    window_fpcs->settings.currentTableSelectedThatIsOnTheUxg = window_fpcs->settings.existingTableFilePath;
+    qDebug() << "Current FPCS Table on the UXG selected is: " << window_fpcs->settings.existingTableFilePath;
+    output_to_console("Current FPCS Table on the UXG selected is: " + window_fpcs->settings.existingTableFilePath);
 }
 
 /*
@@ -861,14 +871,18 @@ void MainWindow::on_delete_table_from_uxg_push_button_clicked(){
         //delete the fpcs file under that name
         QString command = "MEMory:DELete:NAME ";
         command.append('"');
-        command.append(window_fpcs->settings.existingTableFilePath.append(".fpcs"));
+
+        qDebug() << "Filename at delete slot is: " << window_fpcs->settings.currentTableSelectedThatIsOnTheUxg.remove(".fpcs").append(".fpcs");
+        output_to_console("Filename at delete slot is: " + window_fpcs->settings.currentTableSelectedThatIsOnTheUxg.remove(".fpcs").append(".fpcs"));
+
+        command.append(window_fpcs->settings.currentTableSelectedThatIsOnTheUxg).remove(".fpcs").append(".fpcs"); //window_fpcs->settings.existingTableFilePath.append(".fpcs")
         command.append('"');
         window_ftpManager->send_SCPI(command);
         //delete the csv file under that name
         command.clear();
         command = "MEMory:DELete:NAME ";
         command.append('"');
-        command.append(window_fpcs->settings.existingTableFilePath.remove(".fpcs").append(".csv"));
+        command.append(window_fpcs->settings.currentTableSelectedThatIsOnTheUxg.remove(".fpcs").remove(".csv").append(".csv"));
         command.append('"');
         window_ftpManager->send_SCPI(command);
         //reset the list of available files on the UXG
@@ -933,12 +947,6 @@ void MainWindow::update_table_visualization(){
     if(window_fpcs->settings.preferredFormat == 0){
         //the box is unchecked so display in plaintext format
         rowIndex = 0;
-        //qDebug() << "format 0 updating Table Visualization";
-//        for(int i=0; i< window_fpcs->workingEntryList.length();i++){
-//            ui->table_visualization_table_widget->item(rowIndex,0)
-//                    ->setText(window_fpcs->workingEntryList.at(i).plainTextRepresentation);
-//            rowIndex++;
-//        }
         for(Entry *entry: window_fpcs->workingEntryList){
             //qDebug() << "plainText : " << entry.plainTextRepresentation;
             ui->table_visualization_table_widget->item(rowIndex,0)->setText(entry->plainTextRepresentation);
@@ -947,12 +955,6 @@ void MainWindow::update_table_visualization(){
     }else{
         //the box is checked so display in binary format
         rowIndex = 0;
-        //qDebug() << "format 1 updating Table Visualization";
-//        for(int i=0; i<window_fpcs->workingEntryList.length(); i++){
-//            qDebug() << window_fpcs->workingEntryList.at(i).plainTextRepresentation;
-//            ui->table_visualization_table_widget->item(rowIndex,0)->setText(window_fpcs->workingEntryList.at(i).bitPattern);
-//            rowIndex++;
-//        }
         for(Entry *entry: window_fpcs->workingEntryList){
             output_to_console("plainText : " + entry->plainTextRepresentation);
             qDebug() << "plainText : " << entry->plainTextRepresentation;
@@ -1935,7 +1937,3 @@ void MainWindow::on_turnStreamOffPushButton_clicked()
     window_ftpManager->send_SCPI(":STReam:STATe ON");
 
 }
-
-
-
-

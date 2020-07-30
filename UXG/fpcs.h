@@ -13,6 +13,7 @@
 #include <QProcess>
 #include <QThread>
 #include <entry.h>
+#include <QStringList>
 
 
 class Fpcs: public QObject
@@ -35,6 +36,7 @@ public:
         QString customTableName;
         QString existingTableFilePath; //contains the path and name, unlike the others in this struct
         int preferredFormat = 0;
+        QString currentTableSelectedThatIsOnTheUxg;
     };
     QMainWindow *window;
     QFile workingFile;

@@ -64,6 +64,7 @@ public:
      void resetTable(int azResolution, int elResolution);
      bool leftMouseButtonReleaseEvent(QMouseEvent *event);
      bool eventFilter(QObject *object, QEvent *event);
+
 private slots:
 
     void on_specify_table_name_radio_button_clicked();
@@ -159,43 +160,73 @@ private slots:
     void on_select_multiple_files_by_folder_push_button_clicked();
 
     void on_upload_yatg_file_to_uxg_push_button_clicked();
-    //serial slots
-void on_elevationPushButton_clicked();
-void on_azimuthPushButton_clicked();
-void on_changeBothPushButton_clicked();
-void on_connectUSBPushButton_clicked();
-void on_maxSpeedSlider_sliderReleased();
-void on_minSpeedSlider_sliderReleased();
-void on_rampSlider_sliderReleased();
-void serialRead();
-void updatePositions();
-void on_stopButton_clicked();
-void on_elevationMotorSpeedRadioButton_toggled(bool checked);
-void on_positionRadioButton_toggled(bool checked);
-void on_fixElevationPushButton_clicked();
-void on_fixAzimuthPushButton_clicked();
-void stopMotion();
-void resendTimerTimeout();
-//test slots
-void on_openTestFilePushButton_clicked();
-void on_startTestButton_clicked();
-void on_OpenTestPushButton_clicked();
-void on_startDroneTestPushButton_clicked();
-void on_stopTestPushButton_clicked();
-//table slots
-void on_selectBoxesRadioButton_toggled(bool checked);
-void on_clearTablePushButton_clicked();
-void on_testCreatorTableWidget_cellEntered(int row, int column);
-void on_testCreatorTableWidget_itemChanged(QTableWidgetItem *item);
-void on_createTextFilePushButton_clicked();
-void on_changeTableResolutionPushButton_clicked();
-//Udp slots
-void UdpRead();
-void on_turnStreamOffPushButton_clicked();
 
-void on_playPDWPushButton_clicked();
+        //serial slots
+    void on_elevationPushButton_clicked();
 
-void on_stopPDWPushButton_clicked();
+    void on_azimuthPushButton_clicked();
+
+    void on_changeBothPushButton_clicked();
+
+    void on_connectUSBPushButton_clicked();
+
+    void on_maxSpeedSlider_sliderReleased();
+
+    void on_minSpeedSlider_sliderReleased();
+
+    void on_rampSlider_sliderReleased();
+
+    void serialRead();
+
+    void updatePositions();
+
+    void on_stopButton_clicked();
+
+    void on_elevationMotorSpeedRadioButton_toggled(bool checked);
+
+    void on_positionRadioButton_toggled(bool checked);
+
+    void on_fixElevationPushButton_clicked();
+
+    void on_fixAzimuthPushButton_clicked();
+
+    void stopMotion();
+
+    void resendTimerTimeout();
+
+    //test slots
+    void on_openTestFilePushButton_clicked();
+
+    void on_startTestButton_clicked();
+
+
+    void on_OpenTestPushButton_clicked();
+
+    void on_startDroneTestPushButton_clicked();
+
+    void on_stopTestPushButton_clicked();
+
+    //table slots
+    void on_selectBoxesRadioButton_toggled(bool checked);
+
+    void on_clearTablePushButton_clicked();
+
+    void on_testCreatorTableWidget_cellEntered(int row, int column);
+
+    void on_testCreatorTableWidget_itemChanged(QTableWidgetItem *item);
+
+    void on_createTextFilePushButton_clicked();
+
+    void on_changeTableResolutionPushButton_clicked();
+
+    //Udp slots
+    void UdpRead();
+
+    void on_turnStreamOffPushButton_clicked();
+
+    void on_playPDWPushButton_clicked();
+
+    void on_stopPDWPushButton_clicked();
 
 private:
 
