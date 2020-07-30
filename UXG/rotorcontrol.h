@@ -58,7 +58,7 @@ public:
     };
     RotorControl(QMainWindow *window);
 
-    void findSerialPorts();
+    bool findSerialPorts();
 
     void getPosition();
 

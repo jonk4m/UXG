@@ -1938,14 +1938,20 @@ void MainWindow::on_testFileLineEdit_textChanged(const QString &arg1)
 void MainWindow::on_usingRotorCheckBox_toggled(bool checked)
 {
     if(checked){
-        ui->moveTypeGroupBox->setEnabled(true);
-        ui->FixSerialGroupBox->setEnabled(true);
-        ui->motorSpeedGroupBox->setEnabled(true);
-        ui->moveMotorGroupBox->setEnabled(true);
-        ui->azimuthLCD->setEnabled(true);
-        ui->elevationLCD->setEnabled(true);
         QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-        serial->findSerialPorts();
+        bool serialPortFound = serial->findSerialPorts();
+        if(serialPortFound){
+            ui->moveTypeGroupBox->setEnabled(true);
+            ui->FixSerialGroupBox->setEnabled(true);
+            ui->motorSpeedGroupBox->setEnabled(true);
+            ui->moveMotorGroupBox->setEnabled(true);
+            ui->azimuthLCD->setEnabled(true);
+            ui->elevationLCD->setEnabled(true);
+        }else{
+            ui->usingRotorCheckBox->setChecked(false);
+            output_to_console("No Serial Port Found");
+        }
+
         QGuiApplication::restoreOverrideCursor();
     }else{
 
@@ -1955,8 +1961,13 @@ void MainWindow::on_usingRotorCheckBox_toggled(bool checked)
         ui->moveMotorGroupBox->setEnabled(false);
         ui->azimuthLCD->setEnabled(false);
         ui->elevationLCD->setEnabled(false);
+        ui->rampSlider->setSliderPosition(0);
+        ui->maxSpeedSlider->setSliderPosition(1);
+        ui->minSpeedSlider->setSliderPosition(1);
         ui->azimuthLCD->display(0);
         ui->elevationLCD->display(0);
+        ui->elevationMotorSpeedRadioButton->setChecked(true);
+        ui->azimuthMotorSpeedRadioButton->setChecked(false);
         serial->closeSerialPorts();
     }
 }

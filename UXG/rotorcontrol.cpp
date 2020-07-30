@@ -25,14 +25,18 @@ RotorControl::RotorControl(QMainWindow *window)
  * on this computer, but kind of buggy on others.  It will eventually work on other computers
  * but it definitely needs improvement somehow.
  * both communication lines are 4800 baud, 8bit data, no parity, one stop, and no flow control
+ * returns true if 1 or 2 ports are found, otherwise it returns false
  * */
-void RotorControl::findSerialPorts(){
+bool RotorControl::findSerialPorts(){
     emit userMessage("Finding Serial Ports");
     closeSerialPorts();
     QSerialPort *serialPort = new QSerialPort();
     const QList<QSerialPortInfo> ports = QSerialPortInfo::availablePorts();//creates a list of serial ports
     QString elPort;
     QString azPort;
+    if(ports.isEmpty()){
+        return false;
+    }
     for(const QSerialPortInfo &port : ports){
         QString s = port.portName();
         serialPort->setPortName(s);
@@ -78,6 +82,7 @@ void RotorControl::findSerialPorts(){
     el->setFlowControl(QSerialPort::NoFlowControl);
     el->open(QIODevice::ReadWrite);
     getMaxMinAndRampValues(true);
+    return true;
 }
 
 //void RotorControl::setElevationMode(){
