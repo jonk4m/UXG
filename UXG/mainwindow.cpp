@@ -50,7 +50,8 @@ MainWindow::~MainWindow()
 void MainWindow::setup(){
     udpSocket = new UdpSocket(this);
     serial = new RotorControl(this);//initialize the serial pointer
-    serial->findSerialPorts();//connects the serial ports between the rotor and the
+    on_usingRotorCheckBox_toggled(false);
+    //connects the serial ports between the rotor and the
     mainTimer = new QTimer(this);//starts a timer to update the LCD displays in real time
     connect(mainTimer, SIGNAL(timeout()), this, SLOT(updatePositions()));//connect the timer to the updatePositions slot (down below)
     mainTimer->start(200);//the timer will go off every 200ms
@@ -63,7 +64,7 @@ void MainWindow::setup(){
     resetTable(resolution.at(0).toInt(), resolution.at(1).toInt());
     //scrolling to an item doesn't put it in the center of the table, so this scrolls past the origin
     //by 15
-    QTableWidgetItem *originOffset = ui->testCreatorTableWidget->item(102,105);
+    QTableWidgetItem *originOffset = ui->testCreatorTableWidget->item(95,102);
     ui->testCreatorTableWidget->scrollToItem(originOffset);
     //set the origin to black to make it easy to see
     ui->testCreatorTableWidget->item(90,90)->setBackground(Qt::black);
@@ -1928,4 +1929,34 @@ void MainWindow::on_openTestLineEdit_textChanged(const QString &arg1)
 void MainWindow::on_testFileLineEdit_textChanged(const QString &arg1)
 {
     ui->openTestLineEdit->setText(arg1);
+}
+
+
+
+
+
+void MainWindow::on_usingRotorCheckBox_toggled(bool checked)
+{
+    if(checked){
+        ui->moveTypeGroupBox->setEnabled(true);
+        ui->FixSerialGroupBox->setEnabled(true);
+        ui->motorSpeedGroupBox->setEnabled(true);
+        ui->moveMotorGroupBox->setEnabled(true);
+        ui->azimuthLCD->setEnabled(true);
+        ui->elevationLCD->setEnabled(true);
+        QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+        serial->findSerialPorts();
+        QGuiApplication::restoreOverrideCursor();
+    }else{
+
+        ui->moveTypeGroupBox->setEnabled(false);
+        ui->FixSerialGroupBox->setEnabled(false);
+        ui->motorSpeedGroupBox->setEnabled(false);
+        ui->moveMotorGroupBox->setEnabled(false);
+        ui->azimuthLCD->setEnabled(false);
+        ui->elevationLCD->setEnabled(false);
+        ui->azimuthLCD->display(0);
+        ui->elevationLCD->display(0);
+        serial->closeSerialPorts();
+    }
 }

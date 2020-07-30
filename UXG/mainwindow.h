@@ -20,6 +20,7 @@
 #include "rotorcontrol.h"
 #include "udpsocket.h"
 
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -231,6 +232,10 @@ private slots:
     void on_openTestLineEdit_textChanged(const QString &arg1);
 
     void on_testFileLineEdit_textChanged(const QString &arg1);
+
+
+
+    void on_usingRotorCheckBox_toggled(bool checked);
 
 private:
 
