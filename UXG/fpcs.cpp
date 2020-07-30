@@ -47,8 +47,8 @@ bool Fpcs::initialize_existingFile_local(){
             return false;
         }
     }else{
-        emit userMessage("File Not Found in Local System: " + settings.existingTableFilePath);
-        qDebug() << "File Not Found in Local System: " << settings.existingTableFilePath;
+        emit userMessage("File Not Found in Local System when initializing file in local system: " + settings.existingTableFilePath);
+        qDebug() << "File Not Found in Local System when initializing file in local system: " << settings.existingTableFilePath;
         return false;
     }
 
@@ -245,9 +245,6 @@ bool Fpcs::add_entry_to_file(){
 void Fpcs::data_dump_onto_file(){
     if(settings.fileInPlay == true){
         write_header_to_workingFile();
-//        for(int i=0; i< workingEntryList.length();i++){
-//            workingEntry=workingEntryList.at(i);
-//        }
         for(Entry *entry : workingEntryList){
             workingEntry = entry;
             add_entry_to_file();

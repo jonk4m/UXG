@@ -77,7 +77,8 @@ QT Article talking about what most people do wrong with threading and event loop
 
 how to give the window an image, and how to give the executable an image : https://doc.qt.io/qt-5/appicon.html use this for converting the png to .ico : https://hnet.com/png-to-ico/
 how to set the cursor to "loading" indicator spinning wheel : https://doc.qt.io/qt-5/qguiapplication.html#setOverrideCursor
-bool ok = false; double valueOfPri = rowList.at(indexes.value("Pri")).toDouble(&ok); works but bool *ok; double valueOfPri = rowList.at(indexes.value("Pri")).toDouble(ok);
+bool ok = false; double valueOfPri = rowList.at(indexes.value("Pri")).toDouble(&ok); works but bool *ok; double valueOfPri = rowList.at(indexes.value("Pri")).toDouble(ok); doesn't work
+double setupTime = (double)0.00000027 * (timeScalingFactor); works but double setupTime = 0.00000027 * (timeScalingFactor); rounds the 0.00000027 to zero
 
 networking -----
 network programming and FTP with QT an overview : https://doc.qt.io/qt-5/qtnetwork-programming.html

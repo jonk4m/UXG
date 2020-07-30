@@ -24,8 +24,8 @@ bool YATG::upload_file_to_uxg(){
             return false;
         }
     }else{
-        emit userMessage("File Not Found in Local System: " + workingFilePath);
-        qDebug() << "File Not Found in Local System: " << workingFilePath;
+        emit userMessage("File Not Found in Local System to upload to UXG: " + workingFilePath);
+        qDebug() << "File Not Found in Local System to upload to UXG: " << workingFilePath;
         return false;
     }
 
@@ -183,6 +183,7 @@ bool YATG::upload_file_to_uxg(){
 
     //tell the UXG to import the file as a pdw
     ftp_manager->send_SCPI("MEMory:IMPort:STReam '" + fileName + "', '" + fileName + "'");
+
     return true;
 }
 
@@ -223,8 +224,6 @@ bool YATG::append_rows_to_uxg_file(QHash<QString,int> indexes, QString fileName,
 
         //loop through the number of pdw's desired for that row
         for(int i = 0; i < rowList.at(indexes.value("Count")).toInt(); i++){
-
-            QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor)); //set the cursor to start spinning
 
             output = "MEM:DATA:APP '" + fileName + "',#";
             outputData = "";
@@ -267,6 +266,7 @@ bool YATG::append_rows_to_uxg_file(QHash<QString,int> indexes, QString fileName,
             //qDebug() << "output: " << output;
             ftp_manager->send_SCPI(output);
             ftp_manager->tcpSocket->waitForBytesWritten();
+
             //this if statement is placed at the end of the loop so the first iteration will have an operationVal of 1
             if(operationVal == "1"){
                 operationVal = "0";

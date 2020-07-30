@@ -89,6 +89,8 @@ void MainWindow::on_specified_table_name_line_edit_textChanged(const QString &ar
     if(window_fpcs->settings.usingCustomTableName == true){
         //if they checked the radio button for using a custom table name, let's go ahead and change our Table name to whatever they typed in
         window_fpcs->settings.customTableName = arg1;
+    }else{
+        output_to_console("Please click 'Specify Table Name' to enter a custom name");
     }
 }
 
@@ -141,12 +143,6 @@ void MainWindow::on_create_new_table_button_box_accepted()
     window_fpcs->settings.usingExistingTable = false;
     bool fileInitialized = window_fpcs->initialize_workingFile();
     if(fileInitialized){
-        /*//make the progress bar move
-        ui->loaded_table_progress_bar->reset();
-        for(int j=0; j<=100; j++){
-            ui->create_progress_bar->setValue(j);
-            QThread::msleep(3);
-        }*/
         ui->current_table_line_edit->setText(window_fpcs->workingFile.fileName());
     }else{
         output_to_console("File unable to initialize");
@@ -612,8 +608,6 @@ void MainWindow::on_socket_readyRead(){
         qDebug() << "Socket readyRead : " << item;
     }
 
-    QGuiApplication::restoreOverrideCursor(); //set the cursor to stop spinning
-
     //this process is specifically for when the user needs to know what all available FPCS files on the UXG are.
     if(window_ftpManager->waitingForFPCSFileList){
         //clear the current list of available files on the dropdown menu
@@ -632,10 +626,17 @@ void MainWindow::on_socket_readyRead(){
         ui->uxg_fpcs_files_combo_box->addItems(outputList);
     }
 
-    if(!window_ftpManager->UXGSetupFinished&&allRead== "1\n"){
+    if(window_ftpManager->waitingForPdwUpload && allRead== "1\n"){
+        window_ftpManager->waitingForPdwUpload = false;
+        qDebug() << "returned 1 from uxg ";
+        output_to_console("returned 1 from uxg ");
+        QGuiApplication::restoreOverrideCursor();
+    }
+
+    if(!window_ftpManager->UXGSetupFinished && allRead== "1\n"){
         window_ftpManager->UXGSetup();
     }
-    else if(serial->simpleTestStarted&&allRead == "ARMED\n"){
+    else if(serial->simpleTestStarted && allRead == "ARMED\n"){
         window_ftpManager->send_SCPI(":OUTPut OFF");
         window_ftpManager->send_SCPI(":OUTPut:MODulation OFF");
         window_ftpManager->send_SCPI(":STReam:STATe OFF");
@@ -647,7 +648,7 @@ void MainWindow::on_socket_readyRead(){
 
         }
 
-    }else if(serial->advancedTestStarted&&allRead== "ARMED\n"){
+    }else if(serial->advancedTestStarted && allRead== "ARMED\n"){
 
         window_ftpManager->send_SCPI(":OUTPut OFF");
         window_ftpManager->send_SCPI(":OUTPut:MODulation OFF");
@@ -690,14 +691,15 @@ void MainWindow::on_select_existing_table_button_box_accepted()
     window_fpcs->data_dump_onto_file();
     window_fpcs->close_file(); //close the file (which also flushes the buffer) before exiting
 
-    window_fpcs->settings.usingExistingTable = true;
+    window_fpcs->settings.usingExistingTable = true; //boolean for knowing if we created the table or are using an existing table
     window_fpcs->workingEntryList.clear();
 
-    if(window_fpcs->settings.usingExistingTableLocal == false){
+    if(window_fpcs->settings.usingExistingTableLocal == false){ //boolean for knowing if we are getting our existing table from the uxg or the local system
         /*
          * extra steps required here to import the file from the uxg, then we initialize the file as if it already existed locally
          * tell the uxg to export the fpcs file as a csv
          */
+        window_fpcs->settings.usingExistingTable = false;
 
         //select the chosen table as the current table on the UXG
         QString scpiCommand = ":SOURce:PULM:STReam:FPCSetup:SELect "; //Note this command will be rejected if the UXG is not in PDW Streaming Mode
@@ -720,9 +722,42 @@ void MainWindow::on_select_existing_table_button_box_accepted()
         qDebug() << "now sending: " << scpiCommand;
         window_ftpManager->send_SCPI(scpiCommand);
 
-        //-------------------------
         output_to_console("file is exported, ready for ftp");
         qDebug() << "file is exported, ready for ftp";
+
+        QString tempExistingTableFilePath = window_fpcs->settings.existingTableFilePath;
+        output_to_console("NAme before deletion: " + window_fpcs->settings.existingTableFilePath);
+
+        //check if the file with the same name already exists in the downloads folder
+        QDir directory("./fileFolder/downloads"); //get a list of all file names in the downloads folder
+        QStringList files = directory.entryList(QStringList() << "*.csv" << "*.CSV" << "*.txt" << "*.TXT",QDir::Files);
+        QString fileNameWithoutType = window_fpcs->settings.existingTableFilePath.remove(".fpcs").remove(".csv").remove(".txt");
+        output_to_console("fileName without ending is : " + fileNameWithoutType + "----------------------------------------------------");
+        output_to_console("List of files in downloads folder is : " + files.join(","));
+        foreach(QString filename, files) {
+            output_to_console("fileName from list is : " + filename + "   fileName of the actual file : " + fileNameWithoutType.remove(".csv").append(".csv").toUpper());
+            if(filename == fileNameWithoutType.remove(".csv").remove(".txt").append(".csv").toUpper()){
+                //file name matches, delete that file with .csv ending
+                QString deleteFileName = directory.path() + "/" + filename;
+                QFile temp(deleteFileName);
+                qDebug() << "Deleting file : " << deleteFileName << "  to be replaced by identically named file on UXG ---------------------";
+                output_to_console("Deleting file : " + deleteFileName + "  to be replaced by identically named file on UXG -----------------");
+                temp.remove();
+            }
+            if(filename == fileNameWithoutType.remove(".csv").remove(".txt").append(".txt").toUpper()){
+                //file name matches, delete that file with .txt ending
+                QString deleteFileName = directory.path() + "/" + filename;
+                QFile temp(deleteFileName);
+                qDebug() << "Deleting file : " << deleteFileName << "  to be replaced by identically named file on UXG -----------------------";
+                output_to_console("Deleting file : " + deleteFileName + "  to be replaced by identically named file on UXG -------------------");
+                temp.remove();
+            }
+        }
+        window_fpcs->settings.existingTableFilePath = tempExistingTableFilePath; //revert any changes you made to the fileName while trying to find duplicates
+        output_to_console("NAme after deletion: " + window_fpcs->settings.existingTableFilePath);
+
+        //if the file already exists in your download folder we need to delete it first
+
         //download the table from the uxg into the downloads folder
         window_ftpManager->current_state = FtpManager::state::downloading;
         //then feed it into the process
@@ -743,17 +778,9 @@ void MainWindow::on_select_existing_table_button_box_accepted()
             output_to_console("File unable to initialize");
             qDebug() << "File unable to initialize";
         }
-        //--------------------------------
-
     }else{
         bool fileInitialized = window_fpcs->initialize_workingFile();
         if(fileInitialized){
-            /*//make the progress bar move
-            ui->create_progress_bar->reset();
-            for(int j=0; j<=100; j++){
-                ui->loaded_table_progress_bar->setValue(j);
-                QThread::msleep(3);
-            }*/
             ui->current_table_line_edit->setText(window_fpcs->workingFile.fileName());
             update_table_visualization();
         }else{
@@ -762,71 +789,6 @@ void MainWindow::on_select_existing_table_button_box_accepted()
         }
     }
 }
-
-/*
- * When this function is called, it's assumed the exported file is already in the UXG's BIN folder
- * qDebug() << "initializing : " << settings.existingTableFileNameUxg;
-    workingFile.setFileName(this->settings.existingTableFileNameUxg); //set this file path to be for the working file
- */
-/*bool MainWindow::pre_initialize_uxg_file(){
-    //download the table from the uxg into the downloads folder
-    window_ftpManager->current_state = FtpManager::state::downloading;
-    //then feed it into the process
-    window_ftpManager->start_process(window_fpcs->settings.existingTableFilePath); //note that start_process() only needs the name of the file
-    //we can immediately begin using the file after this call because when the window_ftpManager current_state is downloading,
-    //the start_process function will use a blocking function before returning
-
-    //By this point the exported csv file representation of the fpcs file is downloaded over ftp into this program's downloads folder
-    QFile tempFile;
-    QString tempFilePath = QDir::currentPath() + "/fileFolder/downloads/" + window_fpcs->settings.existingTableFilePath;
-    output_to_console("tempFilePath: " + tempFilePath);
-    qDebug() << "tempFilePath: " << tempFilePath;
-    tempFile.setFileName(tempFilePath);
-    bool exists = tempFile.exists(tempFilePath);
-    if(exists){
-        if(!tempFile.open(QFile::ReadWrite | QFile::Text | QFile::ExistingOnly)) //Options: ExistingOnly, NewOnly, Append
-        {
-            output_to_console("Could not open File : " + tempFilePath);
-            qDebug() << "Could not open File : " << tempFilePath;
-            return false;
-        }
-    }else{
-        output_to_console("File Not Found : " + tempFilePath);
-        qDebug() << "File Not Found : " << tempFilePath;
-        return false;
-    }
-    //create the QTextStreamer to operate on this file until further notice
-    QTextStream tempStreamer;
-    tempStreamer.setDevice(&tempFile);
-    //check header
-    tempStreamer.seek(0); //make sure the TextStream starts at the beginning of the file
-    QString read = tempStreamer.readAll();
-    output_to_console("Downloaded File Data : " + read);
-    qDebug() << "Downloaded File Data : " << read;
-
-    //TODO parse through the header of the file here and update it with the new header as well as moving data over into the correct spots thereafter
-    //QString header = "Comment,State,Coding Type,Length,Bits Per Subpulse,Phase State 0 (deg),Phase State 1 (deg),Phase State 2 (deg),Phase State 3 (deg),Phase State 4 (deg),Phase State 5 (deg),Phase State 6 (deg),Phase State 7 (deg),Phase State 8 (deg),Phase State 9 (deg),Phase State 10 (deg),Phase State 11 (deg),Phase State 12 (deg),Phase State 13 (deg),Phase State 14 (deg),Phase State 15 (deg),Frequency State 0 (Hz),Frequency State 1 (Hz),Frequency State 2 (Hz),Frequency State 3 (Hz),Frequency State 4 (Hz),Frequency State 5 (Hz),Frequency State 6 (Hz),Frequency State 7 (Hz),Frequency State 8 (Hz),Frequency State 9 (Hz),Frequency State 10 (Hz),Frequency State 11 (Hz),Frequency State 12 (Hz),Frequency State 13 (Hz),Frequency State 14 (Hz),Frequency State 15 (Hz),Hex Pattern\n";
-    //tempStreamer << header;
-    //tempStreamer.flush(); //ensure all the data is written to the file before moving on
-
-    window_fpcs->settings.existingTableFilePath = tempFilePath;
-    bool fileInitialized = window_fpcs->initialize_workingFile();
-    if(fileInitialized){
-        //make the progress bar move
-        ui->create_progress_bar->reset();
-        for(int j=0; j<=100; j++){
-            ui->loaded_table_progress_bar->setValue(j);
-            QThread::msleep(10);
-        }
-        ui->current_table_line_edit->setText(window_fpcs->workingFile.fileName());
-    }else{
-        output_to_console("File unable to initialize");
-        qDebug() << "File unable to initialize";
-    }
-
-    return true;
-    //TODO Update table visualization with the new data
-}*/
 
 void MainWindow::on_delete_table_from_uxg_push_button_clicked(){
     //make sure the correct radio button is selected
@@ -1121,7 +1083,6 @@ void MainWindow::on_select_multiple_files_by_folder_push_button_clicked()
 void MainWindow::on_upload_yatg_file_to_uxg_push_button_clicked()
 {
     QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-
     bool success = true;
     if(window_yatg->uploadingMultipleFiles){
         success = window_yatg->upload_multiple_files_to_uxg();
@@ -1132,6 +1093,13 @@ void MainWindow::on_upload_yatg_file_to_uxg_push_button_clicked()
         output_to_console("File unable to upload to UXG : ERROR");
         qDebug() << "File unable to upload to UXG : ERROR";
     }
+    /*
+     * If you send 5 SCPI's in a row, then send an *OPC? you will know when it's done with those 5 scpi commands because once it gets to the *OPC? it
+     * immediately responds with "1". The uxg's scpi queue is FIFO so in the readyRead we know that if it sent back "1", it is finished uploading the
+     * pdw data we sent over SCPI.
+     */
+    window_ftpManager->waitingForPdwUpload = true;
+    window_ftpManager->send_SCPI("*OPC?");
 }
 
 void MainWindow::on_playPDWPushButton_clicked()

@@ -234,9 +234,8 @@ private slots:
 
     void on_testFileLineEdit_textChanged(const QString &arg1);
 
-
-
     void on_usingRotorCheckBox_toggled(bool checked);
+
 
 private:
 

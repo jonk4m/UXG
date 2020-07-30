@@ -23,9 +23,9 @@ void FtpManager::start_process(QString fileOrFolderName){
     QString program = "ftp";
 
     if(current_state == state::uploading){
-        emit userMessage("Name is : " + fileOrFolderName);
-        qDebug() << "Name is : ";
-        qDebug() << fileOrFolderName;
+        qDebug() << "Downloading file from UXG : " << fileOrFolderName;
+        emit userMessage("Downloading file from UXG : " + fileOrFolderName);
+
         //set the filename in the text document of the ftp commands to match the input parameter
         QString commandPath = QDir::currentPath() + "/fileFolder/uploadFtpCommands.txt";
         QFile commandFile(commandPath);
@@ -49,6 +49,8 @@ void FtpManager::start_process(QString fileOrFolderName){
 
     }else if(current_state == state::downloading){
         //Download all files from the UXG
+        qDebug() << "Downloading file from UXG";
+        emit userMessage("Downloading file from UXG");
         QString commandPath = QDir::currentPath() + "/fileFolder/downloadFtpCommands.txt";
         QFile commandFile(commandPath);
         if(!commandFile.open(QIODevice::ReadWrite | QIODevice::Text)){
@@ -80,8 +82,9 @@ void FtpManager::start_process(QString fileOrFolderName){
     QProcess::connect(process,SIGNAL(finished(int,QProcess::ExitStatus)),this,SLOT(process_finished()));
     QProcess::connect(process,SIGNAL(readyReadStandardError()),this,SLOT(process_ready_read_error()));
     QProcess::connect(process,SIGNAL(readyReadStandardOutput()),this,SLOT(process_ready_read_output()));
-    if(current_state == state::downloading)
+    if(current_state == state::downloading){
         process->waitForFinished(); //blocking function to allow for the callback to not encounter a racing error
+    }
 }
 
 void FtpManager::process_started(){

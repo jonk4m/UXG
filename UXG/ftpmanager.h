@@ -48,6 +48,7 @@ public:
 
     state current_state;
     bool  waitingForFPCSFileList;
+    bool waitingForPdwUpload = false;
     DownloadState downloadState = finished;
     QString hostName = "169.254.24.85";
 
