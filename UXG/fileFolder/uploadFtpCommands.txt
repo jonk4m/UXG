@@ -1,0 +1,6 @@
+user
+keysight
+lcd fileFolder/uploads
+cd /USER/BIN
+mput C:/Users/abms1/Desktop/t2.csv
+bye
