@@ -29,7 +29,7 @@
      </font>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="uxg_rotor_tab">
      <attribute name="title">
@@ -1373,7 +1373,7 @@
          <x>0</x>
          <y>0</y>
          <width>1051</width>
-         <height>541</height>
+         <height>529</height>
         </rect>
        </property>
        <attribute name="label">
@@ -4591,7 +4591,7 @@
          </rect>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="tab0">
          <attribute name="title">
@@ -4868,8 +4868,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>1051</width>
-         <height>481</height>
+         <width>100</width>
+         <height>30</height>
         </rect>
        </property>
        <attribute name="label">
@@ -5641,7 +5641,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="page">
        <property name="geometry">
@@ -5649,7 +5649,7 @@
          <x>0</x>
          <y>0</y>
          <width>1051</width>
-         <height>541</height>
+         <height>539</height>
         </rect>
        </property>
        <attribute name="label">
@@ -5683,9 +5683,9 @@
         <widget class="QPushButton" name="stopTestPushButton">
          <property name="geometry">
           <rect>
-           <x>10</x>
+           <x>340</x>
            <y>60</y>
-           <width>431</width>
+           <width>291</width>
            <height>28</height>
           </rect>
          </property>
@@ -5698,7 +5698,7 @@
           <rect>
            <x>220</x>
            <y>20</y>
-           <width>221</width>
+           <width>411</width>
            <height>21</height>
           </rect>
          </property>
@@ -5919,6 +5919,19 @@
           </item>
          </layout>
         </widget>
+        <widget class="QPushButton" name="startPositionTestPushButton">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>60</y>
+           <width>311</width>
+           <height>28</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Start Position Test</string>
+         </property>
+        </widget>
        </widget>
        <widget class="QGroupBox" name="groupBox_3">
         <property name="geometry">
@@ -5959,7 +5972,7 @@
          <x>0</x>
          <y>0</y>
          <width>1051</width>
-         <height>551</height>
+         <height>539</height>
         </rect>
        </property>
        <attribute name="label">
@@ -6373,15 +6386,29 @@
          <rect>
           <x>10</x>
           <y>0</y>
-          <width>143</width>
-          <height>111</height>
+          <width>261</width>
+          <height>107</height>
          </rect>
         </property>
         <property name="title">
          <string>Select Action</string>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_2">
-         <item>
+        <layout class="QFormLayout" name="formLayout_2">
+         <item row="0" column="0">
+          <widget class="QPushButton" name="clearTablePushButton">
+           <property name="text">
+            <string>Clear Table</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QRadioButton" name="eraseBoxesRadioButton">
+           <property name="text">
+            <string>erase boxes</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
           <widget class="QRadioButton" name="selectBoxesRadioButton">
            <property name="cursor">
             <cursorShape>ArrowCursor</cursorShape>
@@ -6394,21 +6421,14 @@
            </property>
           </widget>
          </item>
-         <item>
-          <widget class="QRadioButton" name="eraseBoxesRadioButton">
-           <property name="text">
-            <string>erase boxes</string>
-           </property>
-          </widget>
-         </item>
         </layout>
        </widget>
        <widget class="QGroupBox" name="groupBox_10">
         <property name="geometry">
          <rect>
-          <x>170</x>
+          <x>290</x>
           <y>0</y>
-          <width>295</width>
+          <width>341</width>
           <height>112</height>
          </rect>
         </property>
@@ -6426,21 +6446,21 @@
          <item row="0" column="1" colspan="2">
           <widget class="QPushButton" name="openTestFilePushButton">
            <property name="text">
-            <string>Open Test File</string>
+            <string>Visualize Test File</string>
            </property>
           </widget>
          </item>
-         <item row="1" column="0">
+         <item row="1" column="2">
           <widget class="QLineEdit" name="testFileLineEdit">
            <property name="text">
             <string>newTest.txt</string>
            </property>
           </widget>
          </item>
-         <item row="1" column="1" colspan="2">
-          <widget class="QPushButton" name="clearTablePushButton">
+         <item row="1" column="0">
+          <widget class="QPushButton" name="openFilePushButton">
            <property name="text">
-            <string>Clear Table</string>
+            <string>Browse Files</string>
            </property>
           </widget>
          </item>
@@ -6449,7 +6469,7 @@
        <widget class="QGroupBox" name="groupBox_11">
         <property name="geometry">
          <rect>
-          <x>480</x>
+          <x>650</x>
           <y>0</y>
           <width>395</width>
           <height>111</height>
@@ -6514,7 +6534,7 @@
      <x>0</x>
      <y>0</y>
      <width>1074</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
   </widget>

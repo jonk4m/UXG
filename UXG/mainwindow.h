@@ -237,6 +237,10 @@ private slots:
     void on_usingRotorCheckBox_toggled(bool checked);
 
 
+    void on_startPositionTestPushButton_clicked();
+
+    void on_openFilePushButton_clicked();
+
 private:
 
     //bool pre_initialize_uxg_file();

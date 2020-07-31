@@ -1431,16 +1431,10 @@ QString MainWindow::getFileName(){
  * The advanced test takes in a List of positions and moves through them
  * */
 void MainWindow::on_OpenTestPushButton_clicked()
-{   serial->advancedTestStarted=true;
-    if(ui->recommendedSpeedRadioButton->isChecked()){
-        mainTimer->stop();
-        //simpleTestStarted=true;
-        //tcpSocket->UXGSetup();
-        serial->write("WG24;",true);
-        serial->write("WG24;",false);
-    }else{
-        startPositionTest();
-    }
+{
+    QString filePath = QFileDialog::getOpenFileName(this, tr("Open File"),
+                                                    "/fileFolder/downloads", tr("Text Files (*.txt)"));
+    ui->openTestLineEdit->setText(filePath);
 }
 
 void MainWindow::startPositionTest(){
@@ -1571,9 +1565,12 @@ void MainWindow::on_createTextFilePushButton_clicked()
 
             stream << azPos << "," << elPos << "\r\n";
         }
+        output_to_console("Test File Created");
     }else{
+        output_to_console("Could not open");
         qDebug() << "Could not open";
     }
+
     file.close();
 }
 
@@ -1916,4 +1913,25 @@ void MainWindow::on_usingRotorCheckBox_toggled(bool checked)
         ui->azimuthMotorSpeedRadioButton->setChecked(false);
         serial->closeSerialPorts();
     }
+}
+
+void MainWindow::on_startPositionTestPushButton_clicked()
+{
+    serial->advancedTestStarted=true;
+        if(ui->recommendedSpeedRadioButton->isChecked()){
+            mainTimer->stop();
+            //simpleTestStarted=true;
+            //tcpSocket->UXGSetup();
+            serial->write("WG24;",true);
+            serial->write("WG24;",false);
+        }else{
+            startPositionTest();
+        }
+}
+
+void MainWindow::on_openFilePushButton_clicked()
+{
+    QString filePath = QFileDialog::getOpenFileName(this, tr("Open File"),
+                                                    "/fileFolder/downloads", tr("Text Files (*.txt)"));
+    ui->openTestLineEdit->setText(filePath);
 }
