@@ -4,7 +4,7 @@ include in manual why you can't just download an fpcs file from the web ftp and 
 include in manual why you decided not to include functionality for batch files - user can simply create a blank csv using the program, then type in what they want manually (biggest hassle would be just converting their pattern to hex and making sure they all trailing not leading zeros) 
 include in manual what broken out code is specifically for ftp
 INCLUDE IN PRESENTATION THE ISSUE YOU RAN INTO WITH THE TRAILING ZEROS FOR THE HEX CONVERSION OF THE BITPATTERN. SINCE THE UXG READS THE PATTERN IN TRANSMISSION ORDER, A PATTERN OF 110 NEEDS TO HAVE A TRAILING ZERO (1100) FOR THE HEX CONVERSION, NOT A LEADING ZERO (0110) SINCE IT STARTS READING FROM THE FRONT OF THE PATTERN NOT THE BACK. AKA THAT TRAILING ZERO WILL BE IGNORED
-	
+include in manual that files in download folder get deleted if you try to download a file with the same name from the uxg
 
 --------------------------------------incorporate Josh's code with yours 
 Right now the user has to clear the bitpattern manually if they change the number of freq/phases or the type (phase/freq/both) 
@@ -57,6 +57,7 @@ fix the TOA not adding the 270ns shit
 delete the "download all files available on uxg" button on the fpcs page
 get rid of the progress bars on the fpcs page 
 
+add josh's instructions on deploying an executable to your qt notes (he emailed you alion email the instructions) 
 
 QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 QGuiApplication::restoreOverrideCursor();

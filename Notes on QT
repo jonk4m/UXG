@@ -80,6 +80,8 @@ how to set the cursor to "loading" indicator spinning wheel : https://doc.qt.io/
 bool ok = false; double valueOfPri = rowList.at(indexes.value("Pri")).toDouble(&ok); works but bool *ok; double valueOfPri = rowList.at(indexes.value("Pri")).toDouble(ok); doesn't work
 double setupTime = (double)0.00000027 * (timeScalingFactor); works but double setupTime = 0.00000027 * (timeScalingFactor); rounds the 0.00000027 to zero
 
+deploy an executable with all the .dll's and platforms and packages with it: 
+
 networking -----
 network programming and FTP with QT an overview : https://doc.qt.io/qt-5/qtnetwork-programming.html
 another good overview : http://martchus.no-ip.biz/doc/qt5/qtdoc/topics-network-connectivity.html
