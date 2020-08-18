@@ -29,7 +29,7 @@
      </font>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="uxg_rotor_tab">
      <attribute name="title">
@@ -181,27 +181,33 @@
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_2">
-         <item row="2" column="0" colspan="2">
-          <widget class="QPushButton" name="initiate_uxg_self_test_push_button">
+         <item row="6" column="1">
+          <widget class="QLineEdit" name="pdwNameLineEdit">
            <property name="font">
             <font>
              <pointsize>10</pointsize>
             </font>
-           </property>
-           <property name="text">
-            <string>Initiate UXG Self-Test</string>
            </property>
           </widget>
          </item>
-         <item row="5" column="0" colspan="2">
-          <widget class="QPushButton" name="delete_all_files_on_uxg_push_button">
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="host_name_edit_line">
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="0">
+          <widget class="QPushButton" name="stopPDWPushButton">
            <property name="font">
             <font>
              <pointsize>10</pointsize>
             </font>
            </property>
            <property name="text">
-            <string>Delete All Files on UXG</string>
+            <string>Stop PDW</string>
            </property>
           </widget>
          </item>
@@ -217,6 +223,33 @@
            </property>
           </widget>
          </item>
+         <item row="5" column="0" colspan="2">
+          <widget class="QPushButton" name="delete_all_files_on_uxg_push_button">
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Delete All Files on UXG</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="1">
+          <widget class="QCheckBox" name="continuousPDWCheckBox">
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Run PDW Continuously</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
          <item row="1" column="0" colspan="2">
           <widget class="QPushButton" name="pushButton_2">
            <property name="font">
@@ -226,27 +259,6 @@
            </property>
            <property name="text">
             <string>Ask UXG to Identify Itself</string>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="1">
-          <widget class="QLineEdit" name="pdwNameLineEdit">
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="0" colspan="2">
-          <widget class="QPushButton" name="power_off_uxg_push_button">
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Power Off UXG</string>
            </property>
           </widget>
          </item>
@@ -262,12 +274,15 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="1">
-          <widget class="QLineEdit" name="host_name_edit_line">
+         <item row="2" column="0" colspan="2">
+          <widget class="QPushButton" name="initiate_uxg_self_test_push_button">
            <property name="font">
             <font>
              <pointsize>10</pointsize>
             </font>
+           </property>
+           <property name="text">
+            <string>Initiate UXG Self-Test</string>
            </property>
           </widget>
          </item>
@@ -279,36 +294,31 @@
             </font>
            </property>
            <property name="text">
-            <string>Play PDW</string>
+            <string>Play Single PDW File</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0" colspan="2">
+          <widget class="QPushButton" name="power_off_uxg_push_button">
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Power Off UXG</string>
            </property>
           </widget>
          </item>
          <item row="7" column="0">
-          <widget class="QPushButton" name="stopPDWPushButton">
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
+          <widget class="QPushButton" name="play_multiple_pdws_push_button">
            <property name="text">
-            <string>Stop PDW</string>
+            <string>Play Multiple PDW Files From List</string>
            </property>
           </widget>
          </item>
          <item row="7" column="1">
-          <widget class="QCheckBox" name="continuousPDWCheckBox">
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Run PDW Continuously</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
+          <widget class="QLineEdit" name="play_multiple_pdws_line_edit"/>
          </item>
         </layout>
        </widget>
@@ -1373,7 +1383,7 @@
          <x>0</x>
          <y>0</y>
          <width>1051</width>
-         <height>529</height>
+         <height>541</height>
         </rect>
        </property>
        <attribute name="label">
@@ -4614,6 +4624,13 @@
              </property>
             </widget>
            </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="specified_table_name_line_edit">
+             <property name="maxLength">
+              <number>20</number>
+             </property>
+            </widget>
+           </item>
            <item row="1" column="0">
             <widget class="QRadioButton" name="use_default_name_radio_button">
              <property name="text">
@@ -4621,13 +4638,6 @@
              </property>
              <property name="checked">
               <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QLineEdit" name="specified_table_name_line_edit">
-             <property name="maxLength">
-              <number>20</number>
              </property>
             </widget>
            </item>
@@ -4641,14 +4651,14 @@
              </property>
             </widget>
            </item>
-           <item row="3" column="0">
+           <item row="2" column="0">
             <widget class="QPushButton" name="change_table_directory_push_button">
              <property name="text">
               <string>Change Table Directory</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="1">
+           <item row="2" column="1">
             <widget class="QLineEdit" name="table_directory_line_edit">
              <property name="enabled">
               <bool>true</bool>
@@ -4664,17 +4674,7 @@
              </property>
             </widget>
            </item>
-           <item row="2" column="0" colspan="2">
-            <widget class="QCheckBox" name="use_default_file_directory_check_box">
-             <property name="text">
-              <string>Use Default File Directory for Table</string>
-             </property>
-             <property name="checked">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="0">
+           <item row="3" column="0">
             <widget class="QDialogButtonBox" name="create_new_table_button_box">
              <property name="standardButtons">
               <set>QDialogButtonBox::Help|QDialogButtonBox::Ok</set>
@@ -4847,19 +4847,6 @@
         </property>
         <property name="text">
          <string>Upload Finished Table to UXG</string>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="download_all_files_from_uxg_push_button">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>270</y>
-          <width>411</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Download All Files Available on UXG</string>
         </property>
        </widget>
       </widget>
@@ -5649,7 +5636,7 @@
          <x>0</x>
          <y>0</y>
          <width>1051</width>
-         <height>539</height>
+         <height>551</height>
         </rect>
        </property>
        <attribute name="label">
@@ -5971,8 +5958,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>1051</width>
-         <height>539</height>
+         <width>100</width>
+         <height>30</height>
         </rect>
        </property>
        <attribute name="label">
@@ -6534,7 +6521,7 @@
      <x>0</x>
      <y>0</y>
      <width>1074</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>
@@ -6555,22 +6542,6 @@
     <hint type="destinationlabel">
      <x>162</x>
      <y>117</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>change_table_directory_push_button</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>use_default_file_directory_check_box</receiver>
-   <slot>setChecked(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>74</x>
-     <y>183</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>39</x>
-     <y>161</y>
     </hint>
    </hints>
   </connection>

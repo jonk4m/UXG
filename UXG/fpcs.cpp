@@ -23,12 +23,16 @@ Fpcs::Fpcs(QMainWindow *window)
  * In both scenarios, the QTextStreamer will use the file either created or opened as it's device
  * In both scenarios, the file is left open until either the program is exited, or the user changes files.
  */
-bool Fpcs::initialize_workingFile(){
+bool Fpcs::initialize_workingFile(bool exists){
 
     //if a different file was already open, this will close it so we can select a new file
     workingFile.close();
 
-    if(this->settings.usingExistingTable == true){ //loading in an existing Table
+    settings.tableNameAndPath.clear();
+    settings.tableNameAndPath.append(settings.tablePath).append("/").append(settings.tableName).append(".csv");
+    userMessage("Initializing File. file name and path: " + settings.tableNameAndPath);
+
+    if(exists == true){ //loading in an existing Table
         return initialize_existingFile_local();
     }else{
         return initialize_newFile();
@@ -37,18 +41,18 @@ bool Fpcs::initialize_workingFile(){
 
 bool Fpcs::initialize_existingFile_local(){
 
-    workingFile.setFileName(this->settings.existingTableFilePath); //set this file path to be for the working file
-    bool exists = workingFile.exists(this->settings.existingTableFilePath);
+    workingFile.setFileName(settings.tableNameAndPath); //set this file path + name to be the working file
+    bool exists = workingFile.exists(settings.tableNameAndPath);
     if(exists){
         if(!workingFile.open(QFile::ReadWrite | QFile::Text | QFile::ExistingOnly)) //Options: ExistingOnly, NewOnly, Append
         {
-            emit userMessage(" Could not open File : " + this->settings.existingTableFilePath);
-            qDebug() << " Could not open File : " + this->settings.existingTableFilePath;
+            emit userMessage(" Could not open File : " + settings.tableNameAndPath);
+            qDebug() << " Could not open File : " + settings.tableNameAndPath;
             return false;
         }
     }else{
-        emit userMessage("File Not Found in Local System when initializing file in local system: " + settings.existingTableFilePath);
-        qDebug() << "File Not Found in Local System when initializing file in local system: " << settings.existingTableFilePath;
+        emit userMessage("File Not Found in Local System when initializing file in local system: " + settings.tableNameAndPath);
+        qDebug() << "File Not Found in Local System when initializing file in local system: " << settings.tableNameAndPath;
         return false;
     }
 
@@ -78,17 +82,17 @@ bool Fpcs::initialize_newFile(){
     *  Note that we use two separate strings that make up the filepath. One is the folder filepath, and the other is the name of the file
     *  this is done to simplify editing both separately in the gui.
     */
-    bool exists = workingFile.exists(this->mapped_file_path());
+    bool exists = workingFile.exists(settings.tableNameAndPath); //this->mapped_file_path()
     if(exists){
-        emit userMessage("File : " + this->mapped_file_path() + " already exists, aborting file creation...");
-        qDebug() << "File : " + this->mapped_file_path() + " already exists, aborting file creation...";
+        emit userMessage("File : " + settings.tableNameAndPath + " already exists, aborting file creation...");
+        qDebug() << "File : " + settings.tableNameAndPath + " already exists, aborting file creation...";
         return false;
     }
-    workingFile.setFileName(this->mapped_file_path()); //set this file path for the working file
+    workingFile.setFileName(settings.tableNameAndPath); //set this file path for the working file
     if(!workingFile.open(QFile::ReadWrite | QFile::Text)) //Options: ExistingOnly, NewOnly, Append
     {
-        emit userMessage(" Could not create File : " + this->mapped_file_path());
-        qDebug() << " Could not create File : " + this->mapped_file_path();
+        emit userMessage(" Could not create File : " + settings.tableNameAndPath);
+        qDebug() << " Could not create File : " + settings.tableNameAndPath;
         return false;
     }
 
@@ -111,42 +115,23 @@ void Fpcs::close_file(){
 };
 
 /*
- *This method is used to construct the full filePath name when juggling the options of custom vs default filePaths and Names when creating a file
+ * Less protections added to this method based on assumptions
+ * meant purely for post-ftp process reinitialization of the workingFile
  */
-QString Fpcs::mapped_file_path(){
-    QString totalFilePath;
-    if(this->settings.usingCustomFilePath == true){ //custom file path
-        totalFilePath.append(this->settings.customFilePath);
-        totalFilePath.append("/");
-        if(this->settings.usingCustomTableName == true){ //custom file path and custom name
-            if(this->settings.customTableName == ""){
-                emit userMessage("Custom Table Name is Currently Empty");
-                qDebug() << "Custom Table Name is Currently Empty";
-                return "";
-            }
-            totalFilePath.append(this->settings.customTableName);
-            totalFilePath.append(".csv");
-        }else{ //custom file path and default name
-            totalFilePath.append(this->settings.defaultTableName);
-            totalFilePath.append(".csv");
+bool Fpcs::open_previously_opened_file(){
+    bool exists = workingFile.exists(settings.tableNameAndPath);
+    if(exists){
+        if(!workingFile.open(QFile::ReadWrite | QFile::Text | QFile::ExistingOnly)) //Options: ExistingOnly, NewOnly, Append
+        {
+            emit userMessage(" Could not open File : " + settings.tableNameAndPath);
+            qDebug() << " Could not open File : " + settings.tableNameAndPath;
+            return false;
         }
-    }else{ //default file path
-        totalFilePath.append(this->settings.defaultFilePath);
-        totalFilePath.append("/");
-        if(this->settings.usingCustomTableName == true){ //default file path and custom name
-            if(this->settings.customTableName == ""){
-                emit userMessage("Custom Table Name is Currently Empty");
-                qDebug() << "Custom Table Name is Currently Empty";
-                return "";
-            }
-            totalFilePath.append(this->settings.customTableName);
-            totalFilePath.append(".csv");
-        }else{ //default file path and default name
-            totalFilePath.append(this->settings.defaultTableName);
-            totalFilePath.append(".csv");
-        }
+    }else{
+        emit userMessage("File Not Found in Local System when initializing file in local system: " + settings.tableNameAndPath);
+        qDebug() << "File Not Found in Local System when initializing file in local system: " << settings.tableNameAndPath;
+        return false;
     }
-    return totalFilePath;
 }
 
 /*

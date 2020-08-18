@@ -1,10 +1,5 @@
 #include "rotorcontrol.h"
 
-
-
-
-
-
 RotorControl::RotorControl(QMainWindow *window)
 {
     QMainWindow::connect(this, SIGNAL(userMessage(QString)), window, SLOT(output_to_console(QString)));
@@ -19,6 +14,7 @@ RotorControl::RotorControl(QMainWindow *window)
     this->window=window;
 
 }
+
 /*
  * finds the serial ports for elevation and azimuth and sets them accordingly. It checks the length
  * of the CW limit and azimuth  has a length of 4 and elevation has a length of 6. Works perfectly
@@ -158,10 +154,9 @@ bool RotorControl::findSerialPorts(){
 //    }
 //    return false;
 //}
+
 //writes to the serial ports to read the position
 void RotorControl::getPosition(){
-
-
     el->write("BI0;");
     az->write("BI0;");
 }
@@ -203,6 +198,7 @@ void RotorControl::moveRotor(QString moveValue, bool isElevation, bool isPositio
         }
     }
 }
+
 /*when a motor speed slider is released, this method is called.  It writes
  * to the controller what the new motorspeed is.  The parameters are the new motor speed,
  * and enum of which motor speed is being changed: maxSpeed, minSpeed, or ramp, and whether
@@ -247,6 +243,7 @@ void RotorControl::closeSerialPorts(){
     az->close();
     el->close();
 }
+
 //the length of the integer part of the command is always 3 bytes
 //so this function just adds some extra zeroes on the front if necessary
 QString RotorControl::createRotorCommand(QString moveValue){
@@ -432,6 +429,7 @@ RotorControl::ParameterAndWriteNumber RotorControl::serialRead(bool isElevation)
     QByteArray notReady = "-1";
     return parseSerialRead(controllerParameter::notReady,notReady);
 }
+
 /*Takes in the serial that is read and the enum type controllerParameter to parse the string into an in that
  * can be displayed on the gui. Called from serialRead to keep things clean
  * */
@@ -485,9 +483,6 @@ RotorControl::ParameterAndWriteNumber RotorControl::parseSerialRead(controllerPa
         return returnValue;
     }
     }
-
-
-
 }
 //writes to the RT-21 saying that we want to read the max speed, min speed, and ramp value of the rotor
 void RotorControl::getMaxMinAndRampValues(bool isElevation){
@@ -515,7 +510,6 @@ void RotorControl::startSimpleTest(double minAzimuth, double maxAzimuth, double 
     moveRotor(min, false,true);
     min = QString::number(this->minElevation);
     moveRotor(min, true,true);
-
 }
 
 QString RotorControl::fixHeadings(QString moveValue){
@@ -550,8 +544,6 @@ QString RotorControl::fixHeadings(QString moveValue){
             moveValue.chop(1);
             moveValue = moveValue + QString::number(decimal);
         }
-
-
     }
     return moveValue;
     //    if(elString.contains('.')&&!elString.endsWith('0')&&!elString.endsWith('3')&&!elString.endsWith('6')){
@@ -579,8 +571,6 @@ QString RotorControl::fixHeadings(QString moveValue){
 }
 
 bool RotorControl::headingEqualsPosition(){
-
-
     //sometimes rotor ignores command for some reason, so this makes
     //the code keep sending the same command until it gets there
     bool azimuthAtPosition = (azimuthHeading==azimuthPosition);
@@ -598,6 +588,7 @@ bool RotorControl::headingEqualsPosition(){
     }
     return azimuthAtPosition&&elevationAtPosition;
 }
+
 //returns true if test is finished
 bool RotorControl::manageSimpleGridTest(){
     if(elevationPosition>=maxElevation&&(azimuthPosition>=maxAzimuth||azimuthPosition<=minAzimuth)&&lastAzimuthRun){
@@ -638,6 +629,7 @@ void RotorControl::startAdvancedTest(QList<QString> positionList){
     this->positionList=positionList;
     manageAdvancedTest();
 }
+
 bool RotorControl::manageAdvancedTest(){
     if(positionListIndex==positionList.size()){
         positionList.clear();
@@ -656,6 +648,7 @@ void RotorControl::setHeadingsToCurrentPosition(){
     azimuthHeading = azimuthPosition;
     elevationHeading=elevationPosition;
 }
+
 //returns true if the rotor cant keep up, otherwise returns false
 bool RotorControl::manageDroneTest(int az, int azSpeed, int el, int elSpeed, double refreshRate){
     bool canKeepUp= true;
@@ -677,8 +670,6 @@ bool RotorControl::manageDroneTest(int az, int azSpeed, int el, int elSpeed, dou
 
 }
 
-
-
 void RotorControl::write(QByteArray command, bool isElevation){
     if(isElevation){
         el->write(command);
@@ -689,8 +680,6 @@ void RotorControl::write(QByteArray command, bool isElevation){
         azLastCommand = command;
         azResendDataTimer->start(200);
     }
-
-
 }
 
 void RotorControl::timerTimeout(bool isElevation){

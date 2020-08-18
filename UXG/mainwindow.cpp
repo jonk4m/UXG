@@ -76,15 +76,17 @@ void MainWindow::fpcs_setup(){
     //configured on setup
     window_fpcs = new Fpcs(this);
     ui->table_directory_line_edit->setText(window_fpcs->settings.defaultFilePath); //make the directory text line start out with default file path
+    window_fpcs->settings.tablePath = window_fpcs->settings.defaultFilePath; //set the current filepath to be the default path on startup
     ui->default_name_line_edit->setText(window_fpcs->settings.defaultTableName);
 }
 
 void MainWindow::on_specify_table_name_radio_button_clicked()
 {
     window_fpcs->settings.usingCustomTableName = true;
+    output_to_console("usingCustomTableName = true");
 }
 
-void MainWindow::on_specified_table_name_line_edit_textChanged(const QString &arg1)
+/*void MainWindow::on_specified_table_name_line_edit_textChanged(const QString &arg1)
 {
     if(window_fpcs->settings.usingCustomTableName == true){
         //if they checked the radio button for using a custom table name, let's go ahead and change our Table name to whatever they typed in
@@ -92,7 +94,7 @@ void MainWindow::on_specified_table_name_line_edit_textChanged(const QString &ar
     }else{
         output_to_console("Please click 'Specify Table Name' to enter a custom name");
     }
-}
+}*/
 
 /*
  * When the "use default name" button is pressed, our settings for which name to use is updated, and the default name is shown as well as the default
@@ -105,43 +107,55 @@ void MainWindow::on_use_default_name_radio_button_clicked()
     ui->default_name_line_edit->setText(window_fpcs->settings.defaultTableName);
 }
 
+//Note that the filePath is set when the user presses the "Ok" button not in this slot
 void MainWindow::on_change_table_directory_push_button_clicked()
 {
     //prompt the user to select a folder
     QString folderName = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
                 "/home", QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 
-    window_fpcs->settings.customFilePath = folderName;
-
-    window_fpcs->settings.usingCustomFilePath = true;
+    //check if the user pressed "cancel"
+    if(folderName.size() == 0){
+        output_to_console("cancelled selecting folder");
+        return;
+    }
 
     ui->table_directory_line_edit->setText(folderName);
 
 }
 
-void MainWindow::on_use_default_file_directory_check_box_stateChanged(int arg1)
-{
-    //0 is unckecked
-    //2 is checked
-    if(arg1 == 0){ //unchecked
-        window_fpcs->settings.usingCustomFilePath = true;
-
-    }else{ //checked
-        window_fpcs->settings.usingCustomFilePath = false; //we are using the default file path
-        ui->table_directory_line_edit->setText(window_fpcs->settings.defaultFilePath); //show the default file path on the editLine
-    }
-}
-
 //Dialog Buttons for Creating Table
 void MainWindow::on_create_new_table_button_box_accepted()
 {
+    output_to_console("ok button pressed, TableName: " + window_fpcs->settings.tableName + "   tablePath: " + window_fpcs->settings.tablePath);
+
+    QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+
+    //handle GUI options before calling any other class functions
+    if(window_fpcs->settings.usingCustomTableName == true){
+        //if they checked the radio button for using a custom table name, let's go ahead and change our Table name to whatever they typed in
+        //check that they typed something in
+        if(ui->specified_table_name_line_edit->text().size() == 0){
+            output_to_console("No custom name for the table has been entered. Please enter a name and try again.");
+            QGuiApplication::restoreOverrideCursor();
+            return;
+        }
+        window_fpcs->settings.tableName = ui->specified_table_name_line_edit->text();
+        //Note that since the tableName is being declared here, it does not matter if the tableName is specified in the "existing table" tab because this will overright it
+
+    }else{
+        window_fpcs->settings.tableName = window_fpcs->settings.defaultTableName;
+    }
+
+    //set the tablePath
+    window_fpcs->settings.tablePath = ui->table_directory_line_edit->text();
+
     fpcsWasOpenedDuringUse = true;
 
     window_fpcs->data_dump_onto_file();
     window_fpcs->close_file(); //close the file (which also flushes the buffer) before exiting
 
-    window_fpcs->settings.usingExistingTable = false;
-    bool fileInitialized = window_fpcs->initialize_workingFile();
+    bool fileInitialized = window_fpcs->initialize_workingFile(false); //false means we are creating a new table
     if(fileInitialized){
         ui->current_table_line_edit->setText(window_fpcs->workingFile.fileName());
     }else{
@@ -149,8 +163,9 @@ void MainWindow::on_create_new_table_button_box_accepted()
         qDebug() << "File unable to initialize";
     }
 
-    //update the table visualization
     update_table_visualization();
+
+    QGuiApplication::restoreOverrideCursor();
 }
 
 void MainWindow::on_create_new_table_button_box_helpRequested()
@@ -163,17 +178,22 @@ void MainWindow::on_select_existing_table_button_box_helpRequested()
     //TODO open a help pop-up
 }
 
-//allow the user to select a preexisting file (TODO the header is checked when the "Open" button calls on Fpcs::initialize_workingFile() to check it)
+//allow the user to select a preexisting file
 void MainWindow::on_select_file_push_button_clicked()
 {
     if(window_fpcs->settings.usingExistingTableLocal == true){
-    //prompt the user to select a folder from the local system
-    QString filePath = QFileDialog::getOpenFileName(this, tr("Open File"),
-                "/fileFolder/downloads", tr("CSV Files (*.csv);;Text Files (*.txt)"));
+    //prompt the user to select a file from the local system
+    QString filePathAndName = QFileDialog::getOpenFileName(this, tr("Open Table File"),
+               ( QDir::currentPath() + "/fileFolder"), tr("CSV Files (*.csv);;Text Files (*.txt)"));
 
-    window_fpcs->settings.existingTableFilePath = filePath; //set the filePath
+    //check if the user pressed "Cancel"
+    if(filePathAndName.size() == 0){
+        output_to_console("cancelled selecting file");
+        return;
+    }
 
-    ui->select_file_line_edit->setText(window_fpcs->settings.existingTableFilePath); //update the EditLine Box so the user can see the filePath they just chose
+    ui->select_file_line_edit->setText(filePathAndName); //update the EditLine Box so the user can see the filePath they just chose
+
     }else{
         output_to_console("Cannot select local file with option to choose file from UXG currently selected");
         qDebug() << "Cannot select local file with option to choose file from UXG currently selected";
@@ -460,6 +480,7 @@ void MainWindow::on_qprocess_upload_push_button_clicked()
     if(window_ftpManager->tcpSocket->state() == QAbstractSocket::ConnectedState){
         if(window_fpcs->settings.fileInPlay == true){
             window_fpcs->data_dump_onto_file();
+
             window_ftpManager->current_state = FtpManager::state::uploading;
             QString filename = window_fpcs->workingFile.fileName();
 
@@ -484,7 +505,8 @@ void MainWindow::on_qprocess_upload_push_button_clicked()
 void MainWindow::on_download_all_files_from_uxg_push_button_clicked()
 {
     window_ftpManager->current_state = FtpManager::state::downloading;
-    QString folderName = QDir::currentPath() + "/fileFolder/downloadFtpCommands.txt"; //note that the downloads folder must be added upon deployment
+    window_ftpManager->downloadingAllFiles = true;
+    QString folderName = "*"; //note that the downloads folder must be added upon deployment
     window_ftpManager->start_process(folderName);
 }
 
@@ -624,6 +646,11 @@ void MainWindow::on_socket_readyRead(){
         }
         window_ftpManager->waitingForFPCSFileList = false;
         ui->uxg_fpcs_files_combo_box->addItems(outputList);
+        //check if their are any in the list
+        if(outputList.size() == 0){
+            output_to_console("It appears there are currently no tables available on the selected UXG.");
+            on_select_local_file_radio_button_clicked();
+        }
     }
 
     if(window_ftpManager->waitingForPdwUpload && allRead== "1\n"){
@@ -665,8 +692,8 @@ void MainWindow::on_socket_readyRead(){
 
 void MainWindow::on_uxg_fpcs_files_combo_box_currentTextChanged(const QString &arg1)
 {
-    window_fpcs->settings.existingTableFilePath = arg1;
-    window_fpcs->settings.existingTableFilePath = window_fpcs->settings.existingTableFilePath.remove('"').remove(" ");
+    QString tableName = arg1;
+    tableName = tableName.remove('"').remove(" ");
     /* In this next line, we need to make a copy of the file name incase the user presses the "open" button. Pressing "Open"
      * causes the window_fpcs->settings.existingTableFilePath to change to the file in the local directory. However, we just
      * want the name to delete it, not the whole directory, so we store a copy of the name for that purpose. Why not just strip
@@ -674,9 +701,9 @@ void MainWindow::on_uxg_fpcs_files_combo_box_currentTextChanged(const QString &a
      * or not we currently have a workingFile in place which would be a hassle. This approach also allows the user to delete a
      * table without opening it first. They can just select the name and click delete.
      */
-    window_fpcs->settings.currentTableSelectedThatIsOnTheUxg = window_fpcs->settings.existingTableFilePath;
-    qDebug() << "Current FPCS Table on the UXG selected is: " << window_fpcs->settings.existingTableFilePath;
-    output_to_console("Current FPCS Table on the UXG selected is: " + window_fpcs->settings.existingTableFilePath);
+    window_fpcs->settings.currentTableSelectedThatIsOnTheUxg = tableName;
+    qDebug() << "Current FPCS Table on the UXG selected is: " << tableName;
+    output_to_console("Current FPCS Table on the UXG selected is: " + tableName);
 }
 
 /*
@@ -686,25 +713,26 @@ void MainWindow::on_uxg_fpcs_files_combo_box_currentTextChanged(const QString &a
  */
 void MainWindow::on_select_existing_table_button_box_accepted()
 {
-    fpcsWasOpenedDuringUse = true;
+    QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+
+    fpcsWasOpenedDuringUse = true; //used for when the user exits out of the mainwindow it will prompt to save the current table before exiting
 
     window_fpcs->data_dump_onto_file();
-    window_fpcs->close_file(); //close the file (which also flushes the buffer) before exiting
-
-    window_fpcs->settings.usingExistingTable = true; //boolean for knowing if we created the table or are using an existing table
     window_fpcs->workingEntryList.clear();
 
-    if(window_fpcs->settings.usingExistingTableLocal == false){ //boolean for knowing if we are getting our existing table from the uxg or the local system
+    if(window_fpcs->settings.usingExistingTableLocal == false){ //for knowing if we are getting our existing table from the uxg or the local system, in this case from uxg
+
+        window_fpcs->settings.tableName = ui->uxg_fpcs_files_combo_box->currentText(); //get the currently selected name
+
+        output_to_console("open button pressed for a file on the UXG, TableName: " + window_fpcs->settings.tableName );
         /*
          * extra steps required here to import the file from the uxg, then we initialize the file as if it already existed locally
          * tell the uxg to export the fpcs file as a csv
          */
-        window_fpcs->settings.usingExistingTable = false;
-
         //select the chosen table as the current table on the UXG
         QString scpiCommand = ":SOURce:PULM:STReam:FPCSetup:SELect "; //Note this command will be rejected if the UXG is not in PDW Streaming Mode
         scpiCommand.append('"');
-        scpiCommand.append(window_fpcs->settings.existingTableFilePath.append(".fpcs"));
+        scpiCommand.append(window_fpcs->settings.tableName + ".fpcs");
         scpiCommand.append('"');
         output_to_console("sending: " + scpiCommand);
         qDebug() << "sending: " << scpiCommand;
@@ -716,7 +744,7 @@ void MainWindow::on_select_existing_table_button_box_accepted()
          //export the fpcs file as a csv into the UXG's BIN directory
         scpiCommand = ":MEMory:EXPort:ASCii:FPCSetup ";
         scpiCommand.append('"');
-        scpiCommand.append(window_fpcs->settings.existingTableFilePath.remove(".fpcs").append(".csv"));
+        scpiCommand.append(window_fpcs->settings.tableName + ".csv");
         scpiCommand.append('"');
         output_to_console(scpiCommand);
         qDebug() << "now sending: " << scpiCommand;
@@ -725,17 +753,15 @@ void MainWindow::on_select_existing_table_button_box_accepted()
         output_to_console("file is exported, ready for ftp");
         qDebug() << "file is exported, ready for ftp";
 
-        QString tempExistingTableFilePath = window_fpcs->settings.existingTableFilePath;
-        output_to_console("NAme before deletion: " + window_fpcs->settings.existingTableFilePath);
-
         //check if the file with the same name already exists in the downloads folder
         QDir directory("./fileFolder/downloads"); //get a list of all file names in the downloads folder
         QStringList files = directory.entryList(QStringList() << "*.csv" << "*.CSV" << "*.txt" << "*.TXT",QDir::Files);
-        QString fileNameWithoutType = window_fpcs->settings.existingTableFilePath.remove(".fpcs").remove(".csv").remove(".txt");
-        output_to_console("fileName without ending is : " + fileNameWithoutType + "----------------------------------------------------");
-        output_to_console("List of files in downloads folder is : " + files.join(","));
+        output_to_console("fileName without ending is : " + window_fpcs->settings.tableName + "----------------------------------------------------");
+        QString fileNameWithoutType = window_fpcs->settings.tableName;
+        output_to_console("List of files in downloads folder is : " + files.join(", "));
+
         foreach(QString filename, files) {
-            output_to_console("fileName from list is : " + filename + "   fileName of the actual file : " + fileNameWithoutType.remove(".csv").append(".csv").toUpper());
+            output_to_console("fileName from list is : " + filename + "   fileName of the actual file : " + fileNameWithoutType.remove(".csv").remove(".txt").append(".csv").toUpper());
             if(filename == fileNameWithoutType.remove(".csv").remove(".txt").append(".csv").toUpper()){
                 //file name matches, delete that file with .csv ending
                 QString deleteFileName = directory.path() + "/" + filename;
@@ -753,25 +779,17 @@ void MainWindow::on_select_existing_table_button_box_accepted()
                 temp.remove();
             }
         }
-        window_fpcs->settings.existingTableFilePath = tempExistingTableFilePath; //revert any changes you made to the fileName while trying to find duplicates
-        output_to_console("NAme after deletion: " + window_fpcs->settings.existingTableFilePath);
-
         //if the file already exists in your download folder we need to delete it first
 
         //download the table from the uxg into the downloads folder
         window_ftpManager->current_state = FtpManager::state::downloading;
         //then feed it into the process
-        window_ftpManager->start_process(window_fpcs->settings.existingTableFilePath); //note that start_process() only needs the name of the file
+        output_to_console("starting process for file/folder: " + window_fpcs->settings.tableName);
+        window_ftpManager->start_process(window_fpcs->settings.tableName); //note that start_process() only needs the name of the file
         //note we can immediately use the file after starting the process since it's a blocking call
-        window_fpcs->settings.existingTableFilePath = QDir::currentPath() + "/fileFolder/downloads/" + window_fpcs->settings.existingTableFilePath;
-        bool fileInitialized = window_fpcs->initialize_workingFile();
+        window_fpcs->settings.tablePath = QDir::currentPath() + "/fileFolder/downloads"; //note that we leave off the last "/" to follow the conventions of this variable outlined in the fpcs class at its declaration
+        bool fileInitialized = window_fpcs->initialize_workingFile(true); //true means we are NOT creating a new table
         if(fileInitialized){
-            /*//make the progress bar move
-            ui->create_progress_bar->reset();
-            for(int j=0; j<=100; j++){
-                ui->loaded_table_progress_bar->setValue(j);
-                QThread::msleep(3);
-            }*/
             ui->current_table_line_edit->setText(window_fpcs->workingFile.fileName());
             update_table_visualization();
         }else{
@@ -779,20 +797,35 @@ void MainWindow::on_select_existing_table_button_box_accepted()
             qDebug() << "File unable to initialize";
         }
     }else{
-        bool fileInitialized = window_fpcs->initialize_workingFile();
+        QString filePathAndName = ui->select_file_line_edit->text();
+        //get the file name without the directory by sepperating the string into a list of strings sepperated by "/" then using the last element in the list
+        QStringList list = filePathAndName.split(QLatin1Char('/'), Qt::SkipEmptyParts);
+
+        window_fpcs->settings.tableName = list.last().remove(".csv").remove(".txt"); //remove file extension here to follow variable's conventions outlined in fpcs class variable declaration
+
+        window_fpcs->settings.tablePath = filePathAndName.remove("/" + window_fpcs->settings.tableName + ".csv"); //set the filePath, remove last "/" to follow convention for this variable outlined in fpcs class declaration
+
+        output_to_console("open button pressed, TableName: " + window_fpcs->settings.tableName + "   tablePath: " + window_fpcs->settings.tablePath);
+
+        bool fileInitialized = window_fpcs->initialize_workingFile(true);//true means we are NOT creating a new table
         if(fileInitialized){
             ui->current_table_line_edit->setText(window_fpcs->workingFile.fileName());
             update_table_visualization();
         }else{
-            output_to_console("File unable to initialize");
-            qDebug() << "File unable to initialize";
+            output_to_console("File unable to initialize from Local");
+            qDebug() << "File unable to initialize from Local";
         }
     }
+
+    QGuiApplication::restoreOverrideCursor();
 }
 
 void MainWindow::on_delete_table_from_uxg_push_button_clicked(){
     //make sure the correct radio button is selected
     if(window_fpcs->settings.usingExistingTableLocal == false){
+
+        QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+
         //delete the fpcs file under that name
         QString command = "MEMory:DELete:NAME ";
         command.append('"');
@@ -813,12 +846,9 @@ void MainWindow::on_delete_table_from_uxg_push_button_clicked(){
         //reset the list of available files on the UXG
         on_select_file_from_uxg_radio_button_clicked();
 
-        /*//make the progress bar move
-        ui->create_progress_bar->reset();
-        for(int j=0; j<=100; j++){
-            ui->loaded_table_progress_bar->setValue(j);
-            QThread::msleep(3);
-        }*/
+        QGuiApplication::restoreOverrideCursor();
+
+
     }else{
         output_to_console("Cannot delete a table on the uxg if radio button for selecting an existing table is not enabled.");
         qDebug() << "Cannot delete a table on the uxg if radio button for selecting an existing table is not enabled.";
@@ -1050,16 +1080,27 @@ void MainWindow::on_comboBox_activated(const QString &arg1)
     }
 }
 
-
-
 void MainWindow::on_select_yatg_file_push_button_clicked()
 {
+    //pdwLineEdit
+
     window_yatg->uploadingMultipleFiles = false;
 
-    //prompt the user to select a folder from the local system
+    //prompt the user to select a file from the local system
     QString filePath = QFileDialog::getOpenFileName(this, tr("Open File"),
                 "/fileFolder/uploads", tr("CSV Files (*.csv);;Text Files (*.txt)"));
+
+    //check if the user selected "cancel"
+    if(filePath.size() == 0){
+        output_to_console("cancelled selecting file");
+        return;
+    }
+
     window_yatg->workingFilePath = filePath; //set the filepath
+
+    //get the file name without the directory by sepperating the string into a list of strings sepperated by "/" then using the last element in the list
+    QStringList list = filePath.split(QLatin1Char('/'), Qt::SkipEmptyParts);
+    ui->pdwNameLineEdit->setText(list.last());
 
     ui->selected_yatg_file_line_editor->setText(window_yatg->workingFilePath); //update the EditLine Box so the user can see the filePath they just chose
     ui->select_multiple_files_by_folder_line_editor->clear();
@@ -1072,6 +1113,12 @@ void MainWindow::on_select_multiple_files_by_folder_push_button_clicked()
     //prompt the user to select a folder
     QString folderName = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
                 "/fileFolder/uploads", QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+
+    //check if the user selected "cancel"
+    if(folderName.size() == 0){
+        output_to_console("cancelled selecting folder");
+        return;
+    }
 
     window_yatg->workingFilePath = folderName; //set the filepath
 
@@ -1115,8 +1162,6 @@ void MainWindow::on_stopPDWPushButton_clicked()
     window_ftpManager->send_SCPI(":OUTPut:MODulation OFF");
 }
 
-//serial functions
-
 /*when the elevation push button is clicked, it takes the information from the
  * elevation line edit and sends it to the move rotor command in the serial class
  **/
@@ -1129,6 +1174,7 @@ void MainWindow::on_elevationPushButton_clicked()
 
 
 }
+
 /*same as the elevation slot above but for azimuth
  * */
 void MainWindow::on_azimuthPushButton_clicked()
@@ -1138,6 +1184,7 @@ void MainWindow::on_azimuthPushButton_clicked()
     serial->moveRotor(az_value, false, isPosition);//the false is for the isElevation boolean (it's not elevation, its azimuth)
 
 }
+
 //if both line edits have a value then they will both change
 void MainWindow::on_changeBothPushButton_clicked()
 {
@@ -1147,6 +1194,7 @@ void MainWindow::on_changeBothPushButton_clicked()
     serial->moveRotor(el_value, true, isPosition);
     serial->moveRotor(az_value, false, isPosition);
 }
+
 //reconnects the usb ports, if the gui was opened before the USBs were plugged in
 void MainWindow::on_connectUSBPushButton_clicked()
 {
@@ -1156,6 +1204,7 @@ void MainWindow::on_connectUSBPushButton_clicked()
     serial->findSerialPorts();
 
 }
+
 //when the max speed slider is released, the value of the slider is sent to the
 //changeMotorSpeed function in the RotorControl class
 void MainWindow::on_maxSpeedSlider_sliderReleased()
@@ -1163,12 +1212,14 @@ void MainWindow::on_maxSpeedSlider_sliderReleased()
     bool isElevation = ui->elevationMotorSpeedRadioButton->isChecked();
     serial->changeMotorSpeed(ui->maxSpeedSlider->value(), RotorControl::controllerParameter::maxSpeed, isElevation);
 }
+
 //when the min speed slider is released, this does the same thing as the slot above
 void MainWindow::on_minSpeedSlider_sliderReleased()
 {
     bool isElevation = ui->elevationMotorSpeedRadioButton->isChecked();
     serial->changeMotorSpeed(ui->minSpeedSlider->value(), RotorControl::controllerParameter::minSpeed, isElevation);
 }
+
 //when the ramp slider is released, this does the same thing as the max slider slot
 void MainWindow::on_rampSlider_sliderReleased()
 {
@@ -1208,12 +1259,6 @@ void MainWindow::updatePositions(){
             if(isHeadingEqualtoPosition){
                 if(rotorInPositionCounter==5){
                     serial->stopMotion();
-//                    if(ui->continuousTriggerCheckBox->isChecked()){
-//                        window_ftpManager->send_SCPI("STReam:TRIGger:PLAY:FILE:TYPE CONTinuous");
-//                        window_ftpManager->send_SCPI(":STReam:TRIGger:PLAY:FILE:TYPE:CONTinuous TRIGger");
-//                    }else{
-//                        window_ftpManager->send_SCPI(":STReam:TRIGger:PLAY:FILE:TYPE SINGle");
-//                    }
                     QString fileName = "";
                     if(ui->singlePDWCheckBox->isChecked()){
                         fileName = "'" + ui->singlePDWFileLineEdit->text() + "'";
@@ -1222,11 +1267,6 @@ void MainWindow::updatePositions(){
                         fileNumber++;
                     }
                     window_ftpManager->playPDW(fileName, ui->continuousTriggerCheckBox->isChecked());
-//                    window_ftpManager->send_SCPI(":STReam:SOURce:FILE " + fileName);
-//                    window_ftpManager->send_SCPI(":OUTPut ON");
-//                    window_ftpManager->send_SCPI(":OUTPut:MODulation ON");
-//                    window_ftpManager->send_SCPI(":STReam:STATe ON");
-//                    window_ftpManager->send_SCPI("*TRG");
 
                     triggerSent=true;
                 }
@@ -1238,6 +1278,7 @@ void MainWindow::updatePositions(){
     }
 
 }
+
 /*called when the readyRead signal goes off.  reads the data and then takes the will update
  * the gui depending on what data came in.
  * */
@@ -1325,11 +1366,7 @@ void MainWindow::serialRead(){
         break;
     }
     }
-
-
-
 }
-
 
 //stops the motion of both rotors
 void MainWindow::on_stopButton_clicked()
@@ -1337,7 +1374,6 @@ void MainWindow::on_stopButton_clicked()
     serial->stoppingMotion=true;
     stopMotionTimer->start(1500);
     serial->stopMotion();
-
 }
 
 //moves the max, min, and ramp sliders on the gui depending on if the elevation motor speed radio button is checked
@@ -1355,14 +1391,11 @@ void MainWindow::on_positionRadioButton_toggled(bool checked)
 void MainWindow::on_fixElevationPushButton_clicked()
 {
     serial->write("WK01080;",true);
-
-
 }
 
 void MainWindow::on_fixAzimuthPushButton_clicked()
 {
     serial->write("WK01080;",false);
-
 }
 
 void MainWindow::resendTimerTimeout(){
@@ -1372,7 +1405,6 @@ void MainWindow::resendTimerTimeout(){
     }else if(timer == serial->azResendDataTimer){
         serial->timerTimeout(false);
     }
-
 }
 
 //immediately stops all rotor motion
@@ -1588,8 +1620,6 @@ void MainWindow::on_startDroneTestPushButton_clicked()
     }
 }
 
-
-
 //stops any test the is currently running
 void MainWindow::on_stopTestPushButton_clicked()
 {
@@ -1612,7 +1642,6 @@ void MainWindow::on_changeTableResolutionPushButton_clicked()
 {
     QList<QString> resolution = ui->tableResolutionLineEdit->text().split(',');
     resetTable(resolution.at(0).toInt(), resolution.at(1).toInt());
-
 }
 
 //when the select box or erase box radio button is toggled, clear the blue selection.
@@ -1701,7 +1730,6 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event){
     }
     return false;
 }
-
 
 bool MainWindow::leftMouseButtonReleaseEvent(QMouseEvent *event){
     if(ui->selectBoxesRadioButton->isChecked()){
@@ -1802,8 +1830,6 @@ void MainWindow::on_testCreatorTableWidget_cellEntered(int row, int column)
     ui->testCreatorTableWidget->blockSignals(false);
 }
 
-
-
 void MainWindow::on_testCreatorTableWidget_itemChanged(QTableWidgetItem *item)
 {
     if(!tableWidgetItemList.isEmpty()){
@@ -1826,7 +1852,6 @@ void MainWindow::on_testCreatorTableWidget_itemChanged(QTableWidgetItem *item)
         ui->testCreatorTableWidget->blockSignals(false);
     }
 }
-
 
 //when new udp data is ready to read, this will read the data.  It also helps manage tests
 //so if a certain string is taken in, like "done", it will tell the rotor to move to its next
@@ -1855,7 +1880,6 @@ void MainWindow::UdpRead(){
 
 }
 
-
 void MainWindow::on_turnStreamOffPushButton_clicked()
 {
     window_ftpManager->send_SCPI(":STReam:STATe OFF");
@@ -1873,10 +1897,6 @@ void MainWindow::on_testFileLineEdit_textChanged(const QString &arg1)
 {
     ui->openTestLineEdit->setText(arg1);
 }
-
-
-
-
 
 void MainWindow::on_usingRotorCheckBox_toggled(bool checked)
 {
@@ -1935,3 +1955,59 @@ void MainWindow::on_openFilePushButton_clicked()
                                                     "/fileFolder/downloads", tr("Text Files (*.txt)"));
     ui->openTestLineEdit->setText(filePath);
 }
+
+/*
+ * TODO not finished
+ * This method parses through a .txt or .csv file filled with names of PDW files to play.
+ * Every new line in the file is assumed to be a new pdw file name to be played.
+ */
+void MainWindow::on_play_multiple_pdws_push_button_clicked()
+{
+    //prompt the user to select a file from the local system
+    QString filePath = QFileDialog::getOpenFileName(this, tr("Open File"),
+                "/fileFolder", tr("CSV Files (*.csv);;Text Files (*.txt)"));
+
+    //check if the user selected "cancel"
+    if(filePath.size() == 0){
+        output_to_console("cancelled selecting file");
+        return;
+    }
+
+    ui->play_multiple_pdws_line_edit->setText(filePath);
+
+    QFile fileForBatchPlay;
+    QTextStream streamerForBatchFile;
+
+    fileForBatchPlay.setFileName(filePath); //set this file path + name to be the working file
+    bool exists = fileForBatchPlay.exists(filePath);
+    if(exists){
+        if(!fileForBatchPlay.open(QFile::ReadWrite | QFile::Text | QFile::ExistingOnly)) //Options: ExistingOnly, NewOnly, Append
+        {
+            output_to_console(" Could not open File : " + filePath);
+            qDebug() << " Could not open File : " + filePath;
+            return;
+        }
+    }else{
+        output_to_console("File Not Found in Local System : " + filePath);
+        qDebug() << "File Not Found in Local System : " << filePath;
+        return;
+    }
+
+    //create the QTextStreamer to operate on this file until further notice
+    streamerForBatchFile.setDevice(&fileForBatchPlay);
+    streamerForBatchFile.seek(0); //make sure the TextStream starts at the beginning of the file
+
+    //loop through the plays
+    QString lineRead = streamerForBatchFile.readLine().remove("\n");
+    while(lineRead.size() > 0){
+        QString filename = "'" + lineRead + "'";
+        output_to_console("Playing: " + lineRead);
+        window_ftpManager->playPDW(filename, false); //false so first file won't play continuously
+
+        //TODO figure out how to get the STOP playing pdw's button to work for this
+        //TODO figure out how this will know when each file is finished to then start the next one
+
+    }
+
+}
+

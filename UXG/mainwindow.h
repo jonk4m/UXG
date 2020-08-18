@@ -73,11 +73,9 @@ private slots:
 
     void on_use_default_name_radio_button_clicked();
 
-    void on_specified_table_name_line_edit_textChanged(const QString &arg1);
+    //void on_specified_table_name_line_edit_textChanged(const QString &arg1);
 
     void on_change_table_directory_push_button_clicked();
-
-    void on_use_default_file_directory_check_box_stateChanged(int arg1);
 
     void on_create_new_table_button_box_accepted();
 
@@ -236,10 +234,11 @@ private slots:
 
     void on_usingRotorCheckBox_toggled(bool checked);
 
-
     void on_startPositionTestPushButton_clicked();
 
     void on_openFilePushButton_clicked();
+
+    void on_play_multiple_pdws_push_button_clicked();
 
 private:
 

@@ -49,8 +49,9 @@ public:
     state current_state;
     bool  waitingForFPCSFileList;
     bool waitingForPdwUpload = false;
+    bool downloadingAllFiles = false;
     DownloadState downloadState = finished;
-    QString hostName = "169.254.24.85";
+    QString hostName = "169.254.24.85"; //default hostname
 
     void start_process(QString);
     void send_SCPI(QString);
@@ -72,6 +73,7 @@ private slots:
     void socket_errorOccurred(QAbstractSocket::SocketError*);
 signals:
      void userMessage(QString message);
+     void reopen_file();
 
 };
 

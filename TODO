@@ -5,6 +5,8 @@ include in manual why you decided not to include functionality for batch files -
 include in manual what broken out code is specifically for ftp
 INCLUDE IN PRESENTATION THE ISSUE YOU RAN INTO WITH THE TRAILING ZEROS FOR THE HEX CONVERSION OF THE BITPATTERN. SINCE THE UXG READS THE PATTERN IN TRANSMISSION ORDER, A PATTERN OF 110 NEEDS TO HAVE A TRAILING ZERO (1100) FOR THE HEX CONVERSION, NOT A LEADING ZERO (0110) SINCE IT STARTS READING FROM THE FRONT OF THE PATTERN NOT THE BACK. AKA THAT TRAILING ZERO WILL BE IGNORED
 include in manual that files in download folder get deleted if you try to download a file with the same name from the uxg
+sepperate the manual into the user's manual and the programmer's manual 
+include in manual that when you press "ok" on the new table table you can't immediately go to select a local table and have it will show up since the file is still open
 
 --------------------------------------incorporate Josh's code with yours 
 Right now the user has to clear the bitpattern manually if they change the number of freq/phases or the type (phase/freq/both) 
@@ -39,25 +41,53 @@ Add checks for the user inputs that they're in fact numbers when we expect them 
 change all the qDebug()'s to output on the text window at the bottom of the page
 --------------------------------------test that the output signal is in fact using the fpcs using spec analyzer  
 
-uploads a folder full of pdw csv files to the uxg in batch button
 add the increment button for that one use-case chris mentioned 
 add the paste a bit pattern shit (just convert it to hex and make that the hex value then signal the slot that gets hit when they click upload to table) 
 fix the db to dbm shit 
 fix the TOA not adding the 270ns shit 
-delete the "download all files available on uxg" button on the fpcs page
 add loading cursor call to the upload and download portions of the code by calling it right before you call the method to download or upload, then undoing it when it returns from that method 
 take a look at your setup scpi routine (in ftpManager)
-add help button to the main window Qt::WindowContextHelpButtonHint
-
-
-BUGS-------------------------------------------------------------------------------------------------------------------
-fix issue where blank table populates the table after a nonblank entry has been visualized 
-fix the db to dbm shit 
-fix the TOA not adding the 270ns shit 
-delete the "download all files available on uxg" button on the fpcs page
-get rid of the progress bars on the fpcs page 
-
-add josh's instructions on deploying an executable to your qt notes (he emailed you alion email the instructions) 
 
 QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 QGuiApplication::restoreOverrideCursor();
+CAN I USE THE FREQ/PHASE TABLE WITH PURE STREAMING AKA NOT FILE STREAMING 
+
+
+MOST IMPORTANT TODO -------------------------------------------------------------------------------------------------------------------
+get default table name to increment everytime you press ok, and save the current number in a txt file so if the program is opened it will know the last one. 
+fix issue where blank table populates the table after a nonblank entry has been visualized 
+fix the db to dbm shit 
+fix the TOA not adding the 270ns shit 
+add josh's instructions on deploying an executable to your qt notes (he emailed you alion email the instructions) 
+incorporate the increment function Chris Mentioned
+make it so they can open a textfile with the bit patterns OR copy and paste a given pattern into a text editor 
+add help buttons to the main window Qt::WindowContextHelpButtonHint
+chris wants calculation where you take how long it takes for the uxg file to play, then multiple it by the number of positions 
+add button for playing a list of files //need to talk to josh about the todo's for that 
+fix the fpcs table shit to be really clean code.
+add a upload_file_using_ftp method to the YATG class which will use ftp instead of scpi 
+documentation 
+cleanup git repo before handing it over
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Laptop username : ABMS1.   Password Goldispower1123
+https://external.mail.af.mil/owa/
+jonathan.kinnard.ctr@us.af.mil

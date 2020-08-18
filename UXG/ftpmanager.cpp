@@ -16,15 +16,17 @@ FtpManager::FtpManager(QMainWindow *window)
  * notes that a fileOrFolderName parameter of "*" means that all files will be downloaded
  * the fileOrFolderName parameter includes the current directory when uploading
  */
-void FtpManager::start_process(QString fileOrFolderName){
-    emit userMessage("Starting process");
+void FtpManager::start_process(QString fileOrFolder){
+    QString fileOrFolderName = fileOrFolder;
+    fileOrFolderName.remove(".csv").remove(".txt").append(".csv"); //leave this line alone, used as a good fail-safe for the extension type
+    emit userMessage("Starting process with file or folder name: " + fileOrFolderName);
     qDebug() << "Starting process";
     QStringList arguments;
     QString program = "ftp";
 
-    if(current_state == state::uploading){
-        qDebug() << "Downloading file from UXG : " << fileOrFolderName;
-        emit userMessage("Downloading file from UXG : " + fileOrFolderName);
+    if(current_state == state::uploading){        
+        qDebug() << "Uploading file to UXG : " << fileOrFolderName;
+        emit userMessage("Uploading file to UXG : " + fileOrFolderName);
 
         //set the filename in the text document of the ftp commands to match the input parameter
         QString commandPath = QDir::currentPath() + "/fileFolder/uploadFtpCommands.txt";
@@ -45,12 +47,18 @@ void FtpManager::start_process(QString fileOrFolderName){
         commandFile.close();
 
         QString commandArg = "-s:" + commandPath;
-        arguments << "-d" << "-i" << commandArg << "K-N5193A-90114";
+        arguments << "-d" << "-i" << commandArg << hostName;
 
     }else if(current_state == state::downloading){
         //Download all files from the UXG
-        qDebug() << "Downloading file from UXG";
-        emit userMessage("Downloading file from UXG");
+        if(downloadingAllFiles){
+            fileOrFolderName.remove(".csv").remove(".txt");
+            emit userMessage("downloading all files from UXG");
+        }else{
+            qDebug() << "Downloading file from UXG";
+            emit userMessage("Downloading file from UXG");
+        }
+
         QString commandPath = QDir::currentPath() + "/fileFolder/downloadFtpCommands.txt";
         QFile commandFile(commandPath);
         if(!commandFile.open(QIODevice::ReadWrite | QIODevice::Text)){
@@ -70,11 +78,13 @@ void FtpManager::start_process(QString fileOrFolderName){
         commandFile.close();
 
         QString commandArg = "-s:" + QDir::currentPath() + "/fileFolder/downloadFtpCommands.txt"; //note that the downloads folder must be added upon deployment
-        arguments << "-d" << "-i" << commandArg << "K-N5193A-90114";
+        arguments << "-d" << "-i" << commandArg << hostName;
 
     }else{
         emit userMessage("Error in FtpManager state, should be either uploading or downloading");
         qDebug() << "Error in FtpManager state, should be either uploading or downloading";
+        QGuiApplication::restoreOverrideCursor();
+        return;
     }
 
     process->start(program,arguments);
@@ -135,6 +145,7 @@ void FtpManager::process_finished(){
         current_state = state::initialized;
         emit userMessage("Process has finished successfully" + QString::number(process->exitCode()));
         qDebug() << "Process has finished successfully";
+
         QGuiApplication::restoreOverrideCursor();
     }
 }
@@ -212,6 +223,7 @@ void FtpManager::socket_connected(){
     send_SCPI("DISPlay:REMote ON");
     send_SCPI("INSTrument STReaming");
     UXGSetup();
+    send_SCPI("*IDN?");
 }
 
 void FtpManager::socket_disconnected(){
