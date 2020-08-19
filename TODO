@@ -7,6 +7,8 @@ INCLUDE IN PRESENTATION THE ISSUE YOU RAN INTO WITH THE TRAILING ZEROS FOR THE H
 include in manual that files in download folder get deleted if you try to download a file with the same name from the uxg
 sepperate the manual into the user's manual and the programmer's manual 
 include in manual that when you press "ok" on the new table table you can't immediately go to select a local table and have it will show up since the file is still open
+include in manual that user should not try to connect to uxg while it is starting up, otherwise a power cycle will be required for the GUI to be able to reach it. reason is unknown
+include in manual that YATG files do not belong in the uploads folder since we will create a file with the identical name in that folder (and then delete it) 
 
 --------------------------------------incorporate Josh's code with yours 
 Right now the user has to clear the bitpattern manually if they change the number of freq/phases or the type (phase/freq/both) 
@@ -68,12 +70,27 @@ fix the fpcs table shit to be really clean code.
 add a upload_file_using_ftp method to the YATG class which will use ftp instead of scpi 
 documentation 
 cleanup git repo before handing it over
+add button to create a template YATG file for the user
+in the startup set the deliminator to be comma, also go through SCPI notes to see what you forgot to put in the startup routine
+
+instead of scpi or ftp to get PDW's on the uxg is there a faster way of dumping data on there?
+scpi just takes forever, creating a csv or txt file out the the yatg file to then do ftp and tell it to convert will take up too much memory (think if they handed you a 1GB YATG
+file you'd have to convert it into a csv that's at least a GB to then do ftp and finally tell the uxg to convert it) 
+
+setup a timer to see if our program is what's slow for sending scpi or if it's the UXG.
+If it's ours:
+find out why 
+how big is the scpi buffer on the UXG?
+If it's the UXG:
+Can we send it all as one scpi?
+start investigating using ftp
+
+before you really go balls to the walls trying to figure out this shit: http://rfmw.em.keysight.com/wireless/helpfiles/n519xa/n519xa.htm#User's%20Guide/Streaming-File%20and%20LAN%20Overview.htm%3FTocPath%3DUser's%2520Guide%7CStreaming%2520Mode%2520Use%7C_____11
+try setting up ftp first and see how fast it is
 
 
 
-
-
-
+Fuck it. Just convert the YATG into a CSV that you'll use ftp to upload to the uxg and tell the UXG to convert it. 
 
 
 

@@ -115,26 +115,6 @@ void Fpcs::close_file(){
 };
 
 /*
- * Less protections added to this method based on assumptions
- * meant purely for post-ftp process reinitialization of the workingFile
- */
-bool Fpcs::open_previously_opened_file(){
-    bool exists = workingFile.exists(settings.tableNameAndPath);
-    if(exists){
-        if(!workingFile.open(QFile::ReadWrite | QFile::Text | QFile::ExistingOnly)) //Options: ExistingOnly, NewOnly, Append
-        {
-            emit userMessage(" Could not open File : " + settings.tableNameAndPath);
-            qDebug() << " Could not open File : " + settings.tableNameAndPath;
-            return false;
-        }
-    }else{
-        emit userMessage("File Not Found in Local System when initializing file in local system: " + settings.tableNameAndPath);
-        qDebug() << "File Not Found in Local System when initializing file in local system: " << settings.tableNameAndPath;
-        return false;
-    }
-}
-
-/*
  * Sets the Class's QTextStream streamer to the current workingFile
  */
 void Fpcs::set_streamer(){

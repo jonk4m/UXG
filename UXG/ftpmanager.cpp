@@ -205,7 +205,7 @@ void FtpManager::connect(quint16 port){
         tcpSocket->connectToHost(hostName,port,QIODevice::ReadWrite);
         QAbstractSocket::connect(tcpSocket,SIGNAL(connected()),this,SLOT(socket_connected()));
         QAbstractSocket::connect(tcpSocket,SIGNAL(disconnected()),this,SLOT(socket_disconnected()));
-        QAbstractSocket::connect(tcpSocket,SIGNAL(errorOccurred(QAbstractSocket::SocketError*)),this,SLOT(socket_errorOccurred(QAbstractSocket::SocketError*)));
+        //QAbstractSocket::connect(tcpSocket,SIGNAL(errorOccurred(QAbstractSocket::SocketError)),this,SLOT(socket_errorOccurred(QAbstractSocket::SocketError)));
     }
 }
 

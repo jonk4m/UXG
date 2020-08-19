@@ -82,6 +82,8 @@ double setupTime = (double)0.00000027 * (timeScalingFactor); works but double se
 
 deploy an executable with all the .dll's and platforms and packages with it: 
 
+see all available devices on your local network with cmd command: "arp -a"
+
 networking -----
 network programming and FTP with QT an overview : https://doc.qt.io/qt-5/qtnetwork-programming.html
 another good overview : http://martchus.no-ip.biz/doc/qt5/qtdoc/topics-network-connectivity.html

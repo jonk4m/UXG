@@ -513,7 +513,7 @@ void MainWindow::on_download_all_files_from_uxg_push_button_clicked()
 void MainWindow::on_pushButton_clicked()
 {
     window_ftpManager->abortTcpSocket();
-    window_ftpManager->connect(5025);  //K-N5193A-90114
+    window_ftpManager->connect(5025);
 }
 
 void MainWindow::on_pushButton_2_clicked()
@@ -658,6 +658,7 @@ void MainWindow::on_socket_readyRead(){
         qDebug() << "returned 1 from uxg ";
         output_to_console("returned 1 from uxg ");
         QGuiApplication::restoreOverrideCursor();
+        output_to_console("time elapsed for UXG to respond that it is finished uploading PDW file: " + QString::number(timer.elapsed()) + " milliseconds");
     }
 
     if(!window_ftpManager->UXGSetupFinished && allRead== "1\n"){
@@ -1127,10 +1128,41 @@ void MainWindow::on_select_multiple_files_by_folder_push_button_clicked()
 
 }
 
-void MainWindow::on_upload_yatg_file_to_uxg_push_button_clicked()
+/*void MainWindow::on_upload_yatg_file_to_uxg_push_button_clicked()
 {
+    timer.start();
+
     QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     bool success = true;
+    if(window_yatg->uploadingMultipleFiles){
+        success = window_yatg->upload_multiple_files_to_uxg();
+    }else{
+        success = window_yatg->upload_file_to_uxg();
+    }
+    if(!success){
+        output_to_console("File unable to upload to UXG : ERROR");
+        qDebug() << "File unable to upload to UXG : ERROR";
+    }
+
+     // If you send 5 SCPI's in a row, then send an *OPC? you will know when it's done with those 5 scpi commands because once it gets to the *OPC? it
+     // immediately responds with "1". The uxg's scpi queue is FIFO so in the readyRead we know that if it sent back "1", it is finished uploading the
+     // pdw data we sent over SCPI.
+
+
+    //this breakpoint marks when our program is done sending SCPI's
+    output_to_console("time is took to create and send all scpi's : " + QString::number(timer.elapsed()) + " milliseconds");
+
+    window_ftpManager->waitingForPdwUpload = true;
+    window_ftpManager->send_SCPI("*OPC?");
+}*/
+
+void MainWindow::on_upload_yatg_file_to_uxg_push_button_clicked()
+{
+    timer.start();
+
+    QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+    bool success = true;
+
     if(window_yatg->uploadingMultipleFiles){
         success = window_yatg->upload_multiple_files_to_uxg();
     }else{
@@ -1145,6 +1177,10 @@ void MainWindow::on_upload_yatg_file_to_uxg_push_button_clicked()
      * immediately responds with "1". The uxg's scpi queue is FIFO so in the readyRead we know that if it sent back "1", it is finished uploading the
      * pdw data we sent over SCPI.
      */
+
+    //this breakpoint marks when our program is done creating the csv file, uploading it to the UXG using FTP, and telling the UXg to convert it into pdw binary
+    output_to_console("time is took to upload the file : " + QString::number(timer.elapsed()) + " milliseconds");
+
     window_ftpManager->waitingForPdwUpload = true;
     window_ftpManager->send_SCPI("*OPC?");
 }
@@ -1382,7 +1418,7 @@ void MainWindow::on_elevationMotorSpeedRadioButton_toggled(bool checked)
     serial->getMaxMinAndRampValues(checked);
 }
 
-void MainWindow::on_positionRadioButton_toggled(bool checked)
+void MainWindow::on_positionRadioButton_toggled(bool)
 {
     ui->elevationLineEdit->clear();
     ui->azimuthLineEdit->clear();
@@ -1646,7 +1682,7 @@ void MainWindow::on_changeTableResolutionPushButton_clicked()
 
 //when the select box or erase box radio button is toggled, clear the blue selection.
 //Makes everything look nicer and easier to understand
-void MainWindow::on_selectBoxesRadioButton_toggled(bool checked)
+void MainWindow::on_selectBoxesRadioButton_toggled(bool)
 {
     ui->testCreatorTableWidget->clearSelection();
 }
@@ -1731,7 +1767,7 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event){
     return false;
 }
 
-bool MainWindow::leftMouseButtonReleaseEvent(QMouseEvent *event){
+bool MainWindow::leftMouseButtonReleaseEvent(QMouseEvent*){
     if(ui->selectBoxesRadioButton->isChecked()){
         QList<QTableWidgetItem *> list = ui->testCreatorTableWidget->selectedItems();
         int columnCount = list.last()->column()-list.first()->column();

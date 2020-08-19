@@ -63,7 +63,6 @@ public:
     bool add_entry_to_file();
     void data_dump_onto_file();
     void import_entries_from_existing_file();
-    bool open_previously_opened_file();
 
 signals:
      void userMessage(QString message);
