@@ -32,7 +32,8 @@ public:
         initialized = 0,
         uploading = 1,
         downloading = 2,
-        sending_scpi = 3
+        sending_scpi = 3,
+        uploadingPDW = 4
     };
 
     enum DownloadState {

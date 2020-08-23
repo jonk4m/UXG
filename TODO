@@ -9,6 +9,8 @@ sepperate the manual into the user's manual and the programmer's manual
 include in manual that when you press "ok" on the new table table you can't immediately go to select a local table and have it will show up since the file is still open
 include in manual that user should not try to connect to uxg while it is starting up, otherwise a power cycle will be required for the GUI to be able to reach it. reason is unknown
 include in manual that YATG files do not belong in the uploads folder since we will create a file with the identical name in that folder (and then delete it) 
+include in manual that user should NOT put files in the uploads or downloads folders since these are for files created or retrieved by the program only and can delete these files unexpectantly.
+
 
 --------------------------------------incorporate Josh's code with yours 
 Right now the user has to clear the bitpattern manually if they change the number of freq/phases or the type (phase/freq/both) 
@@ -55,42 +57,40 @@ QGuiApplication::restoreOverrideCursor();
 CAN I USE THE FREQ/PHASE TABLE WITH PURE STREAMING AKA NOT FILE STREAMING 
 
 
-MOST IMPORTANT TODO -------------------------------------------------------------------------------------------------------------------
-get default table name to increment everytime you press ok, and save the current number in a txt file so if the program is opened it will know the last one. 
-fix issue where blank table populates the table after a nonblank entry has been visualized 
-fix the db to dbm shit 
-fix the TOA not adding the 270ns shit 
-add josh's instructions on deploying an executable to your qt notes (he emailed you alion email the instructions) 
-incorporate the increment function Chris Mentioned
-make it so they can open a textfile with the bit patterns OR copy and paste a given pattern into a text editor 
-add help buttons to the main window Qt::WindowContextHelpButtonHint
-chris wants calculation where you take how long it takes for the uxg file to play, then multiple it by the number of positions 
-add button for playing a list of files //need to talk to josh about the todo's for that 
-fix the fpcs table shit to be really clean code.
-add a upload_file_using_ftp method to the YATG class which will use ftp instead of scpi 
-documentation 
-cleanup git repo before handing it over
-add button to create a template YATG file for the user
-in the startup set the deliminator to be comma, also go through SCPI notes to see what you forgot to put in the startup routine
-
-instead of scpi or ftp to get PDW's on the uxg is there a faster way of dumping data on there?
-scpi just takes forever, creating a csv or txt file out the the yatg file to then do ftp and tell it to convert will take up too much memory (think if they handed you a 1GB YATG
-file you'd have to convert it into a csv that's at least a GB to then do ftp and finally tell the uxg to convert it) 
-
-setup a timer to see if our program is what's slow for sending scpi or if it's the UXG.
-If it's ours:
-find out why 
-how big is the scpi buffer on the UXG?
-If it's the UXG:
-Can we send it all as one scpi?
-start investigating using ftp
-
-before you really go balls to the walls trying to figure out this shit: http://rfmw.em.keysight.com/wireless/helpfiles/n519xa/n519xa.htm#User's%20Guide/Streaming-File%20and%20LAN%20Overview.htm%3FTocPath%3DUser's%2520Guide%7CStreaming%2520Mode%2520Use%7C_____11
-try setting up ftp first and see how fast it is
+MOST IMPORTANT TODO ----------------------------------------------------------------------------------------------------------------------------------------
+Get default table name to increment everytime you press ok, and save the current number in a txt file so if the program is opened it will know the last one. 
+-Fix the db to dbm shit 
+-Fix the TOA not adding the 270ns shit 
+Add josh's instructions on deploying an executable to your qt notes (he emailed you alion email the instructions) 
+-Incorporate the increment function Chris Mentioned
+Chris wants calculation where you take how long it takes for the uxg file to play, then multiple it by the number of positions 
+Fix the fpcs table shit to be really clean code.
+Documentation 
+Cleanup git repo before handing it over
+In the startup set the deliminator to be comma, also go through SCPI notes to see what you forgot to put in the startup routine
 
 
 
-Fuck it. Just convert the YATG into a CSV that you'll use ftp to upload to the uxg and tell the UXG to convert it. 
+
+ME		fix issue where blank table populates the table after a nonblank entry has been visualized  
+ME 		make it so they can open a textfile with the bit patterns OR copy and paste a given pattern into a text editor  
+ME		finish ftp shit for pdw's
+ME		add button to create a template YATG file for the user  
+ME		add functionality for markers
+
+JOSH 	add help buttons with popup windows to the main window Qt::WindowContextHelpButtonHint  
+JOSH	add button for playing a list of files  
+JOSH	IP on startup is on a textfile  
+
+BOTH 	document partially    
+
+
+
+
+
+
+
+
 
 
 

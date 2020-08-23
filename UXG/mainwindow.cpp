@@ -656,7 +656,7 @@ void MainWindow::on_socket_readyRead(){
     if(window_ftpManager->waitingForPdwUpload && allRead== "1\n"){
         window_ftpManager->waitingForPdwUpload = false;
         qDebug() << "returned 1 from uxg ";
-        output_to_console("returned 1 from uxg ");
+        output_to_console("returned 1 from uxg. UXG finished converting PDW file.");
         QGuiApplication::restoreOverrideCursor();
         output_to_console("time elapsed for UXG to respond that it is finished uploading PDW file: " + QString::number(timer.elapsed()) + " milliseconds");
     }
@@ -1184,13 +1184,16 @@ void MainWindow::on_upload_yatg_file_to_uxg_push_button_clicked()
     bool success = true;
 
     if(window_yatg->uploadingMultipleFiles){
+        output_to_console("Uploading multiple files to UXG...");
         success = window_yatg->upload_multiple_files_to_uxg();
     }else{
+        output_to_console("Uploading file to UXG...");
         success = window_yatg->upload_file_to_uxg();
     }
     if(!success){
         output_to_console("File unable to upload to UXG : ERROR");
         qDebug() << "File unable to upload to UXG : ERROR";
+        return;
     }
     /*
      * If you send 5 SCPI's in a row, then send an *OPC? you will know when it's done with those 5 scpi commands because once it gets to the *OPC? it
@@ -1200,8 +1203,10 @@ void MainWindow::on_upload_yatg_file_to_uxg_push_button_clicked()
 
     //this breakpoint marks when our program is done creating the csv file, uploading it to the UXG using FTP, and telling the UXg to convert it into pdw binary
     output_to_console("time is took to upload the file : " + QString::number(timer.elapsed()) + " milliseconds");
+    timer.restart();
 
     window_ftpManager->waitingForPdwUpload = true;
+    output_to_console("Waiting for UXG...");
     window_ftpManager->send_SCPI("*OPC?");
 }
 

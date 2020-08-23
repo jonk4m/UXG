@@ -196,13 +196,9 @@ bool YATG::upload_file_to_uxg(){
     outputFile.close();
 
     outputFilePath = QDir::currentPath() + "/fileFolder/uploads/";
-    //get the fileName without the directory
-    QFileInfo fileInfo0(workingFile.fileName());
-    QString fileNameWithoutDirectory0(fileInfo0.fileName());
-    QString fileName0 = fileNameWithoutDirectory0;
-    outputFilePath = outputFilePath + fileNameWithoutDirectory0;
 
     workingFile.setFileName(workingFilePath); //set this file path to be for the working file
+    emit userMessage("workingFile set to: " + workingFilePath);
     bool exists = workingFile.exists(workingFilePath);
     if(exists){
         if(!workingFile.open(QFile::ReadWrite | QFile::Text | QFile::ExistingOnly)) //Options: ExistingOnly, NewOnly, Append
@@ -210,6 +206,8 @@ bool YATG::upload_file_to_uxg(){
             emit userMessage("Could not open File : " + workingFilePath);
             qDebug() << "Could not open File : " + workingFilePath;
             return false;
+        }else{
+            emit userMessage("File opened...");
         }
     }else{
         emit userMessage("File Not Found in Local System to upload to UXG: " + workingFilePath);
@@ -217,25 +215,36 @@ bool YATG::upload_file_to_uxg(){
         return false;
     }
 
+    //get the fileName without the directory
+    QFileInfo fileInfo0(workingFile.fileName());
+    QString fileNameWithoutDirectory0(fileInfo0.fileName());
+    QString fileName0 = fileNameWithoutDirectory0;
+    emit userMessage("fileName: " + fileName0);
+    outputFilePath.append(fileNameWithoutDirectory0);
+    emit userMessage("data-dump file created: " + outputFilePath);
+
     outputFile.setFileName(outputFilePath); //set this file path to be for the working file
+    emit userMessage("outputFile set to: " + outputFilePath);
     bool alreadyexists = outputFile.exists(outputFilePath);
     if(alreadyexists){
-        emit userMessage("Cannot create data-dump file to be converted by the UXG. Please delete the file in the uploads folder with this name first: " + outputFilePath);
-        qDebug() << "Cannot create data-dump file to be converted by the UXG. Please delete the file in the uploads folder with this name first: " << outputFilePath;
+        emit userMessage("Replacing file in uploads folder now... ");
+        qDebug() << "Replacing file in uploads folder now... ";
+        outputFile.remove();
+    }
+
+    //create the file
+    if(!outputFile.open(QFile::ReadWrite | QFile::Text | QFile::NewOnly)) //Options: ExistingOnly, NewOnly, Append
+    {
+        emit userMessage("Could not create File : " + outputFilePath);
+        qDebug() << "Could not create File : " + outputFilePath;
         return false;
-    }else{
-        if(!outputFile.open(QFile::ReadWrite | QFile::Text | QFile::NewOnly)) //Options: ExistingOnly, NewOnly, Append
-        {
-            emit userMessage("Could not create File : " + outputFilePath);
-            qDebug() << "Could not create File : " + outputFilePath;
-            return false;
-        }
     }
 
     streamer.setDevice(&workingFile); //set the streamer for this file
     outputFileStreamer.setDevice(&outputFile);
 
     //Parse through the header
+    emit userMessage("parsing through user file...");
     streamer.seek(0);
     outputFileStreamer.seek(0);
     QStringList readHeader = streamer.readLine().remove("\n").split(QRegExp(","), Qt::SkipEmptyParts);
@@ -307,7 +316,7 @@ bool YATG::upload_file_to_uxg(){
             QString unit = readHeader.at(readHeader.indexOf(temp));
             bool containsm = unit.contains("m",Qt::CaseInsensitive);
             if(containsm){
-                units.insert("Att"," (dBm),");
+                units.insert("Att","(dbm),");
                 //TODO add conversion from dBm to dB here
             }else{
                 units.insert("Att"," (dB),");
@@ -338,14 +347,14 @@ bool YATG::upload_file_to_uxg(){
         }
     }
     if(indexes.size() < 10){ //the number 10 here came from the number of if statements above
-        emit userMessage("Not all columns were defined in Yatg file.");
-        qDebug() << "Not all columns were defined in Yatg file.";
+        qDebug() << "Error: Not all columns were defined in Yatg file.";
         //TODO figure out how to turn hashmap to QString
-        emit userMessage("Not all columns were defined in Yatg file.");
+        emit userMessage("Error: Not all columns were defined in Yatg file.");
         qDebug() << indexes;
         return false;
     }else{
         //qDebug() << "indexes loaded in correctly: " << indexes;
+        emit userMessage("Header parsed...");
     }
 
     QString header = "Operation,Pulse Start Time";
@@ -366,6 +375,7 @@ bool YATG::upload_file_to_uxg(){
     outputFileStreamer << header;
 
     //Parse through the rest of the entries in the YATG file, ignoring any line that contains "#", and appending to the file for each row
+    emit userMessage("Begin Parsing through remaining data in file...");
     if(!append_rows_to_uxg_file(indexes,timeScalingFactor)){
         emit userMessage("appending rows to file failed");
         qDebug() << "appending rows to file failed";
@@ -377,18 +387,35 @@ bool YATG::upload_file_to_uxg(){
 
     //tell the ftp to upload the outputFile to the UXG
     //This is a blocking function
+    emit userMessage("Starting FTP Process...");
+    ftp_manager->current_state = ftp_manager->uploadingPDW;
     ftp_manager->start_process(outputFilePath);
+    emit userMessage("Finished FTP Process...");
 
     //tell the UXG to import the file as a pdw now that it is finished uploading to the UXG
-    ftp_manager->send_SCPI("MEMory:IMPort:STReam '" + fileName0 + "', '" + fileName0 + "'");
+    emit userMessage("Sending command for UXG to convert file data...");
+    QString newPDWName = fileName0.remove(".csv").remove(".txt");
+    fileName0.append(".csv");
+    ftp_manager->send_SCPI("MEMory:IMPort:STReam '" + fileName0 + "', '" + newPDWName + "'");
+    QString sending = "Sending: ";
+    sending.append("MEMory:IMPort:STReam '" + fileName0 + "', '" + newPDWName + "'");
+    emit userMessage(sending);
 
     //now delete the file we have created in the uploads folder since it's on the UXG now
+    emit userMessage("Removing data-dump file from system...");
     bool removed = outputFile.remove();
+    outputFile.close();
+
+    emit userMessage("Removing extraneous files from UXG...");
+    ftp_manager->send_SCPI("MEMory:DELete:NAME '" + fileName0 + "'");
+    sending = "Sending: ";
+    sending.append("MEMory:DELete:NAME '" + fileName0 + "'");
+    emit userMessage(sending);
 
     if(removed){
         return true;
     }else{
-        emit userMessage("File not able to be removed : " + outputFile.fileName());
+        emit userMessage("File not able to be removed from Local System: " + outputFile.fileName());
         return false;
     }
 

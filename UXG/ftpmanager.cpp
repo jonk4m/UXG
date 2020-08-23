@@ -24,7 +24,7 @@ void FtpManager::start_process(QString fileOrFolder){
     QStringList arguments;
     QString program = "ftp";
 
-    if(current_state == state::uploading){        
+    if(current_state == state::uploading || current_state == state::uploadingPDW){
         qDebug() << "Uploading file to UXG : " << fileOrFolderName;
         emit userMessage("Uploading file to UXG : " + fileOrFolderName);
 
@@ -92,9 +92,7 @@ void FtpManager::start_process(QString fileOrFolder){
     QProcess::connect(process,SIGNAL(finished(int,QProcess::ExitStatus)),this,SLOT(process_finished()));
     QProcess::connect(process,SIGNAL(readyReadStandardError()),this,SLOT(process_ready_read_error()));
     QProcess::connect(process,SIGNAL(readyReadStandardOutput()),this,SLOT(process_ready_read_output()));
-    if(current_state == state::downloading){
-        process->waitForFinished(); //blocking function to allow for the callback to not encounter a racing error
-    }
+    process->waitForFinished(); //blocking function to allow for the callback to not encounter a racing error
 }
 
 void FtpManager::process_started(){
@@ -143,10 +141,14 @@ void FtpManager::process_finished(){
         send_SCPI(scpiCommand);
 
         current_state = state::initialized;
-        emit userMessage("Process has finished successfully" + QString::number(process->exitCode()));
+        emit userMessage("Process has finished successfully");
         qDebug() << "Process has finished successfully";
 
         QGuiApplication::restoreOverrideCursor();
+    }else if(current_state == state::uploadingPDW){
+        current_state = state::initialized;
+        emit userMessage("Process has finished successfully");
+        qDebug() << "Process has finished successfully";
     }
 }
 
