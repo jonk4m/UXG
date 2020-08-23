@@ -1999,6 +1999,7 @@ void MainWindow::on_openFilePushButton_clicked()
  */
 void MainWindow::on_play_multiple_pdws_push_button_clicked()
 {
+    output_to_console("Please select file containing a list of names of pdw files to be played in order on the UXG.");
     //prompt the user to select a file from the local system
     QString filePath = QFileDialog::getOpenFileName(this, tr("Open File"),
                 "/fileFolder", tr("CSV Files (*.csv);;Text Files (*.txt)"));
@@ -2010,6 +2011,7 @@ void MainWindow::on_play_multiple_pdws_push_button_clicked()
     }
 
     ui->play_multiple_pdws_line_edit->setText(filePath);
+    output_to_console("File Chosen: " + filePath);
 
     QFile fileForBatchPlay;
     QTextStream streamerForBatchFile;
@@ -2019,13 +2021,15 @@ void MainWindow::on_play_multiple_pdws_push_button_clicked()
     if(exists){
         if(!fileForBatchPlay.open(QFile::ReadWrite | QFile::Text | QFile::ExistingOnly)) //Options: ExistingOnly, NewOnly, Append
         {
-            output_to_console(" Could not open File : " + filePath);
-            qDebug() << " Could not open File : " + filePath;
+            output_to_console(" Could not open Batchfile : " + filePath);
+            qDebug() << " Could not open Batchfile : " + filePath;
             return;
+        }else{
+            output_to_console("File opened.");
         }
     }else{
-        output_to_console("File Not Found in Local System : " + filePath);
-        qDebug() << "File Not Found in Local System : " << filePath;
+        output_to_console("Batch File Not Found in Local System : " + filePath);
+        qDebug() << "Batch File Not Found in Local System : " << filePath;
         return;
     }
 
@@ -2035,10 +2039,13 @@ void MainWindow::on_play_multiple_pdws_push_button_clicked()
 
     //loop through the plays
     QString lineRead = streamerForBatchFile.readLine().remove("\n");
+    QString filename = "";
     while(lineRead.size() > 0){
-        QString filename = "'" + lineRead + "'";
-        output_to_console("Playing: " + lineRead);
+        filename = "'" + lineRead + "'";
+        output_to_console("Playing: " + filename);
         window_ftpManager->playPDW(filename, false); //false so first file won't play continuously
+
+        lineRead = streamerForBatchFile.readLine().remove("\n");
 
         //TODO figure out how to get the STOP playing pdw's button to work for this
         //TODO figure out how this will know when each file is finished to then start the next one
