@@ -241,6 +241,8 @@ private slots:
 
     void on_play_multiple_pdws_push_button_clicked();
 
+    void on_create_yatg_template_file_pushbutton_clicked();
+
 private:
 
     //bool pre_initialize_uxg_file();

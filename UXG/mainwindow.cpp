@@ -2049,8 +2049,11 @@ void MainWindow::on_play_multiple_pdws_push_button_clicked()
 
         //TODO figure out how to get the STOP playing pdw's button to work for this
         //TODO figure out how this will know when each file is finished to then start the next one
-
     }
 
 }
 
+void MainWindow::on_create_yatg_template_file_pushbutton_clicked()
+{
+
+}

@@ -181,12 +181,22 @@
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_2">
-         <item row="6" column="1">
-          <widget class="QLineEdit" name="pdwNameLineEdit">
+         <item row="7" column="0">
+          <widget class="QPushButton" name="playPDWPushButton">
            <property name="font">
             <font>
              <pointsize>10</pointsize>
             </font>
+           </property>
+           <property name="text">
+            <string>Play Single PDW File</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="0">
+          <widget class="QPushButton" name="play_multiple_pdws_push_button">
+           <property name="text">
+            <string>Play Multiple PDW Files From List</string>
            </property>
           </widget>
          </item>
@@ -199,7 +209,94 @@
            </property>
           </widget>
          </item>
-         <item row="8" column="0">
+         <item row="5" column="0" colspan="2">
+          <widget class="QPushButton" name="power_off_uxg_push_button">
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Power Off UXG</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="1">
+          <widget class="QLineEdit" name="pdwNameLineEdit">
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0" colspan="2">
+          <widget class="QPushButton" name="download_all_files_from_uxg_push_button_2">
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Download All Files Available on UXG</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0" colspan="2">
+          <widget class="QPushButton" name="pushButton_2">
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Ask UXG to Identify Itself</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0" colspan="2">
+          <widget class="QPushButton" name="delete_all_files_on_uxg_push_button">
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Delete All Files on UXG</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0" colspan="2">
+          <widget class="QPushButton" name="initiate_uxg_self_test_push_button">
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Initiate UXG Self-Test</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="1">
+          <widget class="QLineEdit" name="play_multiple_pdws_line_edit"/>
+         </item>
+         <item row="9" column="1">
+          <widget class="QCheckBox" name="continuousPDWCheckBox">
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Run PDW Continuously</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="9" column="0">
           <widget class="QPushButton" name="stopPDWPushButton">
            <property name="font">
             <font>
@@ -223,102 +320,12 @@
            </property>
           </widget>
          </item>
-         <item row="5" column="0" colspan="2">
-          <widget class="QPushButton" name="delete_all_files_on_uxg_push_button">
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Delete All Files on UXG</string>
-           </property>
-          </widget>
-         </item>
-         <item row="8" column="1">
-          <widget class="QCheckBox" name="continuousPDWCheckBox">
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Run PDW Continuously</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0" colspan="2">
-          <widget class="QPushButton" name="pushButton_2">
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Ask UXG to Identify Itself</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0" colspan="2">
-          <widget class="QPushButton" name="download_all_files_from_uxg_push_button_2">
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Download All Files Available on UXG</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0" colspan="2">
-          <widget class="QPushButton" name="initiate_uxg_self_test_push_button">
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Initiate UXG Self-Test</string>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="0">
-          <widget class="QPushButton" name="playPDWPushButton">
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Play Single PDW File</string>
-           </property>
-          </widget>
-         </item>
          <item row="4" column="0" colspan="2">
-          <widget class="QPushButton" name="power_off_uxg_push_button">
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
+          <widget class="QPushButton" name="create_yatg_template_file_pushbutton">
            <property name="text">
-            <string>Power Off UXG</string>
+            <string>Create YATG Template File on Desktop</string>
            </property>
           </widget>
-         </item>
-         <item row="7" column="0">
-          <widget class="QPushButton" name="play_multiple_pdws_push_button">
-           <property name="text">
-            <string>Play Multiple PDW Files From List</string>
-           </property>
-          </widget>
-         </item>
-         <item row="7" column="1">
-          <widget class="QLineEdit" name="play_multiple_pdws_line_edit"/>
          </item>
         </layout>
        </widget>
