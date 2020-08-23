@@ -2076,6 +2076,7 @@ void MainWindow::on_play_multiple_pdws_push_button_clicked()
             pdwFileNames.append(line);
         }
     }while(!line.isNull());
+    fileForBatchPlay.close();
     QString fileName = "'" + pdwFileNames.at(0) + "'";
     window_ftpManager->playPDW(fileName,ui->continuousPDWCheckBox->isChecked());
     if(pdwFileNames.isEmpty()){
