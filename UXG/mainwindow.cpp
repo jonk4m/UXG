@@ -2065,7 +2065,7 @@ void MainWindow::on_play_multiple_pdws_push_button_clicked()
         line = streamerForBatchFile.readLine();
         pdwFileNames.append(line);
     }while(!line.isNull());
-
+    window_ftpManager->playPDW(pdwFileNames.at(0),ui->continuousPDWCheckBox->isChecked());
     multiplePDWsPlaying=true;
 
 //    QString lineRead = streamerForBatchFile.readLine().remove("\n");
