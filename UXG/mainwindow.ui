@@ -249,6 +249,12 @@
              <pointsize>10</pointsize>
             </font>
            </property>
+           <property name="mouseTracking">
+            <bool>false</bool>
+           </property>
+           <property name="whatsThis">
+            <string extracomment="Returns the Model number of the UXG that you are connected to"/>
+           </property>
            <property name="text">
             <string>Ask UXG to Identify Itself</string>
            </property>
@@ -1318,6 +1324,9 @@
            <font>
             <pointsize>10</pointsize>
            </font>
+          </property>
+          <property name="whatsThis">
+           <string extracomment="Attempts to connect both Azimuth and Elevation USBs to the computer"/>
           </property>
           <property name="text">
            <string>Connect USBs</string>
@@ -6529,6 +6538,11 @@
       <width>1051</width>
       <height>41</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>14</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>Stop all Current Processes</string>
