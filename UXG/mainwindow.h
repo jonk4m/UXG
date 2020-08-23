@@ -245,6 +245,8 @@ private slots:
 
     void on_create_yatg_template_file_pushbutton_clicked();
 
+    void on_stopAllCurrentProcessesButton_clicked();
+
 private:
 
     //bool pre_initialize_uxg_file();

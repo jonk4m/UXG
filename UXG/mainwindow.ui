@@ -177,7 +177,7 @@
           <x>10</x>
           <y>20</y>
           <width>481</width>
-          <height>361</height>
+          <height>365</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_2">
@@ -1390,7 +1390,7 @@
          <x>0</x>
          <y>0</y>
          <width>1051</width>
-         <height>541</height>
+         <height>529</height>
         </rect>
        </property>
        <attribute name="label">
@@ -5643,7 +5643,7 @@
          <x>0</x>
          <y>0</y>
          <width>1051</width>
-         <height>551</height>
+         <height>539</height>
         </rect>
        </property>
        <attribute name="label">
@@ -6504,9 +6504,9 @@
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>650</y>
+      <y>700</y>
       <width>1071</width>
-      <height>281</height>
+      <height>231</height>
      </rect>
     </property>
     <property name="font">
@@ -6521,6 +6521,19 @@
      <bool>true</bool>
     </property>
    </widget>
+   <widget class="QPushButton" name="stopAllCurrentProcessesButton">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>650</y>
+      <width>1051</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Stop all Current Processes</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -6528,7 +6541,7 @@
      <x>0</x>
      <y>0</y>
      <width>1074</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
   </widget>

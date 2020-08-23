@@ -31,16 +31,16 @@ MainWindow::~MainWindow()
                     QMessageBox::Yes |
                     QMessageBox::No) )
         {
-          case QMessageBox::Yes:
+        case QMessageBox::Yes:
             window_fpcs->data_dump_onto_file();
             window_fpcs->close_file(); //close the file (which also flushes the buffer) before exiting
             delete ui;
             break;
-          case QMessageBox::No:
+        case QMessageBox::No:
             window_fpcs->close_file(); //close the file (which also flushes the buffer) before exiting
             delete ui;
-          break;
-          default:
+            break;
+        default:
             //do nothing, the messageBox will close itself upon a selection
             break;
         }
@@ -112,7 +112,7 @@ void MainWindow::on_change_table_directory_push_button_clicked()
 {
     //prompt the user to select a folder
     QString folderName = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
-                "/home", QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+                                                           "/home", QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 
     //check if the user pressed "cancel"
     if(folderName.size() == 0){
@@ -182,17 +182,17 @@ void MainWindow::on_select_existing_table_button_box_helpRequested()
 void MainWindow::on_select_file_push_button_clicked()
 {
     if(window_fpcs->settings.usingExistingTableLocal == true){
-    //prompt the user to select a file from the local system
-    QString filePathAndName = QFileDialog::getOpenFileName(this, tr("Open Table File"),
-               ( QDir::currentPath() + "/fileFolder"), tr("CSV Files (*.csv);;Text Files (*.txt)"));
+        //prompt the user to select a file from the local system
+        QString filePathAndName = QFileDialog::getOpenFileName(this, tr("Open Table File"),
+                                                               ( QDir::currentPath() + "/fileFolder"), tr("CSV Files (*.csv);;Text Files (*.txt)"));
 
-    //check if the user pressed "Cancel"
-    if(filePathAndName.size() == 0){
-        output_to_console("cancelled selecting file");
-        return;
-    }
+        //check if the user pressed "Cancel"
+        if(filePathAndName.size() == 0){
+            output_to_console("cancelled selecting file");
+            return;
+        }
 
-    ui->select_file_line_edit->setText(filePathAndName); //update the EditLine Box so the user can see the filePath they just chose
+        ui->select_file_line_edit->setText(filePathAndName); //update the EditLine Box so the user can see the filePath they just chose
 
     }else{
         output_to_console("Cannot select local file with option to choose file from UXG currently selected");
@@ -325,61 +325,61 @@ void MainWindow::on_how_many_different_phase_or_freq_spin_box_valueChanged(int a
 
 void MainWindow::add_button_in_pattern_table_setup(int row)
 {
-        //Then update the binary pattern QString and display this as well in the binary pattern text window
-        switch(window_fpcs->workingEntry->bitsPerSubpulse){
-        case 1:
-            if(row <= 1){
-                //This line creates a string from the row int converted into binary (hence the 2), and add zero padding if the number of bits does not reach 1 bits (which it always will for 1 bit though)
-                QString rowNumberStringInBinary = QString("%1").arg(row, 1, 2, QChar('0')); //convert the row int to a binary QString
-                window_fpcs->workingEntry->bitPattern.append(rowNumberStringInBinary); //append this new chunk of bits to the bit pattern
-                ui->pattern_binary_pattern_shown_text_editor->setText(window_fpcs->workingEntry->bitPattern); //update the ui with the bit pattern
-            }else{
-                output_to_console("bits per subpulse mismatch with row number being added");
-                qDebug() << "bits per subpulse mismatch with row number being added";
-            }
-            break;
-        case 2:
-            if(row <= 3){
-                //This line creates a string from the row int converted into binary (hence the 2), and add zero padding if the number of bits does not reach 2 bits.
-                QString rowNumberStringInBinary = QString("%1").arg(row, 2, 2, QChar('0')); //convert the row int to a binary QString
-                window_fpcs->workingEntry->bitPattern.append(rowNumberStringInBinary); //append this new chunk of bits to the bit pattern
-                ui->pattern_binary_pattern_shown_text_editor->setText(window_fpcs->workingEntry->bitPattern); //update the ui with the bit pattern
-            }else{
-                output_to_console("bits per subpulse mismatch with row number being added");
-                qDebug() << "bits per subpulse mismatch with row number being added";
-            }
-            break;
-        case 3:
-            if(row <= 7){
-                //This line creates a string from the row int converted into binary (hence the 2), and add zero padding if the number of bits does not reach 3 bits.
-                QString rowNumberStringInBinary = QString("%1").arg(row, 3, 2, QChar('0')); //convert the row int to a binary QString
-                window_fpcs->workingEntry->bitPattern.append(rowNumberStringInBinary); //append this new chunk of bits to the bit pattern
-                ui->pattern_binary_pattern_shown_text_editor->setText(window_fpcs->workingEntry->bitPattern); //update the ui with the bit pattern
-            }else{
-                output_to_console("bits per subpulse mismatch with row number being added");
-                qDebug() << "bits per subpulse mismatch with row number being added";
-            }
-            break;
-        case 4:
-            if(row <= 15){
-                //This line creates a string from the row int converted into binary (hence the 2), and add zero padding if the number of bits does not reach 4 bits.
-                QString rowNumberStringInBinary = QString("%1").arg(row, 4, 2, QChar('0')); //convert the row int to a binary QString
-                window_fpcs->workingEntry->bitPattern.append(rowNumberStringInBinary); //append this new chunk of bits to the bit pattern
-                ui->pattern_binary_pattern_shown_text_editor->setText(window_fpcs->workingEntry->bitPattern); //update the ui with the bit pattern
-            }else{
-                output_to_console("bits per subpulse mismatch with row number being added");
-                qDebug() << "bits per subpulse mismatch with row number being added";
-            }
-            break;
-        default:
-            output_to_console("Bits per subpulse value is invalid");
-            qDebug() << "Bits per subpulse value is invalid";
-            break;
+    //Then update the binary pattern QString and display this as well in the binary pattern text window
+    switch(window_fpcs->workingEntry->bitsPerSubpulse){
+    case 1:
+        if(row <= 1){
+            //This line creates a string from the row int converted into binary (hence the 2), and add zero padding if the number of bits does not reach 1 bits (which it always will for 1 bit though)
+            QString rowNumberStringInBinary = QString("%1").arg(row, 1, 2, QChar('0')); //convert the row int to a binary QString
+            window_fpcs->workingEntry->bitPattern.append(rowNumberStringInBinary); //append this new chunk of bits to the bit pattern
+            ui->pattern_binary_pattern_shown_text_editor->setText(window_fpcs->workingEntry->bitPattern); //update the ui with the bit pattern
+        }else{
+            output_to_console("bits per subpulse mismatch with row number being added");
+            qDebug() << "bits per subpulse mismatch with row number being added";
         }
+        break;
+    case 2:
+        if(row <= 3){
+            //This line creates a string from the row int converted into binary (hence the 2), and add zero padding if the number of bits does not reach 2 bits.
+            QString rowNumberStringInBinary = QString("%1").arg(row, 2, 2, QChar('0')); //convert the row int to a binary QString
+            window_fpcs->workingEntry->bitPattern.append(rowNumberStringInBinary); //append this new chunk of bits to the bit pattern
+            ui->pattern_binary_pattern_shown_text_editor->setText(window_fpcs->workingEntry->bitPattern); //update the ui with the bit pattern
+        }else{
+            output_to_console("bits per subpulse mismatch with row number being added");
+            qDebug() << "bits per subpulse mismatch with row number being added";
+        }
+        break;
+    case 3:
+        if(row <= 7){
+            //This line creates a string from the row int converted into binary (hence the 2), and add zero padding if the number of bits does not reach 3 bits.
+            QString rowNumberStringInBinary = QString("%1").arg(row, 3, 2, QChar('0')); //convert the row int to a binary QString
+            window_fpcs->workingEntry->bitPattern.append(rowNumberStringInBinary); //append this new chunk of bits to the bit pattern
+            ui->pattern_binary_pattern_shown_text_editor->setText(window_fpcs->workingEntry->bitPattern); //update the ui with the bit pattern
+        }else{
+            output_to_console("bits per subpulse mismatch with row number being added");
+            qDebug() << "bits per subpulse mismatch with row number being added";
+        }
+        break;
+    case 4:
+        if(row <= 15){
+            //This line creates a string from the row int converted into binary (hence the 2), and add zero padding if the number of bits does not reach 4 bits.
+            QString rowNumberStringInBinary = QString("%1").arg(row, 4, 2, QChar('0')); //convert the row int to a binary QString
+            window_fpcs->workingEntry->bitPattern.append(rowNumberStringInBinary); //append this new chunk of bits to the bit pattern
+            ui->pattern_binary_pattern_shown_text_editor->setText(window_fpcs->workingEntry->bitPattern); //update the ui with the bit pattern
+        }else{
+            output_to_console("bits per subpulse mismatch with row number being added");
+            qDebug() << "bits per subpulse mismatch with row number being added";
+        }
+        break;
+    default:
+        output_to_console("Bits per subpulse value is invalid");
+        qDebug() << "Bits per subpulse value is invalid";
+        break;
+    }
 
-        window_fpcs->workingEntry->parse_entry_for_plain_text_pattern();
-        ui->pattern_nonBinary_values_shown_text_editor->clear();
-        ui->pattern_nonBinary_values_shown_text_editor->insertPlainText(window_fpcs->workingEntry->plainTextRepresentation);
+    window_fpcs->workingEntry->parse_entry_for_plain_text_pattern();
+    ui->pattern_nonBinary_values_shown_text_editor->clear();
+    ui->pattern_nonBinary_values_shown_text_editor->insertPlainText(window_fpcs->workingEntry->plainTextRepresentation);
 }
 
 void MainWindow::on_phase_freq_pattern_entry_table_cellChanged(int row, int column)
@@ -390,7 +390,7 @@ void MainWindow::on_phase_freq_pattern_entry_table_cellChanged(int row, int colu
         window_fpcs->workingEntry->phases.replace(row, ui->phase_freq_pattern_entry_table->item(row, column)->text().remove("°"));
         QString currentText = ui->phase_freq_pattern_entry_table->item(row,column)->text();
         if(currentText.contains("°")){
-                break; //prevent infinite loop
+            break; //prevent infinite loop
         }
         //add the degree symbol on the end of their number
         currentText = currentText + "°";
@@ -408,7 +408,7 @@ void MainWindow::on_phase_freq_pattern_entry_table_cellChanged(int row, int colu
             enteredValue = "M"; // don't allow the user to put lower-case "m" only upper case "M"
         window_fpcs->workingEntry->freqUnits.replace(row, enteredValue);
         if(enteredValue.contains("hz")){
-                break; //prevent infinite loop
+            break; //prevent infinite loop
         }
         enteredValue = enteredValue + "hz";
         ui->phase_freq_pattern_entry_table->item(row,column)->setText(enteredValue);
@@ -539,15 +539,15 @@ void MainWindow::on_select_local_file_radio_button_clicked()
 
 void MainWindow::on_select_file_from_uxg_radio_button_clicked()
 {
-     window_fpcs->settings.usingExistingTableLocal = false;
-     //Make the drop down menu cover the "select File" button and the text editor next to it
-     ui->select_file_push_button->hide();
-     ui->select_file_line_edit->hide();
-     ui->uxg_fpcs_files_combo_box->show();
-     ui->delete_table_from_uxg_push_button->show();
+    window_fpcs->settings.usingExistingTableLocal = false;
+    //Make the drop down menu cover the "select File" button and the text editor next to it
+    ui->select_file_push_button->hide();
+    ui->select_file_line_edit->hide();
+    ui->uxg_fpcs_files_combo_box->show();
+    ui->delete_table_from_uxg_push_button->show();
 
-     window_ftpManager->waitingForFPCSFileList = true;
-     window_ftpManager->send_SCPI(":MEMory:CATalog:FPCSetup?");
+    window_ftpManager->waitingForFPCSFileList = true;
+    window_ftpManager->send_SCPI(":MEMory:CATalog:FPCSetup?");
 }
 
 void MainWindow::on_cancel_editing_pattern_push_button_clicked()
@@ -573,13 +573,13 @@ void MainWindow::on_power_off_uxg_push_button_clicked()
                 QMessageBox::Cancel,
                 QMessageBox::Cancel ) )
     {
-      case QMessageBox::Yes:
+    case QMessageBox::Yes:
         window_ftpManager->send_SCPI(":SYSTem:PDOWn");
         break;
-      case QMessageBox::Cancel:
+    case QMessageBox::Cancel:
         //do nothing, the messageBox will close itself upon a selection
         break;
-      default:
+    default:
         //do nothing, the messageBox will close itself upon a selection
         break;
     }
@@ -601,16 +601,16 @@ void MainWindow::on_delete_all_files_on_uxg_push_button_clicked()
                 QMessageBox::Cancel,
                 QMessageBox::Cancel ) )
     {
-      case QMessageBox::Yes:
+    case QMessageBox::Yes:
         window_ftpManager->send_SCPI(":MEMory:DELete:ALL");
         break;
-      //case QMessageBox::No:
+        //case QMessageBox::No:
         //do nothing, the messageBox will close itself upon a selection
-      //break;
-      case QMessageBox::Cancel:
+        //break;
+    case QMessageBox::Cancel:
         //do nothing, the messageBox will close itself upon a selection
         break;
-      default:
+    default:
         //do nothing, the messageBox will close itself upon a selection
         break;
     }
@@ -680,7 +680,7 @@ void MainWindow::on_socket_readyRead(){
 
         window_ftpManager->send_SCPI(":OUTPut OFF");
         window_ftpManager->send_SCPI(":OUTPut:MODulation OFF");
-         window_ftpManager->send_SCPI(":STReam:STATe OFF");
+        window_ftpManager->send_SCPI(":STReam:STATe OFF");
         triggerSent=false;
         if(serial->manageAdvancedTest()){
             ui->console_text_editor->appendPlainText("Test Finished");
@@ -696,9 +696,12 @@ void MainWindow::on_socket_readyRead(){
         window_ftpManager->send_SCPI(":STReam:STATe OFF");
         if(fileNumber==pdwFileNames.length()){
             multiplePDWsPlaying=false;
+            window_ftpManager->send_SCPI(":STReam:STATe OFF");
+            window_ftpManager->send_SCPI(":OUTPut OFF");
+            window_ftpManager->send_SCPI(":OUTPut:MODulation OFF");
             on_stopTestPushButton_clicked();
         }else{
-            QString fileName = pdwFileNames.at(fileNumber);
+            QString fileName = "'" + pdwFileNames.at(fileNumber) + "'";
             fileNumber++;
             window_ftpManager->playPDW(fileName, ui->continuousPDWCheckBox->isChecked());
         }
@@ -759,7 +762,7 @@ void MainWindow::on_select_existing_table_button_box_accepted()
         output_to_console("file set to current table");
         qDebug() << "file set to current table";
         window_ftpManager->downloadState = window_ftpManager->exportingTable;
-         //export the fpcs file as a csv into the UXG's BIN directory
+        //export the fpcs file as a csv into the UXG's BIN directory
         scpiCommand = ":MEMory:EXPort:ASCii:FPCSetup ";
         scpiCommand.append('"');
         scpiCommand.append(window_fpcs->settings.tableName + ".csv");
@@ -1106,7 +1109,7 @@ void MainWindow::on_select_yatg_file_push_button_clicked()
 
     //prompt the user to select a file from the local system
     QString filePath = QFileDialog::getOpenFileName(this, tr("Open File"),
-                "/fileFolder/uploads", tr("CSV Files (*.csv);;Text Files (*.txt)"));
+                                                    "/fileFolder/uploads", tr("CSV Files (*.csv);;Text Files (*.txt)"));
 
     //check if the user selected "cancel"
     if(filePath.size() == 0){
@@ -1130,7 +1133,7 @@ void MainWindow::on_select_multiple_files_by_folder_push_button_clicked()
 
     //prompt the user to select a folder
     QString folderName = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
-                "/fileFolder/uploads", QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+                                                           "/fileFolder/uploads", QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 
     //check if the user selected "cancel"
     if(folderName.size() == 0){
@@ -1210,9 +1213,15 @@ void MainWindow::on_playPDWPushButton_clicked()
 
 void MainWindow::on_stopPDWPushButton_clicked()
 {
-    window_ftpManager->send_SCPI(":STReam:STATe OFF");
-    window_ftpManager->send_SCPI(":OUTPut OFF");
-    window_ftpManager->send_SCPI(":OUTPut:MODulation OFF");
+    if(multiplePDWsPlaying){
+        window_ftpManager->send_SCPI(":STReam:STATe OFF");
+        window_ftpManager->send_SCPI(":STReam:STATe ON");
+    }else{
+        window_ftpManager->send_SCPI(":STReam:STATe OFF");
+        window_ftpManager->send_SCPI(":OUTPut OFF");
+        window_ftpManager->send_SCPI(":OUTPut:MODulation OFF");
+    }
+
 }
 
 /*when the elevation push button is clicked, it takes the information from the
@@ -1920,7 +1929,7 @@ void MainWindow::UdpRead(){
         if(!(readData=="finished")){
             QList<QString> data = readData.split(',');
             serial->cantKeepUp = serial->manageDroneTest(data.at(0).toInt(),data.at(1).toInt(),
-                                                 data.at(2).toInt(),data.at(3).toInt(),serial->refreshRate);
+                                                         data.at(2).toInt(),data.at(3).toInt(),serial->refreshRate);
             if(serial->cantKeepUp){
                 QMessageBox *msgBox = new QMessageBox(this);
                 msgBox->setAttribute(Qt::WA_DeleteOnClose);
@@ -1995,15 +2004,15 @@ void MainWindow::on_usingRotorCheckBox_toggled(bool checked)
 void MainWindow::on_startPositionTestPushButton_clicked()
 {
     serial->advancedTestStarted=true;
-        if(ui->recommendedSpeedRadioButton->isChecked()){
-            mainTimer->stop();
-            //simpleTestStarted=true;
-            //tcpSocket->UXGSetup();
-            serial->write("WG24;",true);
-            serial->write("WG24;",false);
-        }else{
-            startPositionTest();
-        }
+    if(ui->recommendedSpeedRadioButton->isChecked()){
+        mainTimer->stop();
+        //simpleTestStarted=true;
+        //tcpSocket->UXGSetup();
+        serial->write("WG24;",true);
+        serial->write("WG24;",false);
+    }else{
+        startPositionTest();
+    }
 }
 
 void MainWindow::on_openFilePushButton_clicked()
@@ -2023,7 +2032,7 @@ void MainWindow::on_play_multiple_pdws_push_button_clicked()
     output_to_console("Please select file containing a list of names of pdw files to be played in order on the UXG.");
     //prompt the user to select a file from the local system
     QString filePath = QFileDialog::getOpenFileName(this, tr("Open File"),
-                "/fileFolder", tr("CSV Files (*.csv);;Text Files (*.txt)"));
+                                                    "/fileFolder", tr("Text Files (*.txt);;CSV Files (*.csv)"));
 
     //check if the user selected "cancel"
     if(filePath.size() == 0){
@@ -2063,27 +2072,40 @@ void MainWindow::on_play_multiple_pdws_push_button_clicked()
     QString line;
     do{
         line = streamerForBatchFile.readLine();
-        pdwFileNames.append(line);
+        if(line!=""){
+            pdwFileNames.append(line);
+        }
     }while(!line.isNull());
-    window_ftpManager->playPDW(pdwFileNames.at(0),ui->continuousPDWCheckBox->isChecked());
-    multiplePDWsPlaying=true;
+    QString fileName = "'" + pdwFileNames.at(0) + "'";
+    window_ftpManager->playPDW(fileName,ui->continuousPDWCheckBox->isChecked());
+    if(pdwFileNames.isEmpty()){
+        output_to_console("File was Empty");
+    }else{
+        multiplePDWsPlaying=true;
+    }
 
-//    QString lineRead = streamerForBatchFile.readLine().remove("\n");
-//    QString filename = "";
-//    while(lineRead.size() > 0){
-//        filename = "'" + lineRead + "'";
-//        output_to_console("Playing: " + filename);
-//        window_ftpManager->playPDW(filename, false); //false so first file won't play continuously
 
-//        lineRead = streamerForBatchFile.readLine().remove("\n");
+    //    QString lineRead = streamerForBatchFile.readLine().remove("\n");
+    //    QString filename = "";
+    //    while(lineRead.size() > 0){
+    //        filename = "'" + lineRead + "'";
+    //        output_to_console("Playing: " + filename);
+    //        window_ftpManager->playPDW(filename, false); //false so first file won't play continuously
 
-//        //TODO figure out how to get the STOP playing pdw's button to work for this
-//        //TODO figure out how this will know when each file is finished to then start the next one
-//    }
+    //        lineRead = streamerForBatchFile.readLine().remove("\n");
+
+    //        //TODO figure out how to get the STOP playing pdw's button to work for this
+    //        //TODO figure out how this will know when each file is finished to then start the next one
+    //    }
 
 }
 
 void MainWindow::on_create_yatg_template_file_pushbutton_clicked()
 {
 
+}
+
+void MainWindow::on_stopAllCurrentProcessesButton_clicked()
+{
+    on_stopTestPushButton_clicked();
 }
