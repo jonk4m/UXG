@@ -46,7 +46,7 @@ MainWindow::~MainWindow()
         }
     }
     udpSocket->closeUdpSocket();
-        serial->closeSerialPorts();
+    serial->closeSerialPorts();
 }
 
 void MainWindow::setup(){
@@ -689,6 +689,23 @@ void MainWindow::on_socket_readyRead(){
 
         }
     }
+
+    if(multiplePDWsPlaying&& allRead== "ARMED\n"){
+        window_ftpManager->send_SCPI(":OUTPut OFF");
+        window_ftpManager->send_SCPI(":OUTPut:MODulation OFF");
+        window_ftpManager->send_SCPI(":STReam:STATe OFF");
+        if(fileNumber==pdwFileNames.length()){
+            multiplePDWsPlaying=false;
+            on_stopTestPushButton_clicked();
+        }else{
+            QString fileName = pdwFileNames.at(fileNumber);
+            fileNumber++;
+            window_ftpManager->playPDW(fileName, ui->continuousPDWCheckBox->isChecked());
+        }
+
+
+
+    }
 }
 
 void MainWindow::on_uxg_fpcs_files_combo_box_currentTextChanged(const QString &arg1)
@@ -1278,6 +1295,9 @@ void MainWindow::updatePositions(){
     if(!serial->stoppingMotion){
         isHeadingEqualtoPosition = serial->headingEqualsPosition();
     }
+    if(multiplePDWsPlaying){
+        window_ftpManager->send_SCPI(":SOURce:STReam:INFormation:SSTate?");
+    }
 
     if((serial->advancedTestStarted||serial->simpleTestStarted)){
         if(triggerSent){
@@ -1660,6 +1680,7 @@ void MainWindow::on_startDroneTestPushButton_clicked()
 void MainWindow::on_stopTestPushButton_clicked()
 {
     stopMotion();
+    multiplePDWsPlaying=false;
     serial->simpleTestStarted = false;
     serial->advancedTestStarted = false;
     serial->droneTestStarted = false;
@@ -2038,18 +2059,27 @@ void MainWindow::on_play_multiple_pdws_push_button_clicked()
     streamerForBatchFile.seek(0); //make sure the TextStream starts at the beginning of the file
 
     //loop through the plays
-    QString lineRead = streamerForBatchFile.readLine().remove("\n");
-    QString filename = "";
-    while(lineRead.size() > 0){
-        filename = "'" + lineRead + "'";
-        output_to_console("Playing: " + filename);
-        window_ftpManager->playPDW(filename, false); //false so first file won't play continuously
 
-        lineRead = streamerForBatchFile.readLine().remove("\n");
+    QString line;
+    do{
+        line = streamerForBatchFile.readLine();
+        pdwFileNames.append(line);
+    }while(!line.isNull());
+    fileNumber=0;
+    multiplePDWsPlaying=true;
 
-        //TODO figure out how to get the STOP playing pdw's button to work for this
-        //TODO figure out how this will know when each file is finished to then start the next one
-    }
+//    QString lineRead = streamerForBatchFile.readLine().remove("\n");
+//    QString filename = "";
+//    while(lineRead.size() > 0){
+//        filename = "'" + lineRead + "'";
+//        output_to_console("Playing: " + filename);
+//        window_ftpManager->playPDW(filename, false); //false so first file won't play continuously
+
+//        lineRead = streamerForBatchFile.readLine().remove("\n");
+
+//        //TODO figure out how to get the STOP playing pdw's button to work for this
+//        //TODO figure out how this will know when each file is finished to then start the next one
+//    }
 
 }
 

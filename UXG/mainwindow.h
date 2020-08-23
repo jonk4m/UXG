@@ -45,6 +45,8 @@ public:
     void setup();
      //serial fields
      //test fields
+     QList<QString> pdwFileNames;
+     bool multiplePDWsPlaying=false;
      QList<QString> testPositions;
      bool positionTestHasBeenOpened=false;
      bool triggerSent=false;
