@@ -29,7 +29,7 @@
      </font>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="uxg_rotor_tab">
      <attribute name="title">
@@ -5718,15 +5718,15 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="page">
        <property name="geometry">
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>100</width>
-         <height>30</height>
+         <width>1051</width>
+         <height>539</height>
         </rect>
        </property>
        <attribute name="label">
@@ -6082,6 +6082,28 @@
            </property>
            <property name="text">
             <string>Use Current Rotor Speed</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QGroupBox" name="groupBox_6">
+        <property name="geometry">
+         <rect>
+          <x>690</x>
+          <y>130</y>
+          <width>361</width>
+          <height>75</height>
+         </rect>
+        </property>
+        <property name="title">
+         <string>Help</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <widget class="QPushButton" name="testOptionsHelpButton">
+           <property name="text">
+            <string>Help</string>
            </property>
           </widget>
          </item>

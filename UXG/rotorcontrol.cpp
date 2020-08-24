@@ -523,6 +523,7 @@ void RotorControl::startSimpleTest(double minAzimuth, double maxAzimuth, double 
     moveRotor(min, false,true);
     min = QString::number(this->minElevation);
     moveRotor(min, true,true);
+    emit userMessage("Starting Simple Test");
 }
 
 QString RotorControl::fixHeadings(QString moveValue){
