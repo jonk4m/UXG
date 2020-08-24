@@ -248,7 +248,7 @@ void Fpcs::import_entries_from_existing_file(){
         tempEntry->codingType = rowList.at(2);
         tempEntry->length = rowList.at(3).toInt();
         tempEntry->bitsPerSubpulse = rowList.at(4).toInt();
-        tempEntry->numOfPhasesOrFreqs = 2^(tempEntry->bitsPerSubpulse);
+        tempEntry->numOfPhasesOrFreqs = qPow(2,tempEntry->bitsPerSubpulse);
         if(readHeader.indexOf("Hex Pattern",Qt::CaseInsensitive) == -1){
             emit userMessage("Error, hex pattern not found in file. Index is : " +QString::number(readHeader.indexOf("Hex Pattern",Qt::CaseInsensitive)));
             qDebug() << "Error, hex pattern not found in file. Index is : " << readHeader.indexOf("Hex Pattern",Qt::CaseInsensitive);
