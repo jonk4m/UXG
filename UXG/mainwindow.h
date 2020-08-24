@@ -65,7 +65,7 @@ public:
      void startPositionTest();
      void startSimpleTest();
      //table functions
-     QString getFileName();
+     QString getFileName(bool isTestOptionsLineEdit);
      void resetTable(int azResolution, int elResolution);
      bool leftMouseButtonReleaseEvent(QMouseEvent *event);
      bool eventFilter(QObject *object, QEvent *event);
@@ -231,10 +231,6 @@ private slots:
 
     void on_stopPDWPushButton_clicked();
 
-    void on_openTestLineEdit_textChanged(const QString &arg1);
-
-    void on_testFileLineEdit_textChanged(const QString &arg1);
-
     void on_usingRotorCheckBox_toggled(bool checked);
 
     void on_startPositionTestPushButton_clicked();
@@ -250,6 +246,8 @@ private slots:
     void on_elevationModePushButton_clicked();
 
     void on_notElevationModePushButton_clicked();
+
+    void on_testOptionsHelpButton_clicked();
 
 private:
 

@@ -78,6 +78,7 @@ bool RotorControl::findSerialPorts(){
     el->setFlowControl(QSerialPort::NoFlowControl);
     el->open(QIODevice::ReadWrite);
     getMaxMinAndRampValues(true);
+    emit userMessage("Serial Ports Found");
     return true;
 }
 

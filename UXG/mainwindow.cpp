@@ -1524,8 +1524,14 @@ void MainWindow::startSimpleTest(){
                             ,elevationValues.at(1).toDouble(),resolution.at(0).toDouble(),resolution.at(1).toDouble());
 }
 
-QString MainWindow::getFileName(){
-    QString fileName = ui->openTestLineEdit->text();
+QString MainWindow::getFileName(bool isTestOptionsLineEdit){
+    QString fileName;
+    if(isTestOptionsLineEdit){
+        fileName = ui->openTestLineEdit->text();
+    }else{
+        fileName=ui->testFileLineEdit->text();
+    }
+
     QString file;
     if(fileName.startsWith("C:")){
         file = fileName;
@@ -1546,11 +1552,15 @@ void MainWindow::on_OpenTestPushButton_clicked()
 {
     QString filePath = QFileDialog::getOpenFileName(this, tr("Open File"),
                                                     "/fileFolder/downloads", tr("Text Files (*.txt)"));
+    if(filePath.size() == 0){
+        output_to_console("cancelled selecting folder");
+        return;
+    }
     ui->openTestLineEdit->setText(filePath);
 }
 
 void MainWindow::startPositionTest(){
-    QFile file(getFileName());
+    QFile file(getFileName(true));
 
     if(file.open(QIODevice::ReadOnly | QIODevice::Text)){
         QTextStream stream(&file);
@@ -1616,7 +1626,7 @@ void MainWindow::startPositionTest(){
 
 void MainWindow::on_openTestFilePushButton_clicked()
 {
-    QFile file(getFileName());
+    QFile file(getFileName(false));
 
     if(file.open(QIODevice::ReadOnly | QIODevice::Text)){
         QTextStream stream(&file);
@@ -1664,8 +1674,8 @@ void MainWindow::on_openTestFilePushButton_clicked()
 
 void MainWindow::on_createTextFilePushButton_clicked()
 {
-    QFile file(getFileName());
-
+    QFile file(getFileName(false));
+    ui->openTestLineEdit->setText(ui->testFileLineEdit->text());
     if(file.open(QIODevice::WriteOnly)){
         QTextStream stream(&file);
         stream <<"advanced\r\n";
@@ -1856,9 +1866,14 @@ bool MainWindow::leftMouseButtonReleaseEvent(QMouseEvent*){
 
         for(int i=0; i<list.length() ;i++){
             if(list.at(i)->background().color()==QColor(243,112,33)){
+
                 tableWidgetItemList.removeOne(list.at(i));
-                QBrush *brush = new QBrush();
-                list.at(i)->setBackground(*brush);
+                if(list.at(i)==ui->testCreatorTableWidget->item(90/tableElResolution,90/tableAzResolution)){
+                    list.at(i)->setBackground(Qt::black);
+                }else{
+                    QBrush *brush = new QBrush();
+                    list.at(i)->setBackground(*brush);
+                }
                 list.at(i)->setText("");
 
             }
@@ -1976,16 +1991,7 @@ void MainWindow::on_turnStreamOffPushButton_clicked()
 
 }
 
-void MainWindow::on_openTestLineEdit_textChanged(const QString &arg1)
-{
-    ui->testFileLineEdit->setText(arg1);
 
-}
-
-void MainWindow::on_testFileLineEdit_textChanged(const QString &arg1)
-{
-    ui->openTestLineEdit->setText(arg1);
-}
 
 void MainWindow::on_usingRotorCheckBox_toggled(bool checked)
 {
@@ -2042,6 +2048,10 @@ void MainWindow::on_openFilePushButton_clicked()
 {
     QString filePath = QFileDialog::getOpenFileName(this, tr("Open File"),
                                                     "/fileFolder/downloads", tr("Text Files (*.txt)"));
+    if(filePath.size() == 0){
+        output_to_console("cancelled selecting folder");
+        return;
+    }
     ui->openTestLineEdit->setText(filePath);
 }
 
@@ -2192,4 +2202,15 @@ void MainWindow::on_notElevationModePushButton_clicked()
     ui->elevationLCD->display(0);
     serial->setElevationMode(false);
     output_to_console("Set to Standard Mode");
+}
+
+void MainWindow::on_testOptionsHelpButton_clicked()
+{
+    QMessageBox *msgBox = new QMessageBox(this);
+    msgBox->setAttribute(Qt::WA_DeleteOnClose);
+    msgBox->setStandardButtons(QMessageBox::Ok);
+
+    //const QString fileName = QCoreApplication::applicationDirPath() + "/images";
+    msgBox->setIconPixmap(QPixmap("C:/Users/abms6/Desktop/Capture"));
+    msgBox->open( this, SLOT(msgBoxClosed(QAbstractButton*)));
 }
