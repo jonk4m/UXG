@@ -270,13 +270,6 @@ void FtpManager::UXGSetup(){
         send_SCPI(":OUTPut OFF");
         send_SCPI(":STReam:STATe OFF");
         send_SCPI(":STReam:SOURce FILE");
-
-        send_SCPI("*OPC?");
-        setup = UXGSetup::Phase3;
-
-        break;
-    }
-    case UXGSetup::Phase3 :{
         send_SCPI(":STReam:TRIGger:PLAY:SOURce BUS");
         send_SCPI(":POWer:ATTenuation:BYPass 0");
         send_SCPI(":POWer 0");
@@ -286,6 +279,7 @@ void FtpManager::UXGSetup(){
         send_SCPI("*OPC?");
         setup = UXGSetup::Phase1;
         UXGSetupFinished=true;
+
         break;
     }
 

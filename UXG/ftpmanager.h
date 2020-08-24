@@ -42,7 +42,7 @@ public:
         settingCurrentTable = 2
     };
 
-    enum UXGSetup {Phase1, Phase2, Phase3};
+    enum UXGSetup {Phase1, Phase2};
         UXGSetup setup = Phase1;
         void UXGSetup();
         bool UXGSetupFinished=true;
