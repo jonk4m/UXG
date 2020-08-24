@@ -256,6 +256,7 @@ void FtpManager::playPDW(QString fileName, bool isContinuous){
     }else{
         send_SCPI(":STReam:TRIGger:PLAY:FILE:TYPE SINGle");
     }
+    emit userMessage("name ftp: " + fileName);
     send_SCPI(":STReam:SOURce:FILE " + fileName);
     send_SCPI(":OUTPut ON");
     send_SCPI(":OUTPut:MODulation ON");

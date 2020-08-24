@@ -664,18 +664,20 @@ void RotorControl::setHeadingsToCurrentPosition(){
 }
 
 //returns true if the rotor cant keep up, otherwise returns false
-bool RotorControl::manageDroneTest(int az, int azSpeed, int el, int elSpeed, double refreshRate){
+bool RotorControl::manageDroneTest(double az, double el, double refreshRate){
     bool canKeepUp= true;
-    double azPosition = az + azSpeed*refreshRate;
-    double elPosition = el + elSpeed*refreshRate;
+    double azSpeed = abs((lastDroneAzPosition -az)*refreshRate);
+    double elSpeed = abs((lastDroneElPosition -el)*refreshRate);
     //rotor can move about 5.5 degrees/second at max speed
     //so if position plus speed (without having to take refresh rate into account)
     //is greater than 5.5 return true, saying that the rotor can't keep up.
     if(azSpeed>5.5||elSpeed>5.5){
         canKeepUp=false;
     }
-    moveRotor(QString::number(azPosition), false, true);
-    moveRotor(QString::number(elPosition), true, true);
+    moveRotor(QString::number(az+180), false, true);
+    moveRotor(QString::number(el+180), true, true);
+    lastDroneAzPosition = az;
+    lastDroneElPosition = el;
     if(canKeepUp){
         return false;
     }else{

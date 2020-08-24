@@ -249,6 +249,8 @@ private slots:
 
     void on_testOptionsHelpButton_clicked();
 
+    void droneTestTimerTimeout();
+
 private:
 
     //bool pre_initialize_uxg_file();
@@ -261,6 +263,8 @@ private:
     QTimer *mainTimer;
 
     QTimer *stopMotionTimer;
+
+    QTimer *droneTestTimer;
 
 };
 #endif // MAINWINDOW_H

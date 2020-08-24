@@ -12,19 +12,15 @@ class UdpSocket: public QObject
 Q_OBJECT
 public:
     bool isBound = false;
-    QHostAddress UXGIP;
-    quint16 UXGPort;
     QHostAddress NMEAIP;
     quint16 NMEAPort;
 
-
-    enum possibleRecipients {UXG, NMEA};
     QUdpSocket *socket;
     UdpSocket(QMainWindow *window);
     void closeUdpSocket();
-    void writeData(QString data, possibleRecipients recipient);
+    void writeData(QString data);
     QString readData();
-    void setIPAddresses(QHostAddress address, int port, possibleRecipients recipient);
+    void setIPAddress(QHostAddress address, int port);
     QList<QString>* getIPAddressAndPort();
 };
 

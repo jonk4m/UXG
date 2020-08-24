@@ -20,7 +20,7 @@
       <x>10</x>
       <y>0</y>
       <width>1061</width>
-      <height>641</height>
+      <height>661</height>
      </rect>
     </property>
     <property name="font">
@@ -29,7 +29,7 @@
      </font>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="uxg_rotor_tab">
      <attribute name="title">
@@ -1494,7 +1494,7 @@
         <widget class="QLineEdit" name="current_table_line_edit">
          <property name="geometry">
           <rect>
-           <x>110</x>
+           <x>150</x>
            <y>20</y>
            <width>281</width>
            <height>20</height>
@@ -1509,7 +1509,7 @@
           <rect>
            <x>20</x>
            <y>20</y>
-           <width>91</width>
+           <width>121</width>
            <height>16</height>
           </rect>
          </property>
@@ -1536,7 +1536,7 @@
         <widget class="QCheckBox" name="binary_data_view_push_button">
          <property name="geometry">
           <rect>
-           <x>410</x>
+           <x>450</x>
            <y>20</y>
            <width>171</width>
            <height>17</height>
@@ -4945,8 +4945,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>100</width>
-         <height>30</height>
+         <width>98</width>
+         <height>28</height>
         </rect>
        </property>
        <attribute name="label">
@@ -5996,23 +5996,6 @@
           <string>Drone Test</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_8">
-          <item row="0" column="0" colspan="2">
-           <widget class="QPushButton" name="startDroneTestPushButton">
-            <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Starts a drone test that takes in UDP azimuth and elevation values to move the rotor&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-            </property>
-            <property name="text">
-             <string>Start Drone Test</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_41">
-            <property name="text">
-             <string>Refresh Rate</string>
-            </property>
-           </widget>
-          </item>
           <item row="1" column="1">
            <widget class="QComboBox" name="refreshRateComboBox">
             <property name="toolTip">
@@ -6025,10 +6008,35 @@
             </item>
             <item>
              <property name="text">
-              <string>0.1 Hz</string>
+              <string>5 Hz</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>10 Hz</string>
              </property>
             </item>
            </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_41">
+            <property name="text">
+             <string>Refresh Rate</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" colspan="2">
+           <widget class="QPushButton" name="startDroneTestPushButton">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Starts a drone test that takes in UDP azimuth and elevation values to move the rotor&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>Start Drone Test</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" colspan="2">
+           <widget class="QLineEdit" name="UDPIPPortLineEdit"/>
           </item>
          </layout>
         </widget>
@@ -6115,8 +6123,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>1051</width>
-         <height>539</height>
+         <width>98</width>
+         <height>28</height>
         </rect>
        </property>
        <attribute name="label">
@@ -6128,7 +6136,7 @@
           <x>0</x>
           <y>120</y>
           <width>1051</width>
-          <height>431</height>
+          <height>421</height>
          </rect>
         </property>
         <property name="cursor" stdset="0">
@@ -6681,9 +6689,9 @@
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>700</y>
+      <y>730</y>
       <width>1071</width>
-      <height>231</height>
+      <height>201</height>
      </rect>
     </property>
     <property name="font">
@@ -6702,7 +6710,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>650</y>
+      <y>680</y>
       <width>1051</width>
       <height>41</height>
      </rect>

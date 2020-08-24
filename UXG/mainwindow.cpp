@@ -59,6 +59,8 @@ void MainWindow::setup(){
     mainTimer->start(200);//the timer will go off every 200ms
     stopMotionTimer = new QTimer(this);
     connect(stopMotionTimer, SIGNAL(timeout()), this, SLOT(stopMotion()));
+    droneTestTimer = new QTimer(this);
+    connect(droneTestTimer, SIGNAL(timeout()), this, SLOT(droneTestTimerTimeout()));
 
     ui->testCreatorTableWidget->viewport()->installEventFilter(this);
     ui->testCreatorTableWidget->installEventFilter(this);
@@ -1232,8 +1234,11 @@ void MainWindow::on_upload_yatg_file_to_uxg_push_button_clicked()
 
 void MainWindow::on_playPDWPushButton_clicked()
 {
-    QString filename = "'" + ui->pdwNameLineEdit->text() + "'";
-    window_ftpManager->playPDW(filename, ui->continuousPDWCheckBox->isChecked());
+    QString namer = ui->pdwNameLineEdit->text();
+    output_to_console("pdwNameLineEdit : " + namer);
+    QString filenamer = "'" + namer.remove(".csv",Qt::CaseInsensitive).remove(".txt",Qt::CaseInsensitive) + "'";
+    output_to_console("filename : " + filenamer);
+    window_ftpManager->playPDW(filenamer, ui->continuousPDWCheckBox->isChecked());
     output_to_console("playing PDW");
 }
 
@@ -1724,6 +1729,10 @@ void MainWindow::on_startDroneTestPushButton_clicked()
         serial->write("WG27;",true);
         serial->write("WG27;",false);
     }
+    QList<QString> IPAddressAndPort = ui->UDPIPPortLineEdit->text().split(',');
+    udpSocket->setIPAddress(QHostAddress(IPAddressAndPort.at(0)),IPAddressAndPort.at(1).toInt());
+    udpSocket->writeData("data");
+    droneTestTimer->start((1/comboBoxText.toDouble())*1000);
 }
 
 //stops any test the is currently running
@@ -1747,6 +1756,9 @@ void MainWindow::on_stopTestPushButton_clicked()
         window_ftpManager->send_SCPI(":OUTPut:MODulation OFF");
         window_ftpManager->send_SCPI(":STReam:STATe OFF");
     }
+    serial->lastDroneAzPosition=0;
+    serial->lastDroneElPosition=0;
+    droneTestTimer->stop();
 }
 
 //table functions
@@ -1982,8 +1994,8 @@ void MainWindow::UdpRead(){
     if(serial->droneTestStarted){
         if(!(readData=="finished")){
             QList<QString> data = readData.split(',');
-            serial->cantKeepUp = serial->manageDroneTest(data.at(0).toInt(),data.at(1).toInt(),
-                                                         data.at(2).toInt(),data.at(3).toInt(),serial->refreshRate);
+            serial->cantKeepUp = serial->manageDroneTest(data.at(0).toDouble(),data.at(1).toDouble()
+                                                         ,serial->refreshRate);
             if(serial->cantKeepUp){
                 QMessageBox *msgBox = new QMessageBox(this);
                 msgBox->setAttribute(Qt::WA_DeleteOnClose);
@@ -2187,6 +2199,12 @@ void MainWindow::on_create_yatg_template_file_pushbutton_clicked()
 void MainWindow::on_stopAllCurrentProcessesButton_clicked()
 {
     on_stopTestPushButton_clicked();
+    QGuiApplication::restoreOverrideCursor();
+    QGuiApplication::restoreOverrideCursor();
+    QGuiApplication::restoreOverrideCursor();
+    QGuiApplication::restoreOverrideCursor();
+    QGuiApplication::restoreOverrideCursor();
+    QGuiApplication::restoreOverrideCursor();
 }
 
 void MainWindow::on_elevationModePushButton_clicked()
@@ -2211,7 +2229,11 @@ void MainWindow::on_testOptionsHelpButton_clicked()
     msgBox->setAttribute(Qt::WA_DeleteOnClose);
     msgBox->setStandardButtons(QMessageBox::Ok);
 
-    //const QString fileName = QCoreApplication::applicationDirPath() + "/images";
-    msgBox->setIconPixmap(QPixmap("C:/Users/abms6/Desktop/Capture"));
+    const QString fileName = QCoreApplication::applicationDirPath() + "/Capture";
+    msgBox->setIconPixmap(QPixmap(fileName));
     msgBox->open( this, SLOT(msgBoxClosed(QAbstractButton*)));
+}
+
+void MainWindow::droneTestTimerTimeout(){
+    udpSocket->writeData("data");
 }

@@ -17,13 +17,13 @@ QList<QString>* UdpSocket::getIPAddressAndPort(){
         }
         else if (ethernetFound&&address.protocol() == QAbstractSocket::IPv4Protocol && address != QHostAddress(QHostAddress::LocalHost)) {
 
-            socket->bind(QHostAddress(address.toString()),100);
+            socket->bind(QHostAddress(address.toString()),5005);
             isBound=true;
             qDebug() << address.toString();
         }
     }
     QString IP = socket->localAddress().toString();
-    QString port = QString::number(100);
+    QString port = QString::number(5005);
     QList<QString> *list = new QList<QString>();
     list->append(IP);
     list->append(port);
@@ -34,24 +34,11 @@ void UdpSocket::closeUdpSocket(){
     socket->close();
 }
 
-void UdpSocket::writeData(QString data, possibleRecipients recipient){
-    switch(recipient){
-    case(UXG):{
-        QByteArray writeData = data.toUtf8();
-        writeData+="\n";
-        socket->writeDatagram(writeData,UXGIP,UXGPort);
-        break;
-    }
-    case(NMEA):{
+void UdpSocket::writeData(QString data){
         QByteArray writeData = data.toUtf8();
         writeData+="\n";
         socket->writeDatagram(writeData,NMEAIP,NMEAPort);
-        break;
-    }
-
-
-    }
-}
+ }
 
 QString UdpSocket::readData(){
     QByteArray buffer;
@@ -63,20 +50,9 @@ QString UdpSocket::readData(){
     return QString(buffer);
 }
 
-void UdpSocket::setIPAddresses(QHostAddress address, int port, possibleRecipients recipient){
+void UdpSocket::setIPAddress(QHostAddress address, int port){
 
-    switch(recipient){
-    case(UXG):{
-        UXGIP = address;
-        UXGPort=port;
-        break;
-    }
-    case(NMEA):{
         NMEAIP = address;
         NMEAPort=port;
-        break;
-    }
-
-    }
 
 }

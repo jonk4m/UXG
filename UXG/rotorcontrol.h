@@ -38,6 +38,8 @@ public:
     bool azimuthHeadingCreated = false;
     bool azimuthGoingUp=true;
     bool lastAzimuthRun=false;
+    double lastDroneAzPosition=0;
+    double lastDroneElPosition=0;
     QByteArray elLastCommand;
     QByteArray azLastCommand;
     QList<QString> positionList;
@@ -94,7 +96,7 @@ public:
 
     void setHeadingsToCurrentPosition();
 
-    bool manageDroneTest(int az, int azSpeed, int el, int elSpeed, double refreshRate);
+    bool manageDroneTest(double az, double el, double refreshRate);
 
     QString fixHeadings(QString moveValue);
 
