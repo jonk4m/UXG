@@ -57,38 +57,22 @@ QGuiApplication::restoreOverrideCursor();
 CAN I USE THE FREQ/PHASE TABLE WITH PURE STREAMING AKA NOT FILE STREAMING 
 
 
-MOST IMPORTANT TODO ----------------------------------------------------------------------------------------------------------------------------------------
-Get default table name to increment everytime you press ok, and save the current number in a txt file so if the program is opened it will know the last one. 
--Fix the db to dbm shit 
--Fix the TOA not adding the 270ns shit 
-Add josh's instructions on deploying an executable to your qt notes (he emailed you alion email the instructions) 
--Incorporate the increment function Chris Mentioned
-Chris wants calculation where you take how long it takes for the uxg file to play, then multiple it by the number of positions 
-Fix the fpcs table shit to be really clean code.
-Documentation 
-Cleanup git repo before handing it over
-In the startup set the deliminator to be comma, also go through SCPI notes to see what you forgot to put in the startup routine
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
+ME		***fix the double rounding shit for attenuation and phase
+ME		***Help buttons and ToolTips
+ME		***DB to DBM shit
 ME 		make it so they can open a textfile with the bit patterns OR copy and paste a given pattern into a text editor  
-ME		fix the double rounding shit for attenuation and phase 
+ME		cleanup output_to_console's everywhere
+ME		Cleanup git repo before handing it over
+ME		Add josh's instructions on deploying an executable to your qt notes (he emailed you alion email the instructions) 
+ME		In the startup set the deliminator to be comma, also go through SCPI notes to see what you forgot to put in the startup routine
 
-during presentation mention chris's time calculation idea, and copy paste bit pattern option although it is possible to do it by just changing the hex value in the file before uploading
+
+during presentation mention future improvements: 
+chris's time calculation idea
+chris's increment button idea (say it's partially done)
+Mike's copy paste bit pattern option although it is possible to do it by just changing the hex value in the file before uploading
+
 
 JOSH 	add help buttons with popup windows to the main window Qt::WindowContextHelpButtonHint  
 JOSH	IP on startup is on a textfile  
@@ -98,7 +82,10 @@ BOTH 	document partially
 
 
 
-talk to mike about whether or not they've sent out an email, how many people will come (for setting up chairs), we will turn the code in on friday, what's a cool signal we can create for the demo
+talk to mike about whether or not they've sent out an email, 
+how many people will come (for setting up chairs), 
+we will turn the code in on friday, 
+what's a cool signal we can create for the demo
 
 
 include on the flash drive we bring in tomorrow:
