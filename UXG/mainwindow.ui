@@ -466,7 +466,7 @@
         <rect>
          <x>10</x>
          <y>290</y>
-         <width>491</width>
+         <width>271</width>
          <height>291</height>
         </rect>
        </property>
@@ -1180,8 +1180,8 @@
        <widget class="QRadioButton" name="elevationMotorSpeedRadioButton">
         <property name="geometry">
          <rect>
-          <x>270</x>
-          <y>90</y>
+          <x>40</x>
+          <y>260</y>
           <width>101</width>
           <height>20</height>
          </rect>
@@ -1204,8 +1204,8 @@
        <widget class="QRadioButton" name="azimuthMotorSpeedRadioButton">
         <property name="geometry">
          <rect>
-          <x>270</x>
-          <y>140</y>
+          <x>140</x>
+          <y>260</y>
           <width>91</width>
           <height>20</height>
          </rect>
@@ -1459,7 +1459,7 @@
          <x>0</x>
          <y>0</y>
          <width>1051</width>
-         <height>541</height>
+         <height>529</height>
         </rect>
        </property>
        <attribute name="label">
@@ -6080,7 +6080,7 @@
          <x>0</x>
          <y>0</y>
          <width>1051</width>
-         <height>551</height>
+         <height>539</height>
         </rect>
        </property>
        <attribute name="label">
@@ -6687,7 +6687,7 @@
      <x>0</x>
      <y>0</y>
      <width>1074</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
   </widget>
