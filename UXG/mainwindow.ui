@@ -1354,7 +1354,7 @@
          <x>290</x>
          <y>130</y>
          <width>211</width>
-         <height>151</height>
+         <height>451</height>
         </rect>
        </property>
        <property name="font">
@@ -1411,6 +1411,20 @@
           </property>
           <property name="text">
            <string>Fix Azimuth</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="elevationModePushButton">
+          <property name="text">
+           <string>Set Elevation</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="notElevationModePushButton">
+          <property name="text">
+           <string>Set Standard Mode</string>
           </property>
          </widget>
         </item>
