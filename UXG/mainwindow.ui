@@ -466,7 +466,7 @@
         <rect>
          <x>10</x>
          <y>290</y>
-         <width>491</width>
+         <width>271</width>
          <height>291</height>
         </rect>
        </property>
@@ -1180,8 +1180,8 @@
        <widget class="QRadioButton" name="elevationMotorSpeedRadioButton">
         <property name="geometry">
          <rect>
-          <x>270</x>
-          <y>90</y>
+          <x>40</x>
+          <y>260</y>
           <width>101</width>
           <height>20</height>
          </rect>
@@ -1204,8 +1204,8 @@
        <widget class="QRadioButton" name="azimuthMotorSpeedRadioButton">
         <property name="geometry">
          <rect>
-          <x>270</x>
-          <y>140</y>
+          <x>160</x>
+          <y>260</y>
           <width>91</width>
           <height>20</height>
          </rect>
@@ -1354,7 +1354,7 @@
          <x>290</x>
          <y>130</y>
          <width>211</width>
-         <height>151</height>
+         <height>451</height>
         </rect>
        </property>
        <property name="font">
@@ -1392,7 +1392,7 @@
            </font>
           </property>
           <property name="toolTip">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Must only have elevation USB plugged in.  Sets the elevation controller settings to what is necessary for this program.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sets the elevation controller settings to what is necessary for this program.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="text">
            <string>Fix Elevation</string>
@@ -1407,10 +1407,29 @@
            </font>
           </property>
           <property name="toolTip">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Must only have azimuth USB plugged in.  Sets the azimuth controller settings to what is necessary for this program.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sets the azimuth controller settings to what is necessary for this program.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="text">
            <string>Fix Azimuth</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="elevationModePushButton">
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>Elevation Mode</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="notElevationModePushButton">
+          <property name="text">
+           <string>Not Elevation Mode</string>
           </property>
          </widget>
         </item>
@@ -1459,7 +1478,7 @@
          <x>0</x>
          <y>0</y>
          <width>1051</width>
-         <height>541</height>
+         <height>529</height>
         </rect>
        </property>
        <attribute name="label">
@@ -5711,8 +5730,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>1051</width>
-         <height>551</height>
+         <width>100</width>
+         <height>30</height>
         </rect>
        </property>
        <attribute name="label">
@@ -6687,7 +6706,7 @@
      <x>0</x>
      <y>0</y>
      <width>1074</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
   </widget>

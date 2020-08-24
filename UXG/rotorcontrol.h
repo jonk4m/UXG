@@ -98,9 +98,9 @@ public:
 
     QString fixHeadings(QString moveValue);
 
-    void setElevationMode();
+    void setElevationMode(bool isElevation);
 
-    bool setModeHelper(QByteArray command, QSerialPort *serialPort);
+    bool setModeHelper(QByteArray command, QSerialPort *serialPort, bool isElevation);
 
     ParameterAndWriteNumber parseReceivedRotorData(QByteArray receivedData);
 

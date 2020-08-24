@@ -1353,6 +1353,8 @@ void MainWindow::updatePositions(){
         }
     }
 
+
+
 }
 
 /*called when the readyRead signal goes off.  reads the data and then takes the will update
@@ -1421,7 +1423,7 @@ void MainWindow::serialRead(){
         break;
     }
     case(RotorControl::controllerParameter::elevationMode) :{
-        serial->write("WK01080;",isElevation);
+        output_to_console("Correct Elevation Mode Set");
         break;
     }
     case(RotorControl::controllerParameter::pulseDivider) :{
@@ -1433,9 +1435,11 @@ void MainWindow::serialRead(){
         break;
     }
     case(RotorControl::controllerParameter::CCWLimit) :{
-        ui->console_text_editor->appendPlainText("Finished Fixing Elevation");
-
-
+        if(isElevation){
+            ui->console_text_editor->appendPlainText("Finished Fixing Elevation");
+        }else{
+            ui->console_text_editor->appendPlainText("Finished Fixing Azimuth");
+        }
         break;
     }
     case(RotorControl::controllerParameter::notReady) :{
@@ -2172,4 +2176,20 @@ void MainWindow::on_create_yatg_template_file_pushbutton_clicked()
 void MainWindow::on_stopAllCurrentProcessesButton_clicked()
 {
     on_stopTestPushButton_clicked();
+}
+
+void MainWindow::on_elevationModePushButton_clicked()
+{
+    ui->azimuthLCD->display(0);
+    ui->elevationLCD->display(0);
+    serial->setElevationMode(true);
+    output_to_console("Set to Elevation Mode");
+}
+
+void MainWindow::on_notElevationModePushButton_clicked()
+{
+    ui->azimuthLCD->display(0);
+    ui->elevationLCD->display(0);
+    serial->setElevationMode(false);
+    output_to_console("Set to Standard Mode");
 }

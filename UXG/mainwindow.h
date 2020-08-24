@@ -247,6 +247,10 @@ private slots:
 
     void on_stopAllCurrentProcessesButton_clicked();
 
+    void on_elevationModePushButton_clicked();
+
+    void on_notElevationModePushButton_clicked();
+
 private:
 
     //bool pre_initialize_uxg_file();

@@ -81,31 +81,54 @@ bool RotorControl::findSerialPorts(){
     return true;
 }
 
-//void RotorControl::setElevationMode(){
-//    closeSerialPorts();
-//    QSerialPort *serialPort = new QSerialPort();
-//    const QList<QSerialPortInfo> ports = QSerialPortInfo::availablePorts();//creates a list of serial ports
-//    QString elPort;
-//    for(const QSerialPortInfo &port : ports){
-//        QString s = port.portName();
-//        serialPort->setPortName(s);
-//        serialPort->setBaudRate(QSerialPort::Baud4800);
-//        serialPort->setDataBits(QSerialPort::Data8);
-//        serialPort->setParity(QSerialPort::NoParity);
-//        serialPort->setStopBits(QSerialPort::OneStop);
-//        serialPort->setFlowControl(QSerialPort::NoFlowControl);
-//        serialPort->open(QIODevice::ReadWrite);
+void RotorControl::setElevationMode(bool isElevation){
+    closeSerialPorts();
+    QSerialPort *serialPort = new QSerialPort();
+    const QList<QSerialPortInfo> ports = QSerialPortInfo::availablePorts();//creates a list of serial ports
+    QString elPort;
+    for(const QSerialPortInfo &port : ports){
+        QString s = port.portName();
+        serialPort->setPortName(s);
+        serialPort->setBaudRate(QSerialPort::Baud4800);
+        serialPort->setDataBits(QSerialPort::Data8);
+        serialPort->setParity(QSerialPort::NoParity);
+        serialPort->setStopBits(QSerialPort::OneStop);
+        serialPort->setFlowControl(QSerialPort::NoFlowControl);
+        serialPort->open(QIODevice::ReadWrite);
 
-//        bool isOnElevationMode=false;
-//        while(!isOnElevationMode){
-//            serialPort->write("WT08;");
-//            QByteArray data = "";
-//            while(serialPort->waitForReadyRead(100)){
-//                data+=serialPort->readAll();
+        bool isOnCorrectElevationMode=false;
+        QByteArray command;
+        if(isElevation){
+            command = "WT08;";
+        }else{
+            command = "WT00;";
+        }
+        while(!isOnCorrectElevationMode){
+            serialPort->write(command);
+            QByteArray data = "";
+            while(serialPort->waitForReadyRead(500)){
+                data+=serialPort->readAll();
 
-//            }
-//            isOnElevationMode = setModeHelper("RT0;", serialPort);
-//        }
+            }
+            isOnCorrectElevationMode = setModeHelper("RT0;", serialPort, isElevation);
+        }
+    }
+    serialPort->close();
+}
+bool RotorControl::setModeHelper(QByteArray command, QSerialPort *serialPort, bool isElevation){
+    serialPort->write(command);
+    QString data = "";
+    while(serialPort->waitForReadyRead(500)){
+        data+=serialPort->readAll();
+
+    }
+    if(data == "T\0018;"&&isElevation){
+        return true;
+    }else if(data == "T\0010;"&&!isElevation){
+        return true;
+    }
+    return false;
+}
 //        bool isCorrectCWlimit=false;
 //        while(!isCorrectCWlimit){
 //            serialPort->write("WI00;");
@@ -142,18 +165,7 @@ bool RotorControl::findSerialPorts(){
 //    }
 //}
 
-//bool RotorControl::setModeHelper(QByteArray command, QSerialPort *serialPort){
-//    serialPort->write(command);
-//    QString data = "";
-//    while(serialPort->waitForReadyRead(200)){
-//        data+=serialPort->readAll();
 
-//    }
-//    if(data == "T\0018;"||data=="I\0010;"||data== "H\0010;"||data == "K\0011080;"){
-//        return true;
-//    }
-//    return false;
-//}
 
 //writes to the serial ports to read the position
 void RotorControl::getPosition(){
