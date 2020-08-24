@@ -626,7 +626,9 @@ void MainWindow::on_socket_readyRead(){
     QString allRead = window_ftpManager->tcpSocket->readAll();
     QStringList allReadParsed = allRead.split(QRegExp("[\r\n]"), Qt::SkipEmptyParts);
     for(QString item : allReadParsed){
-        output_to_console("Socket readyRead : " + item);
+        if(item != "PLAY\n"){
+            output_to_console("Socket readyRead : " + item);
+        }
         qDebug() << "Socket readyRead : " << item;
     }
 
@@ -1911,6 +1913,8 @@ void MainWindow::on_testCreatorTableWidget_itemChanged(QTableWidgetItem *item)
             msgBox->setAttribute(Qt::WA_DeleteOnClose);
             msgBox->setStandardButtons(QMessageBox::Ok);
             msgBox->setText("Invalid Number");
+//            const QString fileName = QCoreApplication::applicationDirPath() + "/images";
+//            msgBox->setIconPixmap(QPixmap("C:/Qt/images"));
             msgBox->open( this, SLOT(msgBoxClosed(QAbstractButton*)));
             tableWidgetItemList.at(indexChanged)->setText(QString::number(indexChanged));
             return;

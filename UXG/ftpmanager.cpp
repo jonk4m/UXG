@@ -223,9 +223,9 @@ void FtpManager::socket_connected(){
     emit userMessage("Socket connected");
     qDebug() << "Socket connected";
     send_SCPI("DISPlay:REMote ON");
-    send_SCPI("INSTrument STReaming");
+    //send_SCPI("INSTrument STReaming");
+    UXGSetupFinished=false;
     UXGSetup();
-    send_SCPI("*IDN?");
 }
 
 void FtpManager::socket_disconnected(){
@@ -270,12 +270,18 @@ void FtpManager::UXGSetup(){
         send_SCPI(":OUTPut OFF");
         send_SCPI(":STReam:STATe OFF");
         send_SCPI(":STReam:SOURce FILE");
+
+        send_SCPI("*OPC?");
+        setup = UXGSetup::Phase3;
+
+        break;
+    }
+    case UXGSetup::Phase3 :{
         send_SCPI(":STReam:TRIGger:PLAY:SOURce BUS");
         send_SCPI(":POWer:ATTenuation:BYPass 0");
-        send_SCPI(":POWer -100");
+        send_SCPI(":POWer 0");
         send_SCPI(":STReam:SETup:TIME:AUTO OFF");
         send_SCPI(":STReam:SETup:TIME 0");
-        //send_SCPI(":STReam:TRIGger:PLAY:FILE:TYPE SINGle");
         send_SCPI(":STReam:STATe OFF");
         send_SCPI("*OPC?");
         setup = UXGSetup::Phase1;

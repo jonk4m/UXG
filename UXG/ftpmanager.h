@@ -42,10 +42,10 @@ public:
         settingCurrentTable = 2
     };
 
-    enum UXGSetup {Phase1, Phase2};
+    enum UXGSetup {Phase1, Phase2, Phase3};
         UXGSetup setup = Phase1;
         void UXGSetup();
-        bool UXGSetupFinished=false;
+        bool UXGSetupFinished=true;
 
     state current_state;
     bool  waitingForFPCSFileList;
