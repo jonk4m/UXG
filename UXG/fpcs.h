@@ -14,7 +14,7 @@
 #include <QThread>
 #include <entry.h>
 #include <QStringList>
-
+#include <QtMath>
 
 class Fpcs: public QObject
 {

@@ -90,19 +90,20 @@ In the startup set the deliminator to be comma, also go through SCPI notes to se
 
 ME		fix issue where blank table populates the table after a nonblank entry has been visualized  
 ME 		make it so they can open a textfile with the bit patterns OR copy and paste a given pattern into a text editor  
-ME		add button to create a template YATG file for the user  
 ME		fix the double rounding shit for attenuation and phase 
 
+during presentation mention chris's time calculation idea, and copy paste bit pattern option although it is possible to do it by just changing the hex value in the file before uploading
+
 JOSH 	add help buttons with popup windows to the main window Qt::WindowContextHelpButtonHint  
-JOSH	add button for playing a list of files  
 JOSH	IP on startup is on a textfile  
+JOSH	User messages  
 
 BOTH 	document partially    
 
 
 
+talk to mike about whether or not they've sent out an email, how many people will come (for setting up chairs), we will turn the code in on friday, what's a cool signal we can create for the demo
 
-talk to mike about whether or not they've sent out an email, how many people will come (for setting up chairs), 
 
 include on the flash drive we bring in tomorrow:
 

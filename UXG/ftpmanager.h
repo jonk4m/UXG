@@ -48,6 +48,7 @@ public:
         bool UXGSetupFinished=true;
 
     state current_state;
+    bool waitingForFPCSConversion = false;
     bool  waitingForFPCSFileList;
     bool waitingForPdwUpload = false;
     bool downloadingAllFiles = false;

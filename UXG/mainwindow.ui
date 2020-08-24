@@ -29,7 +29,7 @@
      </font>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="uxg_rotor_tab">
      <attribute name="title">
@@ -466,7 +466,7 @@
         <rect>
          <x>10</x>
          <y>290</y>
-         <width>271</width>
+         <width>491</width>
          <height>291</height>
         </rect>
        </property>
@@ -1180,8 +1180,8 @@
        <widget class="QRadioButton" name="elevationMotorSpeedRadioButton">
         <property name="geometry">
          <rect>
-          <x>40</x>
-          <y>260</y>
+          <x>270</x>
+          <y>90</y>
           <width>101</width>
           <height>20</height>
          </rect>
@@ -1204,8 +1204,8 @@
        <widget class="QRadioButton" name="azimuthMotorSpeedRadioButton">
         <property name="geometry">
          <rect>
-          <x>160</x>
-          <y>260</y>
+          <x>270</x>
+          <y>140</y>
           <width>91</width>
           <height>20</height>
          </rect>
@@ -1351,10 +1351,10 @@
       <widget class="QGroupBox" name="FixSerialGroupBox">
        <property name="geometry">
         <rect>
-         <x>300</x>
+         <x>290</x>
          <y>130</y>
-         <width>201</width>
-         <height>451</height>
+         <width>211</width>
+         <height>151</height>
         </rect>
        </property>
        <property name="font">
@@ -1392,7 +1392,7 @@
            </font>
           </property>
           <property name="toolTip">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sets the elevation controller settings to what is necessary for this program.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Must only have elevation USB plugged in.  Sets the elevation controller settings to what is necessary for this program.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="text">
            <string>Fix Elevation</string>
@@ -1407,29 +1407,10 @@
            </font>
           </property>
           <property name="toolTip">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sets the azimuth controller settings to what is necessary for this program.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Must only have azimuth USB plugged in.  Sets the azimuth controller settings to what is necessary for this program.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="text">
            <string>Fix Azimuth</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="elevationModePushButton">
-          <property name="font">
-           <font>
-            <pointsize>10</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>Elevation Mode</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="notElevationModePushButton">
-          <property name="text">
-           <string>Not Elevation Mode</string>
           </property>
          </widget>
         </item>
@@ -1478,7 +1459,7 @@
          <x>0</x>
          <y>0</y>
          <width>1051</width>
-         <height>529</height>
+         <height>541</height>
         </rect>
        </property>
        <attribute name="label">
@@ -5730,8 +5711,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>1051</width>
-         <height>539</height>
+         <width>100</width>
+         <height>30</height>
         </rect>
        </property>
        <attribute name="label">
@@ -6092,28 +6073,6 @@
          </item>
         </layout>
        </widget>
-       <widget class="QGroupBox" name="groupBox_6">
-        <property name="geometry">
-         <rect>
-          <x>680</x>
-          <y>110</y>
-          <width>371</width>
-          <height>75</height>
-         </rect>
-        </property>
-        <property name="title">
-         <string>Help</string>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_2">
-         <item>
-          <widget class="QPushButton" name="testOptionsHelpButton">
-           <property name="text">
-            <string>Help</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
       </widget>
       <widget class="QWidget" name="page_2">
        <property name="geometry">
@@ -6121,7 +6080,7 @@
          <x>0</x>
          <y>0</y>
          <width>1051</width>
-         <height>539</height>
+         <height>551</height>
         </rect>
        </property>
        <attribute name="label">
@@ -6728,7 +6687,7 @@
      <x>0</x>
      <y>0</y>
      <width>1074</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>

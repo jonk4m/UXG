@@ -403,7 +403,7 @@ void MainWindow::on_phase_freq_pattern_entry_table_cellChanged(int row, int colu
     }
     case 2: { //case 2 is the freq units
         //set the freq units but remove the ending "hz"
-        QString enteredValue = ui->phase_freq_pattern_entry_table->item(row, column)->text().remove("hz");
+        QString enteredValue = ui->phase_freq_pattern_entry_table->item(row, column)->text().remove("hz",Qt::CaseInsensitive);
         if(enteredValue == "m")
             enteredValue = "M"; // don't allow the user to put lower-case "m" only upper case "M"
         window_fpcs->workingEntry->freqUnits.replace(row, enteredValue);
@@ -632,6 +632,65 @@ void MainWindow::on_socket_readyRead(){
         qDebug() << "Socket readyRead : " << item;
     }
 
+    //This is required so that the ftp process doesn't start before the UXG is finished exporting a FPCS file as a CSV file for us to download
+    if(window_ftpManager->waitingForFPCSConversion && allRead== "1\n"){
+        output_to_console("file is exported, ready for ftp");
+        qDebug() << "file is exported, ready for ftp";
+
+        //check if the file with the same name already exists in the downloads folder
+        QDir directory("./fileFolder/downloads"); //get a list of all file names in the downloads folder
+        QStringList files = directory.entryList(QStringList() << "*.csv" << "*.CSV" << "*.txt" << "*.TXT",QDir::Files);
+        //output_to_console("fileName without ending is : " + window_fpcs->settings.tableName);
+        QString fileNameWithoutType = window_fpcs->settings.tableName;
+        //output_to_console("List of files in downloads folder is : " + files.join(", "));
+
+        foreach(QString filename, files) {
+            //output_to_console("fileName from list is : " + filename + "   fileName of the actual file : " + fileNameWithoutType.remove(".csv",Qt::CaseInsensitive).remove(".txt",Qt::CaseInsensitive).append(".csv").toUpper());
+            if(filename == fileNameWithoutType.remove(".csv",Qt::CaseInsensitive).remove(".txt",Qt::CaseInsensitive).append(".csv").toUpper()){
+                //file name matches, delete that file with .csv ending
+                QString deleteFileName = directory.path() + "/" + filename;
+                QFile temp(deleteFileName);
+                qDebug() << "Deleting file : " << deleteFileName << "  to be replaced by identically named file on UXG";
+                output_to_console("Deleting file : " + deleteFileName + "  to be replaced by identically named file on UXG");
+                temp.remove();
+            }
+            if(filename == fileNameWithoutType.remove(".csv",Qt::CaseInsensitive).remove(".txt",Qt::CaseInsensitive).append(".txt").toUpper()){
+                //file name matches, delete that file with .txt ending
+                QString deleteFileName = directory.path() + "/" + filename;
+                QFile temp(deleteFileName);
+                qDebug() << "Deleting file : " << deleteFileName << "  to be replaced by identically named file on UXG";
+                output_to_console("Deleting file : " + deleteFileName + "  to be replaced by identically named file on UXG");
+                temp.remove();
+            }
+        }
+        //if the file already exists in your download folder we need to delete it first
+
+        //download the table from the uxg into the downloads folder
+        window_ftpManager->current_state = FtpManager::state::downloading;
+        //then feed it into the process
+        window_ftpManager->start_process(window_fpcs->settings.tableName); //note that start_process() only needs the name of the file
+
+        //now delete the file that the uxg created when it exported the fpcs to a csv file (note the only way the uxg knows which is which is by us adding the ".csv" string to the fileName)
+        QString command = "MEMory:DELete:NAME ";
+        command.append('"');
+        command.append(window_fpcs->settings.tableName + ".csv");
+        command.append('"');
+        window_ftpManager->send_SCPI(command);
+
+        //note we can immediately use the file after starting the process since it's a blocking call
+        window_fpcs->settings.tablePath = QDir::currentPath() + "/fileFolder/downloads"; //note that we leave off the last "/" to follow the conventions of this variable outlined in the fpcs class at its declaration
+        bool fileInitialized = window_fpcs->initialize_workingFile(true); //true means we are NOT creating a new table
+        if(fileInitialized){
+            ui->current_table_line_edit->setText(window_fpcs->workingFile.fileName());
+            update_table_visualization();
+        }else{
+            output_to_console("File unable to initialize");
+            qDebug() << "File unable to initialize";
+        }
+        window_ftpManager->waitingForFPCSConversion = false;
+        QGuiApplication::restoreOverrideCursor();
+    }
+
     //this process is specifically for when the user needs to know what all available FPCS files on the UXG are.
     if(window_ftpManager->waitingForFPCSFileList){
         //clear the current list of available files on the dropdown menu
@@ -643,7 +702,7 @@ void MainWindow::on_socket_readyRead(){
         QStringList outputList;
         for(QString item : allReadParsedFPCS){
             if(item.contains("@")){
-                outputList << item.remove("FPCS").remove("@").remove('"').remove('.');
+                outputList << item.remove("FPCS",Qt::CaseInsensitive).remove("@",Qt::CaseInsensitive).remove('"').remove('.');
             }
         }
         window_ftpManager->waitingForFPCSFileList = false;
@@ -769,66 +828,24 @@ void MainWindow::on_select_existing_table_button_box_accepted()
         //export the fpcs file as a csv into the UXG's BIN directory
         scpiCommand = ":MEMory:EXPort:ASCii:FPCSetup ";
         scpiCommand.append('"');
-        scpiCommand.append(window_fpcs->settings.tableName + ".csv");
+        scpiCommand.append(window_fpcs->settings.tableName + ".csv"); //note that the ".csv" here tells the UXG to export the file with this name MINUS the .csv and output it to a file that INCLUDES the ".csv"
         scpiCommand.append('"');
-        output_to_console(scpiCommand);
+        output_to_console(QString("Now sending: " + scpiCommand));
         qDebug() << "now sending: " << scpiCommand;
+        window_ftpManager->waitingForFPCSConversion = true;
         window_ftpManager->send_SCPI(scpiCommand);
+        window_ftpManager->send_SCPI("*OPC?");
 
-        output_to_console("file is exported, ready for ftp");
-        qDebug() << "file is exported, ready for ftp";
-
-        //check if the file with the same name already exists in the downloads folder
-        QDir directory("./fileFolder/downloads"); //get a list of all file names in the downloads folder
-        QStringList files = directory.entryList(QStringList() << "*.csv" << "*.CSV" << "*.txt" << "*.TXT",QDir::Files);
-        output_to_console("fileName without ending is : " + window_fpcs->settings.tableName + "----------------------------------------------------");
-        QString fileNameWithoutType = window_fpcs->settings.tableName;
-        output_to_console("List of files in downloads folder is : " + files.join(", "));
-
-        foreach(QString filename, files) {
-            output_to_console("fileName from list is : " + filename + "   fileName of the actual file : " + fileNameWithoutType.remove(".csv").remove(".txt").append(".csv").toUpper());
-            if(filename == fileNameWithoutType.remove(".csv").remove(".txt").append(".csv").toUpper()){
-                //file name matches, delete that file with .csv ending
-                QString deleteFileName = directory.path() + "/" + filename;
-                QFile temp(deleteFileName);
-                qDebug() << "Deleting file : " << deleteFileName << "  to be replaced by identically named file on UXG ---------------------";
-                output_to_console("Deleting file : " + deleteFileName + "  to be replaced by identically named file on UXG -----------------");
-                temp.remove();
-            }
-            if(filename == fileNameWithoutType.remove(".csv").remove(".txt").append(".txt").toUpper()){
-                //file name matches, delete that file with .txt ending
-                QString deleteFileName = directory.path() + "/" + filename;
-                QFile temp(deleteFileName);
-                qDebug() << "Deleting file : " << deleteFileName << "  to be replaced by identically named file on UXG -----------------------";
-                output_to_console("Deleting file : " + deleteFileName + "  to be replaced by identically named file on UXG -------------------");
-                temp.remove();
-            }
-        }
-        //if the file already exists in your download folder we need to delete it first
-
-        //download the table from the uxg into the downloads folder
-        window_ftpManager->current_state = FtpManager::state::downloading;
-        //then feed it into the process
-        output_to_console("starting process for file/folder: " + window_fpcs->settings.tableName);
-        window_ftpManager->start_process(window_fpcs->settings.tableName); //note that start_process() only needs the name of the file
-        //note we can immediately use the file after starting the process since it's a blocking call
-        window_fpcs->settings.tablePath = QDir::currentPath() + "/fileFolder/downloads"; //note that we leave off the last "/" to follow the conventions of this variable outlined in the fpcs class at its declaration
-        bool fileInitialized = window_fpcs->initialize_workingFile(true); //true means we are NOT creating a new table
-        if(fileInitialized){
-            ui->current_table_line_edit->setText(window_fpcs->workingFile.fileName());
-            update_table_visualization();
-        }else{
-            output_to_console("File unable to initialize");
-            qDebug() << "File unable to initialize";
-        }
     }else{
         QString filePathAndName = ui->select_file_line_edit->text();
         //get the file name without the directory by sepperating the string into a list of strings sepperated by "/" then using the last element in the list
         QStringList list = filePathAndName.split(QLatin1Char('/'), Qt::SkipEmptyParts);
+        QString temp = list.last();
+        temp.remove(".csv",Qt::CaseInsensitive).remove(".txt",Qt::CaseInsensitive);
 
-        window_fpcs->settings.tableName = list.last().remove(".csv").remove(".txt"); //remove file extension here to follow variable's conventions outlined in fpcs class variable declaration
+        window_fpcs->settings.tableName = temp; //removed file extension here to follow variable's conventions outlined in fpcs class variable declaration
 
-        window_fpcs->settings.tablePath = filePathAndName.remove("/" + window_fpcs->settings.tableName + ".csv"); //set the filePath, remove last "/" to follow convention for this variable outlined in fpcs class declaration
+        window_fpcs->settings.tablePath = filePathAndName.remove("/" + window_fpcs->settings.tableName + ".csv",Qt::CaseInsensitive); //set the filePath, remove last "/" to follow convention for this variable outlined in fpcs class declaration
 
         output_to_console("open button pressed, TableName: " + window_fpcs->settings.tableName + "   tablePath: " + window_fpcs->settings.tablePath);
 
@@ -840,9 +857,8 @@ void MainWindow::on_select_existing_table_button_box_accepted()
             output_to_console("File unable to initialize from Local");
             qDebug() << "File unable to initialize from Local";
         }
+        QGuiApplication::restoreOverrideCursor();
     }
-
-    QGuiApplication::restoreOverrideCursor();
 }
 
 void MainWindow::on_delete_table_from_uxg_push_button_clicked(){
@@ -855,17 +871,17 @@ void MainWindow::on_delete_table_from_uxg_push_button_clicked(){
         QString command = "MEMory:DELete:NAME ";
         command.append('"');
 
-        qDebug() << "Filename at delete slot is: " << window_fpcs->settings.currentTableSelectedThatIsOnTheUxg.remove(".fpcs").append(".fpcs");
-        output_to_console("Filename at delete slot is: " + window_fpcs->settings.currentTableSelectedThatIsOnTheUxg.remove(".fpcs").append(".fpcs"));
+        qDebug() << "Filename at delete slot is: " << window_fpcs->settings.currentTableSelectedThatIsOnTheUxg.remove(".fpcs",Qt::CaseInsensitive).append(".fpcs");
+        output_to_console("Filename at delete slot is: " + window_fpcs->settings.currentTableSelectedThatIsOnTheUxg.remove(".fpcs",Qt::CaseInsensitive).append(".fpcs"));
 
-        command.append(window_fpcs->settings.currentTableSelectedThatIsOnTheUxg).remove(".fpcs").append(".fpcs"); //window_fpcs->settings.existingTableFilePath.append(".fpcs")
+        command.append(window_fpcs->settings.currentTableSelectedThatIsOnTheUxg).remove(".fpcs",Qt::CaseInsensitive).append(".fpcs"); //window_fpcs->settings.existingTableFilePath.append(".fpcs")
         command.append('"');
         window_ftpManager->send_SCPI(command);
         //delete the csv file under that name
         command.clear();
         command = "MEMory:DELete:NAME ";
         command.append('"');
-        command.append(window_fpcs->settings.currentTableSelectedThatIsOnTheUxg.remove(".fpcs").remove(".csv").append(".csv"));
+        command.append(window_fpcs->settings.currentTableSelectedThatIsOnTheUxg.remove(".fpcs",Qt::CaseInsensitive).remove(".csv",Qt::CaseInsensitive).append(".csv"));
         command.append('"');
         window_ftpManager->send_SCPI(command);
         //reset the list of available files on the UXG
@@ -1169,7 +1185,7 @@ void MainWindow::on_select_multiple_files_by_folder_push_button_clicked()
     }
 
      // If you send 5 SCPI's in a row, then send an *OPC? you will know when it's done with those 5 scpi commands because once it gets to the *OPC? it
-     // immediately responds with "1". The uxg's scpi queue is FIFO so in the readyRead we know that if it sent back "1", it is finished uploading the
+     // immediately responds with "1". The uxg's scpi queue is FIFO so in the ready Read we know that if it sent back "1", it is finished uploading the
      // pdw data we sent over SCPI.
 
 
@@ -1201,7 +1217,7 @@ void MainWindow::on_upload_yatg_file_to_uxg_push_button_clicked()
     }
     /*
      * If you send 5 SCPI's in a row, then send an *OPC? you will know when it's done with those 5 scpi commands because once it gets to the *OPC? it
-     * immediately responds with "1". The uxg's scpi queue is FIFO so in the readyRead we know that if it sent back "1", it is finished uploading the
+     * immediately responds with "1". The uxg's scpi queue is FIFO so in the ready Read we know that if it sent back "1", it is finished uploading the
      * pdw data we sent over SCPI.
      */
 
@@ -1357,7 +1373,7 @@ void MainWindow::updatePositions(){
 
 }
 
-/*called when the readyRead signal goes off.  reads the data and then takes the will update
+/*called when the ready Read signal goes off.  reads the data and then takes the will update
  * the gui depending on what data came in.
  * */
 void MainWindow::serialRead(){
@@ -2118,21 +2134,6 @@ void MainWindow::on_play_multiple_pdws_push_button_clicked()
     QString fileName = "'" + pdwFileNames.at(0) + "'";
     window_ftpManager->playPDW(fileName,ui->continuousPDWCheckBox->isChecked());
     output_to_console("playing PDW");
-
-
-    //    QString lineRead = streamerForBatchFile.readLine().remove("\n");
-    //    QString filename = "";
-    //    while(lineRead.size() > 0){
-    //        filename = "'" + lineRead + "'";
-    //        output_to_console("Playing: " + filename);
-    //        window_ftpManager->playPDW(filename, false); //false so first file won't play continuously
-
-    //        lineRead = streamerForBatchFile.readLine().remove("\n");
-
-    //        //TODO figure out how to get the STOP playing pdw's button to work for this
-    //        //TODO figure out how this will know when each file is finished to then start the next one
-    //    }
-
 }
 
 void MainWindow::on_create_yatg_template_file_pushbutton_clicked()

@@ -603,7 +603,7 @@ bool YATG::append_rows_to_uxg_file(QHash<QString,int> indexes, double timeScalin
             emit userMessage("Phase is : " + QString("%1").arg(rowList.at(indexes.value("Phase")).toDouble(), 0, 'g', 3) );
             emit userMessage("Att is : " + QString("%1").arg(rowList.at(indexes.value("Att")).toDouble(), 0, 'g', 4));
             outputData.append(QString("%1").arg(rowList.at(indexes.value("Phase")).toDouble(), 0, 'g', 3) + ","); //QString::number( (int)(( rowList.at(indexes.value("Phase")) ).toDouble() + 0.5 )) + ","
-            outputData.append(QString("%1").arg(rowList.at(indexes.value("Att")).toDouble(), 0, 'g', 4) + ",");
+            outputData.append(QString("%1").arg(rowList.at(indexes.value("Att")).toDouble(), 0, 'g', 4) + ".1001" + ",");
             if(rowList.at(indexes.value("Cw")) == "1"){
                 outputData.append("CW,");
             }else{

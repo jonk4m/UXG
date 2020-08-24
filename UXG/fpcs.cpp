@@ -226,11 +226,12 @@ void Fpcs::import_entries_from_existing_file(){
     streamer.seek(0);
     QStringList readHeader = streamer.readLine().remove("\n").split(QRegExp(","), Qt::SkipEmptyParts);
     //qDebug() << "header list : " << readHeader;
-    QString throwAwayRow = streamer.readLine().remove("\n");
+    QString throwAwayRow = streamer.readLine().remove("\n"); //the first row is always a filler by convention in teh documentation
 
     while(true){
         //read the next line
         QString row = streamer.readLine().remove("\n");
+        //emit userMessage("row: " + row);
 
         //check if we are at the end of the file
         if(row.size() == 0){
@@ -247,27 +248,29 @@ void Fpcs::import_entries_from_existing_file(){
         tempEntry->codingType = rowList.at(2);
         tempEntry->length = rowList.at(3).toInt();
         tempEntry->bitsPerSubpulse = rowList.at(4).toInt();
-        if(readHeader.indexOf("Hex Pattern") == -1){
-            emit userMessage("Error, hex pattern not found in file. Index is : " +QString::number(readHeader.indexOf("Hex Pattern")));
-            qDebug() << "Error, hex pattern not found in file. Index is : " << readHeader.indexOf("Hex Pattern");
+        tempEntry->numOfPhasesOrFreqs = 2^(tempEntry->bitsPerSubpulse);
+        if(readHeader.indexOf("Hex Pattern",Qt::CaseInsensitive) == -1){
+            emit userMessage("Error, hex pattern not found in file. Index is : " +QString::number(readHeader.indexOf("Hex Pattern",Qt::CaseInsensitive)));
+            qDebug() << "Error, hex pattern not found in file. Index is : " << readHeader.indexOf("Hex Pattern",Qt::CaseInsensitive);
             return;
         }
-        tempEntry->hexPattern = rowList.at(readHeader.indexOf("Hex Pattern"));
+        tempEntry->hexPattern = rowList.at(readHeader.indexOf("Hex Pattern",Qt::CaseInsensitive));
 
         //assign appropriate phases based on indexes
         int tempPhaseIndex;
         for(int i=0; i<16; i++){
-            tempPhaseIndex = readHeader.indexOf("Phase State " + QString::number(i) + " (deg)");
+            tempPhaseIndex = readHeader.indexOf("Phase State " + QString::number(i) + " (deg)",Qt::CaseInsensitive);
             if (tempPhaseIndex != -1)
                 tempEntry->phases.replace(i, rowList.at(tempPhaseIndex));
         }
+
         //assign appropriate freqs based on indexes
         int tempFreqIndex;
-        unsigned long long freq;
+        double freq;
         for(int i=0; i<16; i++){
-            tempFreqIndex = readHeader.indexOf("Frequency State " + QString::number(i) + " (Hz)");
+            tempFreqIndex = readHeader.indexOf("Frequency State " + QString::number(i) + " (Hz)",Qt::CaseInsensitive);
             if (tempFreqIndex != -1){
-                freq = rowList.at(tempFreqIndex).toULongLong();
+                freq = rowList.at(tempFreqIndex).toDouble(); //changed
                 if(freq > 999999999){
                     //use Giga
                     tempEntry->freqUnits.replace(i, "G");
@@ -281,6 +284,7 @@ void Fpcs::import_entries_from_existing_file(){
                     tempEntry->freqUnits.replace(i, "K");
                     freq = freq / 1000;
                 }
+                //emit userMessage("freq " + QString::number(i) + " is: " + QString::number(freq));
                 tempEntry->freqs.replace(i, QString::number(freq));
             }
         }

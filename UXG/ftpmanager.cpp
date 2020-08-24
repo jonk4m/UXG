@@ -18,7 +18,7 @@ FtpManager::FtpManager(QMainWindow *window)
  */
 void FtpManager::start_process(QString fileOrFolder){
     QString fileOrFolderName = fileOrFolder;
-    fileOrFolderName.remove(".csv").remove(".txt").append(".csv"); //leave this line alone, used as a good fail-safe for the extension type
+    fileOrFolderName.remove(".csv",Qt::CaseInsensitive).remove(".txt",Qt::CaseInsensitive).append(".csv"); //leave this line alone, used as a good fail-safe for the extension type
     emit userMessage("Starting process with file or folder name: " + fileOrFolderName);
     qDebug() << "Starting process";
     QStringList arguments;
@@ -125,7 +125,7 @@ void FtpManager::process_finished(){
         scpiCommand.clear();
         scpiCommand = "SOURce:PULM:STReam:FPCSetup:STORe ";
         scpiCommand.append('"');
-        scpiCommand.append(uploadingFileOrFolderName.remove(".csv"));  //no need to append the .fpcs here, uxg does it automatically
+        scpiCommand.append(uploadingFileOrFolderName.remove(".csv",Qt::CaseInsensitive));  //no need to append the .fpcs here, uxg does it automatically
         scpiCommand.append('"');
         emit userMessage("sending: " + scpiCommand);
         qDebug() << "sending: " << scpiCommand;
@@ -135,6 +135,15 @@ void FtpManager::process_finished(){
         scpiCommand = "SOURce:PULM:STReam:FPCSetup:SELect "; //Note this command will be rejected if the UXG is not in PDW Streaming Mode
         scpiCommand.append('"');
         scpiCommand.append(uploadingFileOrFolderName);
+        scpiCommand.append('"');
+        emit userMessage("sending: " + scpiCommand);
+        qDebug() << "sending: " << scpiCommand;
+        send_SCPI(scpiCommand);
+
+        scpiCommand.clear();
+        scpiCommand = "MEMory:DELete:NAME "; //delete the leftover csv file
+        scpiCommand.append('"');
+        scpiCommand.append(uploadingFileOrFolderName + ".csv");
         scpiCommand.append('"');
         emit userMessage("sending: " + scpiCommand);
         qDebug() << "sending: " << scpiCommand;
