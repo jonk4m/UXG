@@ -84,11 +84,7 @@ In the startup set the deliminator to be comma, also go through SCPI notes to se
 
 
 
-
-
-
-
-ME		fix issue where blank table populates the table after a nonblank entry has been visualized  
+ 
 ME 		make it so they can open a textfile with the bit patterns OR copy and paste a given pattern into a text editor  
 ME		fix the double rounding shit for attenuation and phase 
 
