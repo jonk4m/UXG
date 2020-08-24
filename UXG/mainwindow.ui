@@ -29,7 +29,7 @@
      </font>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="uxg_rotor_tab">
      <attribute name="title">
@@ -5704,7 +5704,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="page">
        <property name="geometry">
@@ -5903,6 +5903,9 @@
             <height>20</height>
            </rect>
           </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check the box if you are using only one PDW file for a position test&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
           <property name="text">
            <string>Use Only One PDW</string>
           </property>
@@ -5915,6 +5918,9 @@
             <width>161</width>
             <height>22</height>
            </rect>
+          </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Put the name of the PDW file as it appears on the UXG if only using one PDW&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
          </widget>
         </widget>
@@ -5939,6 +5945,9 @@
             <height>21</height>
            </rect>
           </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;To play a PDW file continuously during a position, check the box BEFORE the PDW plays&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
           <property name="text">
            <string>Continuous Trigger</string>
           </property>
@@ -5951,6 +5960,9 @@
             <width>171</width>
             <height>28</height>
            </rect>
+          </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;To move on to the next position, click this button to stop the current stream&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="text">
            <string>Turn Stream Off</string>
@@ -5972,6 +5984,9 @@
          <layout class="QGridLayout" name="gridLayout_8">
           <item row="0" column="0" colspan="2">
            <widget class="QPushButton" name="startDroneTestPushButton">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Starts a drone test that takes in UDP azimuth and elevation values to move the rotor&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <property name="text">
              <string>Start Drone Test</string>
             </property>
@@ -5986,6 +6001,9 @@
           </item>
           <item row="1" column="1">
            <widget class="QComboBox" name="refreshRateComboBox">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tells the program whether the refresh rate of the UDP is 1 Hz or .1 Hz&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <item>
              <property name="text">
               <string>1 Hz</string>
@@ -6061,8 +6079,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>100</width>
-         <height>30</height>
+         <width>1051</width>
+         <height>539</height>
         </rect>
        </property>
        <attribute name="label">
@@ -6486,6 +6504,9 @@
         <layout class="QFormLayout" name="formLayout_2">
          <item row="0" column="0">
           <widget class="QPushButton" name="clearTablePushButton">
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Resets the table with the resolution shown in the line edit under &amp;quot;azimuth resolution, elevation resolution&amp;quot;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
            <property name="text">
             <string>Clear Table</string>
            </property>
@@ -6493,6 +6514,9 @@
          </item>
          <item row="0" column="1">
           <widget class="QRadioButton" name="eraseBoxesRadioButton">
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select this to erase boxes on the table using the mouse&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
            <property name="text">
             <string>erase boxes</string>
            </property>
@@ -6502,6 +6526,9 @@
           <widget class="QRadioButton" name="selectBoxesRadioButton">
            <property name="cursor">
             <cursorShape>ArrowCursor</cursorShape>
+           </property>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select this to create boxes on the table with the mouse&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="text">
             <string>select boxes</string>
@@ -6528,6 +6555,9 @@
         <layout class="QGridLayout" name="gridLayout_6">
          <item row="0" column="0">
           <widget class="QPushButton" name="createTextFilePushButton">
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Takes the current drawing on the table and turns it into a .txt file at the location specified in the lower right hand core of the &amp;quot;File Options&amp;quot; box&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
            <property name="text">
             <string>Create Test File</string>
            </property>
@@ -6535,6 +6565,9 @@
          </item>
          <item row="0" column="1" colspan="2">
           <widget class="QPushButton" name="openTestFilePushButton">
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Takes the values of the .txt file specified in the line edit below and visualizes it on the table&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
            <property name="text">
             <string>Visualize Test File</string>
            </property>
@@ -6542,6 +6575,9 @@
          </item>
          <item row="1" column="2">
           <widget class="QLineEdit" name="testFileLineEdit">
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Holds the name/location of the desired .txt file&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
            <property name="text">
             <string>newTest.txt</string>
            </property>
@@ -6549,6 +6585,9 @@
          </item>
          <item row="1" column="0">
           <widget class="QPushButton" name="openFilePushButton">
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Brings up a file browser to search for a file&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
            <property name="text">
             <string>Browse Files</string>
            </property>
@@ -6578,6 +6617,9 @@
          </item>
          <item row="1" column="0">
           <widget class="QLineEdit" name="tableResolutionLineEdit">
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Holds the current resolution of the table as &amp;quot;asimuth resolution, elevation resoluion.&amp;quot;  Can take integers between 1 and 10&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
            <property name="text">
             <string>1,1</string>
            </property>
@@ -6585,6 +6627,9 @@
          </item>
          <item row="1" column="1">
           <widget class="QPushButton" name="changeTableResolutionPushButton">
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Take the values from the line edit to the left and resets the table to one with the new resolutions&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
            <property name="text">
             <string>Change Table Resolution</string>
            </property>

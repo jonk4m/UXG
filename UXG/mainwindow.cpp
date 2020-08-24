@@ -626,7 +626,7 @@ void MainWindow::on_socket_readyRead(){
     QString allRead = window_ftpManager->tcpSocket->readAll();
     QStringList allReadParsed = allRead.split(QRegExp("[\r\n]"), Qt::SkipEmptyParts);
     for(QString item : allReadParsed){
-        if(item != "PLAY\n"){
+        if(item != "PLAY"){
             output_to_console("Socket readyRead : " + item);
         }
         qDebug() << "Socket readyRead : " << item;
@@ -702,10 +702,12 @@ void MainWindow::on_socket_readyRead(){
             window_ftpManager->send_SCPI(":OUTPut OFF");
             window_ftpManager->send_SCPI(":OUTPut:MODulation OFF");
             on_stopTestPushButton_clicked();
+            output_to_console("Finished with PDWs");
         }else{
             QString fileName = "'" + pdwFileNames.at(fileNumber) + "'";
             fileNumber++;
             window_ftpManager->playPDW(fileName, ui->continuousPDWCheckBox->isChecked());
+            output_to_console("Playing PDW");
         }
 
 
@@ -1216,10 +1218,12 @@ void MainWindow::on_playPDWPushButton_clicked()
 {
     QString filename = "'" + ui->pdwNameLineEdit->text() + "'";
     window_ftpManager->playPDW(filename, ui->continuousPDWCheckBox->isChecked());
+    output_to_console("playing PDW");
 }
 
 void MainWindow::on_stopPDWPushButton_clicked()
 {
+    output_to_console("Stopping PDW");
     if(multiplePDWsPlaying){
         window_ftpManager->send_SCPI(":STReam:STATe OFF");
         window_ftpManager->send_SCPI(":STReam:STATe ON");
@@ -1695,6 +1699,7 @@ void MainWindow::on_startDroneTestPushButton_clicked()
 //stops any test the is currently running
 void MainWindow::on_stopTestPushButton_clicked()
 {
+    output_to_console("Stopping All Processes");
     stopMotion();
     multiplePDWsPlaying=false;
     serial->simpleTestStarted = false;
@@ -1707,6 +1712,11 @@ void MainWindow::on_stopTestPushButton_clicked()
     rotorInPositionCounter=0;
     serial->azimuthGoingUp=true;
     fileNumber=1;
+    if(window_ftpManager->tcpSocket->state()== QAbstractSocket::ConnectedState){
+        window_ftpManager->send_SCPI(":OUTPut OFF");
+        window_ftpManager->send_SCPI(":OUTPut:MODulation OFF");
+        window_ftpManager->send_SCPI(":STReam:STATe OFF");
+    }
 }
 
 //table functions
@@ -2086,13 +2096,14 @@ void MainWindow::on_play_multiple_pdws_push_button_clicked()
         }
     }while(!line.isNull());
     fileForBatchPlay.close();
-    QString fileName = "'" + pdwFileNames.at(0) + "'";
-    window_ftpManager->playPDW(fileName,ui->continuousPDWCheckBox->isChecked());
     if(pdwFileNames.isEmpty()){
         output_to_console("File was Empty");
     }else{
         multiplePDWsPlaying=true;
     }
+    QString fileName = "'" + pdwFileNames.at(0) + "'";
+    window_ftpManager->playPDW(fileName,ui->continuousPDWCheckBox->isChecked());
+    output_to_console("playing PDW");
 
 
     //    QString lineRead = streamerForBatchFile.readLine().remove("\n");
