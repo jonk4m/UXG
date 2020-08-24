@@ -2123,7 +2123,50 @@ void MainWindow::on_play_multiple_pdws_push_button_clicked()
 
 void MainWindow::on_create_yatg_template_file_pushbutton_clicked()
 {
+    //prompt the user to select a folder
+    QString folderName = QFileDialog::getExistingDirectory(this, tr("Please Select a Directory to Save the File to."),
+                                                           "/fileFolder", QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 
+    //check if the user selected "cancel"
+    if(folderName.size() == 0){
+        output_to_console("cancelled selecting folder");
+        return;
+    }
+
+    QFile exampleFile;
+    QTextStream streamerForExampleFile;
+
+    folderName.append("/ExampleYATGFile.csv");
+
+    exampleFile.setFileName(folderName); //set this file path + name to be the working file
+    bool exists = exampleFile.exists(folderName);
+    if(exists){
+        output_to_console("The file titled 'ExampleYATGFile.csv' already exists in that directory. Please delete it and try again.");
+        return;
+    }else{
+        if(!exampleFile.open(QFile::ReadWrite | QFile::Text | QFile::NewOnly)) //Options: ExistingOnly, NewOnly, Append
+        {
+            output_to_console("Unable to create the example file.");
+        }else{
+            output_to_console("Creating Example File...");
+        }
+    }
+
+    //create the QTextStreamer to operate on this file until further notice
+    streamerForExampleFile.setDevice(&exampleFile);
+    streamerForExampleFile.seek(0); //make sure the TextStream starts at the beginning of the file
+
+    //loop through the plays
+
+    QString header = "FREQ (MHZ),PRI (s),PW(s),COUNT,ATTEN (DB),PHASE,MOP,CW,Chirp Shape,Chirp Rate";
+    header.append("\n");
+    streamerForExampleFile << header;
+    QString data = "10,1,1,1,-8,0,0,0,RAMP,0.00E+00";
+    header.append("\n");
+    streamerForExampleFile << data;
+
+    exampleFile.close();
+    output_to_console("ExampleYATGFile.csv created successfully.");
 }
 
 void MainWindow::on_stopAllCurrentProcessesButton_clicked()

@@ -41,3 +41,9 @@ how big is the scpi buffer on the UXG?
 If it's the UXG: (it was the UXG)
 Can we send it all as one scpi?
 start investigating using ftp
+
+dBm
+dbm
+DBM
+DBm
+Dbm 

@@ -72,11 +72,26 @@ In the startup set the deliminator to be comma, also go through SCPI notes to se
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ME		fix issue where blank table populates the table after a nonblank entry has been visualized  
 ME 		make it so they can open a textfile with the bit patterns OR copy and paste a given pattern into a text editor  
-ME		finish ftp shit for pdw's
 ME		add button to create a template YATG file for the user  
-ME		add functionality for markers
+ME		fix the double rounding shit for attenuation and phase 
 
 JOSH 	add help buttons with popup windows to the main window Qt::WindowContextHelpButtonHint  
 JOSH	add button for playing a list of files  
@@ -87,7 +102,13 @@ BOTH 	document partially
 
 
 
+talk to mike about whether or not they've sent out an email, how many people will come (for setting up chairs), 
 
+include on the flash drive we bring in tomorrow:
+
+executable and all the files that need to come with it
+picture of cover of manual (maybe a couple pages from it)
+pdf file of uxg datasheet 
 
 
 

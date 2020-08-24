@@ -372,6 +372,7 @@ bool YATG::upload_file_to_uxg(){
     //add the newline character
     header.append("\n");
     //add the header to the output file
+    emit userMessage("outputting to data-dump file: " + header);
     outputFileStreamer << header;
 
     //Parse through the rest of the entries in the YATG file, ignoring any line that contains "#", and appending to the file for each row
@@ -549,16 +550,21 @@ bool YATG::append_rows_to_uxg_file(QHash<QString,int> indexes, double timeScalin
 
     QString operationVal = "1";
     double currentTOA = 0;
-    QString output;
     QString outputData;
+
     while(true){
         //read the next line
         QString row = streamer.readLine().remove("\n");
+
+        emit userMessage("current row: " + row);
+
         //check if we should ignore this row in the file
         if(row.contains("#")){
             continue;
         }
+
         QStringList rowList = row.split(QRegExp(","), Qt::SkipEmptyParts);
+        emit userMessage("rowList size = " + QString::number(rowList.size()));
         //qDebug() << "Read-in pdw row : " << rowList;
 
         //check if we are at the end of the file
@@ -570,32 +576,34 @@ bool YATG::append_rows_to_uxg_file(QHash<QString,int> indexes, double timeScalin
 
         //check that there is a value for each column
         if(rowList.size() != indexes.size()){
-            //TODO rowList to qstring
             emit userMessage("Number of values in row do not match the number of columns. rowList size: " + QString::number(rowList.size())
-                             + ", indexes size: " + QString::number(indexes.size()) +", row: " + QString(""));
-            qDebug() << "Number of values in row do not match the number of columns. rowList size: " << rowList.size() << ", indexes size: " << indexes.size() << ", row: " << rowList;
+                             + ", indexes size: " + QString::number(indexes.size()));
+            qDebug() << "Number of values in row do not match the number of columns. rowList size: " << rowList.size() << ", indexes size: " << indexes.size();
             return false;
         }
 
         //loop through the number of pdw's desired for that row
-        for(int i = 0; i < rowList.at(indexes.value("Count")).toInt(); i++){
+        int count = (int)(rowList.at(indexes.value("Count")).toDouble() + 0.5);
+        emit userMessage("Count is : " + QString::number(count));
+        for(int i = 0; i < count; i++){
+            emit userMessage("entered for loop");
 
-            output = "";
             outputData = "";
             outputData.append(operationVal + ",");
-            outputData.append(QString::number(currentTOA) + ","); //pulse start time
-            bool ok = false;
+            outputData.append(QString("%1").arg(currentTOA, 0, 'g', 13) + ","); //pulse start time
             //calculate the next toa
-            double valueOfPri = rowList.at(indexes.value("Pri")).toDouble(&ok);
+            double valueOfPri = rowList.at(indexes.value("Pri")).toDouble();
             double setupTime = (double)0.00000027 * (timeScalingFactor); //adds in 270ns for the setup time
             currentTOA += valueOfPri + setupTime;
-            emit userMessage("currentToa: " + QString::number(currentTOA));
-            qDebug() << "currentToa: " << currentTOA;
+            emit userMessage("currentToa: " + QString("%1").arg(currentTOA, 0, 'g', 13));
+            qDebug() << "currentToa: " << QString("%1").arg(currentTOA, 0, 'g', 13);
             outputData.append(rowList.at(indexes.value("Pw")) + ",");
             outputData.append(rowList.at(indexes.value("Freq")) + ",");
             outputData.append("COH,");
-            outputData.append(rowList.at(indexes.value("Phase")) + ",");
-            outputData.append(rowList.at(indexes.value("Att")) + ",");
+            emit userMessage("Phase is : " + QString("%1").arg(rowList.at(indexes.value("Phase")).toDouble(), 0, 'g', 3) );
+            emit userMessage("Att is : " + QString("%1").arg(rowList.at(indexes.value("Att")).toDouble(), 0, 'g', 4));
+            outputData.append(QString("%1").arg(rowList.at(indexes.value("Phase")).toDouble(), 0, 'g', 3) + ","); //QString::number( (int)(( rowList.at(indexes.value("Phase")) ).toDouble() + 0.5 )) + ","
+            outputData.append(QString("%1").arg(rowList.at(indexes.value("Att")).toDouble(), 0, 'g', 4) + ",");
             if(rowList.at(indexes.value("Cw")) == "1"){
                 outputData.append("CW,");
             }else{
@@ -604,16 +612,15 @@ bool YATG::append_rows_to_uxg_file(QHash<QString,int> indexes, double timeScalin
             outputData.append("0x0,"); //marker statically set
             outputData.append("0,"); //Band Adjust (currently statically set to CW switch points)
             outputData.append(rowList.at(indexes.value("Shape")) + ",");
-            outputData.append(rowList.at(indexes.value("Mop")) + ",");
+            outputData.append(QString::number( (int)(( rowList.at(indexes.value("Mop")) ).toDouble() + 0.5 )) + ",");
             outputData.append(rowList.at(indexes.value("Rate")) + ",");
             outputData.append("A"); //freqBandMap
 
-            //append the outputData to the output
-            output.append(outputData);
             //add the newline character
-            output.append("\n");
+            outputData.append("\n");
             //add to file
-            outputFileStreamer << output;
+            emit userMessage("outputting to data-dump file: " + outputData);
+            outputFileStreamer << outputData;
 
             //this if statement is placed at the end of the loop so the first iteration will have an operationVal of 1
             if(operationVal == "1"){
@@ -623,10 +630,9 @@ bool YATG::append_rows_to_uxg_file(QHash<QString,int> indexes, double timeScalin
     }
 
     //append the last blank pdw to the file with operationVal of 2
-    output = "";
     outputData = "";
     outputData.append("2,"); //operation value of 2 for the end
-    outputData.append(QString::number(currentTOA) + ","); //pulse start time
+    outputData.append(QString("%1").arg(currentTOA, 0, 'g', 13) + ","); //pulse start time
     outputData.append("0,"); //PW
     outputData.append("0,"); //freq
     outputData.append("COH,");//phaseMode
@@ -640,10 +646,10 @@ bool YATG::append_rows_to_uxg_file(QHash<QString,int> indexes, double timeScalin
     outputData.append("0,");//rate
     outputData.append("A"); //freqBandMap
 
-    output.append(outputData);
     //add the newline character
-    output.append("\n");
-    outputFileStreamer << output;
+    outputData.append("\n");
+    emit userMessage("outputting to data-dump file: " + outputData);
+    outputFileStreamer << outputData;
 
     return true;
 }
