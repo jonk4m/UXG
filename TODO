@@ -14,7 +14,7 @@ include in manual that user should NOT put files in the uploads or downloads fol
 
 --------------------------------------incorporate Josh's code with yours 
 Right now the user has to clear the bitpattern manually if they change the number of freq/phases or the type (phase/freq/both) 
-Check with a different UXG whether or not setting your network adapter in promiscuous mode is what allows it to connect (opening wireshark sets it into promicuous mode)
+--------------------------------------Check with a different UXG whether or not setting your network adapter in promiscuous mode is what allows it to connect (opening wireshark sets it into promicuous mode)
 --------------------------------------Test that feeding it to the UXG works after all the changes you've made this week
 --------------------------------------Barker codes
 --------------------------------------Write code for feeding in a YATG file
@@ -25,7 +25,7 @@ go through todo's in the code
 --------------------------------------Make table visualization 
 --------------------------------------add "clear" button for pattern editing so the current pattern is cleared
 figure out why uniform noise doesn't just happen at the one specified freq
-double check that freq entries are relative not absolute
+--------------------------------------double check that freq entries are relative not absolute
 --------------------------------------make the state of the first pattern be "off"
 --------------------------------------fix the hex conversion so it doesn't chop off bits? 
 add in code that lets the user know the max phase value allowed is 180
@@ -60,7 +60,7 @@ CAN I USE THE FREQ/PHASE TABLE WITH PURE STREAMING AKA NOT FILE STREAMING
 
 ME		***fix the double rounding shit for attenuation and phase
 ME		***Help buttons and ToolTips
-ME		***DB to DBM shit
+ME		***DB to DBM shit : https://www.erlang.com/topic/1-7661/
 ME 		make it so they can open a textfile with the bit patterns OR copy and paste a given pattern into a text editor  
 ME		cleanup output_to_console's everywhere
 ME		Cleanup git repo before handing it over
@@ -68,10 +68,13 @@ ME		Add josh's instructions on deploying an executable to your qt notes (he emai
 ME		In the startup set the deliminator to be comma, also go through SCPI notes to see what you forgot to put in the startup routine
 
 
-during presentation mention future improvements: 
+during presentation mention future improvements: ----
 chris's time calculation idea
 chris's increment button idea (say it's partially done)
 Mike's copy paste bit pattern option although it is possible to do it by just changing the hex value in the file before uploading
+multibox sync  
+continuing documentation 
+adding checks for resolution limits on inputted values
 
 
 JOSH 	add help buttons with popup windows to the main window Qt::WindowContextHelpButtonHint  
@@ -98,6 +101,11 @@ pdf file of uxg datasheet
 
 
 
+Mention in presentation:
+
+tooltips 
+manual 
+future improvements
 
 
 
