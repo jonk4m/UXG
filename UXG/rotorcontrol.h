@@ -45,6 +45,7 @@ public:
     QList<QString> positionList;
     int positionListIndex = 0;
     int dummyVariable=0;
+    bool isElevationSpeedRequested=true;
 //    QByteArray elRead;
 //    QByteArray azRead;
 
@@ -108,10 +109,19 @@ public:
 
     void timerTimeout(bool isElevation);
 
+    void rampTimerTimeout();
 
+    void minSpeedTimerTimeout();
+
+    void maxSpeedTimerTimeout();
 
 signals:
      void userMessage(QString message);
+
+private:
+     QTimer *maxSpeedTimer;
+     QTimer *minSpeedTimer;
+     QTimer *rampTimer;
 
 };
 

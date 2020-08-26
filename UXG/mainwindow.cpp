@@ -59,8 +59,6 @@ void MainWindow::setup(){
     mainTimer->start(200);//the timer will go off every 200ms
     stopMotionTimer = new QTimer(this);
     connect(stopMotionTimer, SIGNAL(timeout()), this, SLOT(stopMotion()));
-    droneTestTimer = new QTimer(this);
-    connect(droneTestTimer, SIGNAL(timeout()), this, SLOT(droneTestTimerTimeout()));
 
     ui->testCreatorTableWidget->viewport()->installEventFilter(this);
     ui->testCreatorTableWidget->installEventFilter(this);
@@ -1358,9 +1356,10 @@ void MainWindow::updatePositions(){
                     serial->stopMotion();
                     QString fileName = "";
                     if(ui->singlePDWCheckBox->isChecked()){
-                        fileName = "'" + ui->singlePDWFileLineEdit->text() + "'";
+                        fileName = ui->singlePDWFileLineEdit->text().remove(".csv",Qt::CaseInsensitive).remove(".txt",Qt::CaseInsensitive);
+                        fileName = "'" + fileName + "'";
                     }else{
-                        fileName = "'" + QString::number(fileNumber) + ".csv'";
+                        fileName = "'" + QString::number(fileNumber) + "'";
                         fileNumber++;
                     }
                     window_ftpManager->playPDW(fileName, ui->continuousTriggerCheckBox->isChecked());
@@ -1397,7 +1396,7 @@ void MainWindow::serialRead(){
             ui->maxSpeedSlider->setSliderPosition(4);
             serial->write("WF22;",isElevation);
         }else if(serial->droneTestStarted&&read.writeNumber==-1){
-            ui->maxSpeedSlider->setSliderPosition(7);
+            ui->maxSpeedSlider->setSliderPosition(10);
             serial->write("WF22;",isElevation);
         }else if(read.writeNumber!=-1){
             ui->maxSpeedSlider->setSliderPosition(read.writeNumber);
@@ -1410,7 +1409,7 @@ void MainWindow::serialRead(){
             serial->write("WN02;",isElevation);
         }else if(serial->droneTestStarted&&read.writeNumber==-1){
             ui->minSpeedSlider->setSliderPosition(2);
-            serial->write("WN02;",isElevation);
+            serial->write("WN00;",isElevation);
         }else if(read.writeNumber!=-1){
             ui->minSpeedSlider->setSliderPosition(read.writeNumber);
         }
@@ -1426,8 +1425,8 @@ void MainWindow::serialRead(){
             }
 
             mainTimer->start(200);
-        }else if(serial->advancedTestStarted){
-            ui->rampSlider->setSliderPosition(2);
+        }else if(serial->droneTestStarted){
+            ui->rampSlider->setSliderPosition(0);
         }
         else if(read.writeNumber!=-1){
             ui->rampSlider->setSliderPosition(read.writeNumber);
@@ -1726,13 +1725,12 @@ void MainWindow::on_startDroneTestPushButton_clicked()
     comboBoxText.chop(3);
     serial->refreshRate = comboBoxText.toDouble();
     if(ui->recommendedSpeedRadioButton->isChecked()){
-        serial->write("WG27;",true);
-        serial->write("WG27;",false);
+        serial->write("WG210;",true);
+        serial->write("WG210;",false);
     }
     QList<QString> IPAddressAndPort = ui->UDPIPPortLineEdit->text().split(',');
     udpSocket->setIPAddress(QHostAddress(IPAddressAndPort.at(0)),IPAddressAndPort.at(1).toInt());
-    udpSocket->writeData("data");
-    droneTestTimer->start((1/comboBoxText.toDouble())*1000);
+
 }
 
 //stops any test the is currently running
@@ -1758,7 +1756,7 @@ void MainWindow::on_stopTestPushButton_clicked()
     }
     serial->lastDroneAzPosition=0;
     serial->lastDroneElPosition=0;
-    droneTestTimer->stop();
+
 }
 
 //table functions
@@ -2234,6 +2232,4 @@ void MainWindow::on_testOptionsHelpButton_clicked()
     msgBox->open( this, SLOT(msgBoxClosed(QAbstractButton*)));
 }
 
-void MainWindow::droneTestTimerTimeout(){
-    udpSocket->writeData("data");
-}
+

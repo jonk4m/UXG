@@ -11,6 +11,9 @@ RotorControl::RotorControl(QMainWindow *window)
     el = new QSerialPort(window);
     QMainWindow::connect(el, SIGNAL(readyRead()), window, SLOT(serialRead()));
     QMainWindow::connect(az, SIGNAL(readyRead()), window, SLOT(serialRead()));
+    maxSpeedTimer = new QTimer(this);
+    minSpeedTimer = new QTimer(this);
+    rampTimer = new QTimer(this);
     this->window=window;
 
 }
@@ -452,11 +455,13 @@ RotorControl::ParameterAndWriteNumber RotorControl::parseSerialRead(controllerPa
     case(controllerParameter::maxSpeed) :{
         if(serialRead.endsWith('0')){
             ParameterAndWriteNumber returnValue = ParameterAndWriteNumber(controllerParameter::maxSpeed, 10);
+
             return returnValue;
         }else{
             ParameterAndWriteNumber returnValue = ParameterAndWriteNumber(controllerParameter::maxSpeed, serialRead.right(1).toInt());
             return returnValue;
         }
+        maxSpeedTimer->stop();
     }
     case(controllerParameter::minSpeed) :{
         if(serialRead.endsWith('0')){
@@ -466,9 +471,11 @@ RotorControl::ParameterAndWriteNumber RotorControl::parseSerialRead(controllerPa
             ParameterAndWriteNumber returnValue = ParameterAndWriteNumber(controllerParameter::minSpeed, serialRead.right(1).toInt());
             return returnValue;
         }
+        minSpeedTimer->stop();
     }
     case(controllerParameter::ramp) :{
         ParameterAndWriteNumber returnValue = ParameterAndWriteNumber(controllerParameter::ramp, serialRead.right(1).toInt());
+        rampTimer->stop();
         return returnValue;
     }
     case(controllerParameter::position) :{
@@ -503,12 +510,17 @@ void RotorControl::getMaxMinAndRampValues(bool isElevation){
         el->write("RG0;");
         el->write("RF0;");
         el->write("RN0;");
+        isElevationSpeedRequested=true;
 
     }else{
         az->write("RG0;");
         az->write("RF0;");
         az->write("RN0;");
+        isElevationSpeedRequested=false;
     }
+    rampTimer->start(200);
+    minSpeedTimer->start(200);
+    maxSpeedTimer->start(200);
 
 }
 
@@ -707,4 +719,28 @@ void RotorControl::timerTimeout(bool isElevation){
         write(azLastCommand,false);
     }
 
+}
+
+void RotorControl::maxSpeedTimerTimeout(){
+    if(isElevationSpeedRequested){
+        el->write("RG0;");
+    }else{
+        az->write("RG0;");
+    }
+}
+
+void RotorControl::minSpeedTimerTimeout(){
+    if(isElevationSpeedRequested){
+        el->write("RF0;");
+    }else{
+        az->write("RF0;");
+    }
+}
+
+void RotorControl::rampTimerTimeout(){
+    if(isElevationSpeedRequested){
+        el->write("RN0;");
+    }else{
+        az->write("RN0;");
+    }
 }
