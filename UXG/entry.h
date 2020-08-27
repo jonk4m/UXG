@@ -28,6 +28,19 @@ phase:
 Range: 0 deg – 360 deg
 Resolution: 0.087890625 deg
 
+freq:
+Resolution: 1/1024 Hz
+
+TOA:
+Range: 0 ps to 213.504 days
+Field Resolution: 1 ps
+
+PW:
+Range: 4 ns to 4.294967295 s
+Field Resolution: 1 ns
+Resolution: 2 ns
+
+
 
 idea for Mike:
 markers
