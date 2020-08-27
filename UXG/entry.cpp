@@ -1,8 +1,22 @@
 #include "entry.h"
 
-Entry::Entry(){
-
+Entry::Entry(QMainWindow *window){
+    QMainWindow::connect(this, SIGNAL(userMessage(QString)), window, SLOT(output_to_console(QString)));
 }
+//Entry::Entry(const Entry &obj){
+//    this->comment=obj.comment;
+//    this->freqs= obj.freqs;
+//    this->state= obj.state;
+//    this->length=obj.length;
+//    this->phases = obj.phases;
+//    this->freqUnits = obj.freqUnits;
+//    this->bitPattern=obj.bitPattern;
+//    this->codingType=obj.codingType;
+//    this->hexPattern=obj.hexPattern;
+//    this->bitsPerSubpulse=obj.bitsPerSubpulse;
+//    this->numOfPhasesOrFreqs=obj.numOfPhasesOrFreqs;
+//    this->plainTextRepresentation=obj.plainTextRepresentation;
+//}
 
 /*
  * This takes the entire binaryPattern and parses through it to rewrite the plain text pattern of this entry
@@ -21,14 +35,18 @@ void Entry::parse_entry_for_plain_text_pattern(){
         if(this->codingType == "PHASE"){
             bool ok;
             plainText.append(this->phases.at(currentPulse.toInt(&ok,2)) + "°");
-            if(!ok)
-                qDebug() << "error occured converting binary QString to int";
+            if(!ok){
+                emit userMessage("error occured converting binary QString to int");
+                qDebug() << "error occured converting binary QString to int, QString offender: " << currentPulse.toInt(&ok,2);
+            }
         }else if(this->codingType == "FREQUENCY"){
             bool ok;
             plainText.append(this->freqs.at(currentPulse.toInt(&ok,2)));
             plainText.append(this->freqUnits.at(currentPulse.toInt(&ok,2)) + "hz");
-            if(!ok)
-                qDebug() << "error occured converting binary QString to int";
+            if(!ok){
+                emit userMessage("error occured converting binary QString to int");
+                qDebug() << "error occured converting binary QString to int" << currentPulse.toInt(&ok,2);
+            }
         }else if(this->codingType == "BOTH"){
             bool ok;
             bool ok2;
@@ -36,9 +54,12 @@ void Entry::parse_entry_for_plain_text_pattern(){
             plainText.append(",");
             plainText.append(this->freqs.at(currentPulse.toInt(&ok2,2)));
             plainText.append(this->freqUnits.at(currentPulse.toInt(&ok,2)) + "hz");
-            if(!ok || !ok2)
+            if(!ok || !ok2){
+                emit userMessage("error occured converting binary QString to int");
                 qDebug() << "error occured converting binary QString to int";
+            }
         }else{
+            emit userMessage("Unrecognizable Pattern Coding Type Entry : " + this->state);
             qDebug() << "Unrecognizable Pattern Coding Type Entry : " << this->state;
             return;
         }
@@ -105,6 +126,7 @@ QString Entry::binary_to_hex_converter(QString binary){
         }else if(segment == "1111"){
             hexString.append("f");
         }else{
+            emit userMessage("error binary to hex conversion");
             qDebug() << "error binary to hex conversion";
         }
     }
@@ -169,6 +191,7 @@ QString Entry::hex_to_binary_converter(QString hex){
         }else if(segment == "f"){
             binaryString.append("1111");
         }else{
+            emit userMessage("error binary to hex conversion");
             qDebug() << "error binary to hex conversion";
         }
     }

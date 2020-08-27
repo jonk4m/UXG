@@ -1,0 +1,49 @@
+Thoughts 
+
+
+Why not send PDW's over SCPI?
+it is slow as hell. The UXG is the throttle on this one, I checked.
+for example, if I send it a 45KB file it takes our program 0.5 seconds to send it over, but it takes the uxg 2min to get to the bottom of 
+the queue of scpi's and be done. 
+
+Why not send the PDW's over ftp?
+we would have to make massive csv files and 
+even though the transfer is really fast, then telling the uxg to convert it into pdw takes too long 
+for example, if I send it a 48MB file it takes ftp 2seconds to send it over, but it takes the uxg 1min to convert it. 
+
+currently my program takes a yatg, converts it into scpi commands and sends them to the uxg, then it tells the uxg to convert that csv file into a pdw file
+
+
+what if we took a YATG file, converted it into a streamable pdw file, then used ftp to send it to the uxg. This makes it so the uxg doesn't have to convert it. Still doesn't get
+rid of the fact that we have to create another massive file (although half as big as the original csv).
+
+Best solution seems to be somehow stream to a file. Basically same scheme as my current scpi method but with a faster transfer method than scpi 
+
+
+
+
+
+
+
+ok so if I want to make a Streamable file, I need to create a file that follows the Streaming file format definition: http://rfmw.em.keysight.com/wireless/helpfiles/n519xa/Content/User's%20Guide/Streaming%20Mode%20File%20Format%20Definition.htm
+as well as each pdw following the pdw definition : http://rfmw.em.keysight.com/wireless/helpfiles/n519xa/Content/User's%20Guide/Streaming%20Mode%20PDW%20Definitions.htm
+then I'd dump it on the UXG using FTP and then I can immediately play from it 
+
+
+instead of scpi or ftp to get PDW's on the uxg is there a faster way of dumping data on there?
+scpi just takes forever, creating a csv or txt file out the the yatg file to then do ftp and tell it to convert will take up too much memory (think if they handed you a 1GB YATG
+file you'd have to convert it into a csv that's at least a GB to then do ftp and finally tell the uxg to convert it) 
+
+setup a timer to see if our program is what's slow for sending scpi or if it's the UXG.
+If it's ours:
+find out why 
+how big is the scpi buffer on the UXG?
+If it's the UXG: (it was the UXG)
+Can we send it all as one scpi?
+start investigating using ftp
+
+dBm
+dbm
+DBM
+DBm
+Dbm 

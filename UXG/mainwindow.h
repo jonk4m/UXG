@@ -17,6 +17,9 @@
 #include "QTableWidget"
 #include "QTableWidgetItem"
 #include "yatg.h"
+#include "rotorcontrol.h"
+#include "udpsocket.h"
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -31,10 +34,41 @@ public:
     ~MainWindow();
     void fpcs_setup();
     Ui::MainWindow *ui;
-    Fpcs window_fpcs; //each fpcs also has it's own fpcs_settings struct titled "settings"
+    UdpSocket *udpSocket;
+    Fpcs *window_fpcs; //each fpcs also has it's own fpcs_settings struct titled "settings"
     FtpManager *window_ftpManager;
     YATG *window_yatg;
     int highlightedFpcsRow = -1;
+    bool fpcsWasOpenedDuringUse = false; //this way the window doesn't prompt the user to save their current table when they exit the window unless they have loaded or created one
+    QElapsedTimer timer;
+
+    void setup();
+     //serial fields
+     //test fields
+     QList<QString> pdwFileNames;
+     bool multiplePDWsPlaying=false;
+     QList<QString> testPositions;
+     bool positionTestHasBeenOpened=false;
+     bool triggerSent=false;
+     int fileNumber=1;
+     //serial fields
+     RotorControl *serial;
+     int rotorInPositionCounter=0;
+     //table fields
+     int currentTableNumber = 0;
+     QList<QTableWidgetItem *> tableWidgetItemList;
+     int tableAzResolution=1;
+     int tableElResolution=1;
+     int tableCreatorRowOffset=180;
+     bool rightMouseButtonPressed=false;
+     //test functions
+     void startPositionTest();
+     void startSimpleTest();
+     //table functions
+     QString getFileName(bool isTestOptionsLineEdit);
+     void resetTable(int azResolution, int elResolution);
+     bool leftMouseButtonReleaseEvent(QMouseEvent *event);
+     bool eventFilter(QObject *object, QEvent *event);
 
 private slots:
 
@@ -42,11 +76,9 @@ private slots:
 
     void on_use_default_name_radio_button_clicked();
 
-    void on_specified_table_name_line_edit_textChanged(const QString &arg1);
+    //void on_specified_table_name_line_edit_textChanged(const QString &arg1);
 
     void on_change_table_directory_push_button_clicked();
-
-    void on_use_default_file_directory_check_box_stateChanged(int arg1);
 
     void on_create_new_table_button_box_accepted();
 
@@ -126,13 +158,96 @@ private slots:
 
     void on_comboBox_activated(const QString &arg1);
 
-    void on_pushButton_3_clicked();
-
     void on_select_yatg_file_push_button_clicked();
 
     void on_select_multiple_files_by_folder_push_button_clicked();
 
     void on_upload_yatg_file_to_uxg_push_button_clicked();
+
+        //serial slots
+    void on_elevationPushButton_clicked();
+
+    void on_azimuthPushButton_clicked();
+
+    void on_changeBothPushButton_clicked();
+
+    void on_connectUSBPushButton_clicked();
+
+    void on_maxSpeedSlider_sliderReleased();
+
+    void on_minSpeedSlider_sliderReleased();
+
+    void on_rampSlider_sliderReleased();
+
+    void serialRead();
+
+    void updatePositions();
+
+    void on_stopButton_clicked();
+
+    void on_elevationMotorSpeedRadioButton_toggled(bool checked);
+
+    void on_positionRadioButton_toggled(bool checked);
+
+    void on_fixElevationPushButton_clicked();
+
+    void on_fixAzimuthPushButton_clicked();
+
+    void stopMotion();
+
+    void resendTimerTimeout();
+
+    //test slots
+    void on_openTestFilePushButton_clicked();
+
+    void on_startTestButton_clicked();
+
+
+    void on_OpenTestPushButton_clicked();
+
+    void on_startDroneTestPushButton_clicked();
+
+    void on_stopTestPushButton_clicked();
+
+    //table slots
+    void on_selectBoxesRadioButton_toggled(bool checked);
+
+    void on_clearTablePushButton_clicked();
+
+    void on_testCreatorTableWidget_cellEntered(int row, int column);
+
+    void on_testCreatorTableWidget_itemChanged(QTableWidgetItem *item);
+
+    void on_createTextFilePushButton_clicked();
+
+    void on_changeTableResolutionPushButton_clicked();
+
+    //Udp slots
+    void UdpRead();
+
+    void on_turnStreamOffPushButton_clicked();
+
+    void on_playPDWPushButton_clicked();
+
+    void on_stopPDWPushButton_clicked();
+
+    void on_usingRotorCheckBox_toggled(bool checked);
+
+    void on_startPositionTestPushButton_clicked();
+
+    void on_openFilePushButton_clicked();
+
+    void on_play_multiple_pdws_push_button_clicked();
+
+    void on_create_yatg_template_file_pushbutton_clicked();
+
+    void on_stopAllCurrentProcessesButton_clicked();
+
+    void on_elevationModePushButton_clicked();
+
+    void on_notElevationModePushButton_clicked();
+
+    void on_testOptionsHelpButton_clicked();
 
 private:
 
@@ -142,6 +257,10 @@ private:
     void update_table_visualization();
 
     void update_pattern_edit_visualization();
+
+    QTimer *mainTimer;
+
+    QTimer *stopMotionTimer;
 
 
 };

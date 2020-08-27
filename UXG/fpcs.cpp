@@ -8,8 +8,11 @@
  * Possible Edit: Fpcs will keep a resource file that will be used to store the names of all previously made csv's so even if the program is exited and reopened, the delete all files method will work by viewing this text file of names
  *
  */
-Fpcs::Fpcs()
+Fpcs::Fpcs(QMainWindow *window)
 {
+    QMainWindow::connect(this, SIGNAL(userMessage(QString)), window, SLOT(output_to_console(QString)));
+    workingEntry = new Entry(window);
+    this->window=window;
     //none needed, but method kept for future debugging
 };
 
@@ -20,12 +23,16 @@ Fpcs::Fpcs()
  * In both scenarios, the QTextStreamer will use the file either created or opened as it's device
  * In both scenarios, the file is left open until either the program is exited, or the user changes files.
  */
-bool Fpcs::initialize_workingFile(){
+bool Fpcs::initialize_workingFile(bool exists){
 
     //if a different file was already open, this will close it so we can select a new file
     workingFile.close();
 
-    if(this->settings.usingExistingTable == true){ //loading in an existing Table
+    settings.tableNameAndPath.clear();
+    settings.tableNameAndPath.append(settings.tablePath).append("/").append(settings.tableName).append(".csv");
+    userMessage("Initializing File. file name and path: " + settings.tableNameAndPath);
+
+    if(exists == true){ //loading in an existing Table
         return initialize_existingFile_local();
     }else{
         return initialize_newFile();
@@ -34,16 +41,18 @@ bool Fpcs::initialize_workingFile(){
 
 bool Fpcs::initialize_existingFile_local(){
 
-    workingFile.setFileName(this->settings.existingTableFilePath); //set this file path to be for the working file
-    bool exists = workingFile.exists(this->settings.existingTableFilePath);
+    workingFile.setFileName(settings.tableNameAndPath); //set this file path + name to be the working file
+    bool exists = workingFile.exists(settings.tableNameAndPath);
     if(exists){
         if(!workingFile.open(QFile::ReadWrite | QFile::Text | QFile::ExistingOnly)) //Options: ExistingOnly, NewOnly, Append
         {
-            qDebug() << " Could not open File : " + this->settings.existingTableFilePath;
+            emit userMessage(" Could not open File : " + settings.tableNameAndPath);
+            qDebug() << " Could not open File : " + settings.tableNameAndPath;
             return false;
         }
     }else{
-        qDebug() << "File Not Found in Local System: " << settings.existingTableFilePath;
+        emit userMessage("File Not Found in Local System when initializing file in local system: " + settings.tableNameAndPath);
+        qDebug() << "File Not Found in Local System when initializing file in local system: " << settings.tableNameAndPath;
         return false;
     }
 
@@ -55,6 +64,7 @@ bool Fpcs::initialize_existingFile_local(){
     //check header
     bool correctHeader = this->check_file_header();
     if(!correctHeader){
+        emit userMessage("Incorrect Header found on Loaded Table File");
         qDebug() << "Incorrect Header found on Loaded Table File";
     }
 
@@ -72,15 +82,17 @@ bool Fpcs::initialize_newFile(){
     *  Note that we use two separate strings that make up the filepath. One is the folder filepath, and the other is the name of the file
     *  this is done to simplify editing both separately in the gui.
     */
-    bool exists = workingFile.exists(this->mapped_file_path());
+    bool exists = workingFile.exists(settings.tableNameAndPath); //this->mapped_file_path()
     if(exists){
-        qDebug() << "File : " + this->mapped_file_path() + " already exists, aborting file creation...";
+        emit userMessage("File : " + settings.tableNameAndPath + " already exists, aborting file creation...");
+        qDebug() << "File : " + settings.tableNameAndPath + " already exists, aborting file creation...";
         return false;
     }
-    workingFile.setFileName(this->mapped_file_path()); //set this file path for the working file
+    workingFile.setFileName(settings.tableNameAndPath); //set this file path for the working file
     if(!workingFile.open(QFile::ReadWrite | QFile::Text)) //Options: ExistingOnly, NewOnly, Append
     {
-        qDebug() << " Could not create File : " + this->mapped_file_path();
+        emit userMessage(" Could not create File : " + settings.tableNameAndPath);
+        qDebug() << " Could not create File : " + settings.tableNameAndPath;
         return false;
     }
 
@@ -101,43 +113,6 @@ void Fpcs::close_file(){
         this->settings.fileInPlay = false;
     }
 };
-
-/*
- *This method is used to construct the full filePath name when juggling the options of custom vs default filePaths and Names when creating a file
- */
-QString Fpcs::mapped_file_path(){
-    QString totalFilePath;
-    if(this->settings.usingCustomFilePath == true){ //custom file path
-        totalFilePath.append(this->settings.customFilePath);
-        totalFilePath.append("/");
-        if(this->settings.usingCustomTableName == true){ //custom file path and custom name
-            if(this->settings.customTableName == ""){
-                qDebug() << "Custom Table Name is Currently Empty";
-                return "";
-            }
-            totalFilePath.append(this->settings.customTableName);
-            totalFilePath.append(".csv");
-        }else{ //custom file path and default name
-            totalFilePath.append(this->settings.defaultTableName);
-            totalFilePath.append(".csv");
-        }
-    }else{ //default file path
-        totalFilePath.append(this->settings.defaultFilePath);
-        totalFilePath.append("/");
-        if(this->settings.usingCustomTableName == true){ //default file path and custom name
-            if(this->settings.customTableName == ""){
-                qDebug() << "Custom Table Name is Currently Empty";
-                return "";
-            }
-            totalFilePath.append(this->settings.customTableName);
-            totalFilePath.append(".csv");
-        }else{ //default file path and default name
-            totalFilePath.append(this->settings.defaultTableName);
-            totalFilePath.append(".csv");
-        }
-    }
-    return totalFilePath;
-}
 
 /*
  * Sets the Class's QTextStream streamer to the current workingFile
@@ -185,45 +160,47 @@ bool Fpcs::check_file_header(){
 bool Fpcs::add_entry_to_file(){
     if(this->settings.fileInPlay == true){
         //parse through the fpcs_entry and add those values to the table csv file
-        streamer << workingEntry.comment + ","; //comment gets incremented then converted to a QString
-        streamer << workingEntry.state + ",";
-        streamer << workingEntry.codingType + ",";
-        workingEntry.length = workingEntry.bitPattern.size();
-        streamer << QString::number(workingEntry.length) + ",";
-        streamer << QString::number(workingEntry.bitsPerSubpulse) + ",";
+        streamer << workingEntry->comment + ","; //comment gets incremented then converted to a QString
+        streamer << workingEntry->state + ",";
+        streamer << workingEntry->codingType + ",";
+        workingEntry->length = workingEntry->bitPattern.size();
+        streamer << QString::number(workingEntry->length) + ",";
+        streamer << QString::number(workingEntry->bitsPerSubpulse) + ",";
 
         //enhanced for loop going through the array of phase values
         for(int i = 0; i < 16; i++){
-            streamer << workingEntry.phases[i] + ",";
+            streamer << workingEntry->phases[i] + ",";
         }
 
         //for loop going through the array of freq values
         for(int i = 0; i < 16; i++){
             unsigned long long int tempMultiplier = 1;
-            if(workingEntry.freqUnits.at(i) == QString("G") || workingEntry.freqUnits.at(i) == QString("g")){
+            if(workingEntry->freqUnits.at(i) == QString("G") || workingEntry->freqUnits.at(i) == QString("g")){
                 tempMultiplier = 1000000000;
-            }else if(workingEntry.freqUnits.at(i) == QString("M") || workingEntry.freqUnits.at(i) == QString("m")){
+            }else if(workingEntry->freqUnits.at(i) == QString("M") || workingEntry->freqUnits.at(i) == QString("m")){
                 tempMultiplier = 1000000;
-            }else if(workingEntry.freqUnits.at(i) == QString("K") || workingEntry.freqUnits.at(i) == QString("k")){
+            }else if(workingEntry->freqUnits.at(i) == QString("K") || workingEntry->freqUnits.at(i) == QString("k")){
                 tempMultiplier = 1000;
             }else{
-                qDebug() << "Unknown Scaling Factor used for a frequency in a pattern : " << workingEntry.freqUnits.at(i);
+                emit userMessage("Unknown Scaling Factor used for a frequency in a pattern : " + workingEntry->freqUnits.at(i));
+                qDebug() << "Unknown Scaling Factor used for a frequency in a pattern : " << workingEntry->freqUnits.at(i);
                 return false;
             }
 
-            streamer << QString::number(workingEntry.freqs.at(i).toULongLong() * tempMultiplier) + ",";
+            streamer << QString::number(workingEntry->freqs.at(i).toULongLong() * tempMultiplier) + ",";
         }
 
         //add the hex pattern
-        workingEntry.hexPattern = workingEntry.binary_to_hex_converter(workingEntry.bitPattern);
+        workingEntry->hexPattern = workingEntry->binary_to_hex_converter(workingEntry->bitPattern);
 
-        streamer << "#h" << workingEntry.hexPattern;
+        streamer << "#h" << workingEntry->hexPattern;
 
         streamer << "\n"; //end of entry, new line for next entry
 
         streamer.flush();
 
     }else{
+        emit userMessage("No File is currently selected for the entry to be added to.");
         qDebug() << "No File is currently selected for the entry to be added to.";
         return false;
     }
@@ -233,7 +210,7 @@ bool Fpcs::add_entry_to_file(){
 void Fpcs::data_dump_onto_file(){
     if(settings.fileInPlay == true){
         write_header_to_workingFile();
-        for(Entry entry : workingEntryList){
+        for(Entry *entry : workingEntryList){
             workingEntry = entry;
             add_entry_to_file();
         }
@@ -249,11 +226,12 @@ void Fpcs::import_entries_from_existing_file(){
     streamer.seek(0);
     QStringList readHeader = streamer.readLine().remove("\n").split(QRegExp(","), Qt::SkipEmptyParts);
     //qDebug() << "header list : " << readHeader;
-    QString throwAwayRow = streamer.readLine().remove("\n");
+    QString throwAwayRow = streamer.readLine().remove("\n"); //the first row is always a filler by convention in teh documentation
 
     while(true){
         //read the next line
         QString row = streamer.readLine().remove("\n");
+        //emit userMessage("row: " + row);
 
         //check if we are at the end of the file
         if(row.size() == 0){
@@ -263,33 +241,36 @@ void Fpcs::import_entries_from_existing_file(){
         QStringList rowList = row.split(QRegExp(","), Qt::SkipEmptyParts);
         //qDebug() << "rowList : " << rowList;
 
-        Entry *tempEntry = new Entry();
+        Entry *tempEntry = new Entry(window);
 
         tempEntry->comment = rowList.at(0);
         tempEntry->state = rowList.at(1);
         tempEntry->codingType = rowList.at(2);
         tempEntry->length = rowList.at(3).toInt();
         tempEntry->bitsPerSubpulse = rowList.at(4).toInt();
-        if(readHeader.indexOf("Hex Pattern") == -1){
-            qDebug() << "Error, hex pattern not found in file. Index is : " << readHeader.indexOf("Hex Pattern");
+        tempEntry->numOfPhasesOrFreqs = qPow(2,tempEntry->bitsPerSubpulse);
+        if(readHeader.indexOf("Hex Pattern",Qt::CaseInsensitive) == -1){
+            emit userMessage("Error, hex pattern not found in file. Index is : " +QString::number(readHeader.indexOf("Hex Pattern",Qt::CaseInsensitive)));
+            qDebug() << "Error, hex pattern not found in file. Index is : " << readHeader.indexOf("Hex Pattern",Qt::CaseInsensitive);
             return;
         }
-        tempEntry->hexPattern = rowList.at(readHeader.indexOf("Hex Pattern"));
+        tempEntry->hexPattern = rowList.at(readHeader.indexOf("Hex Pattern",Qt::CaseInsensitive));
 
         //assign appropriate phases based on indexes
         int tempPhaseIndex;
         for(int i=0; i<16; i++){
-            tempPhaseIndex = readHeader.indexOf("Phase State " + QString::number(i) + " (deg)");
+            tempPhaseIndex = readHeader.indexOf("Phase State " + QString::number(i) + " (deg)",Qt::CaseInsensitive);
             if (tempPhaseIndex != -1)
                 tempEntry->phases.replace(i, rowList.at(tempPhaseIndex));
         }
+
         //assign appropriate freqs based on indexes
         int tempFreqIndex;
-        unsigned long long freq;
+        double freq;
         for(int i=0; i<16; i++){
-            tempFreqIndex = readHeader.indexOf("Frequency State " + QString::number(i) + " (Hz)");
+            tempFreqIndex = readHeader.indexOf("Frequency State " + QString::number(i) + " (Hz)",Qt::CaseInsensitive);
             if (tempFreqIndex != -1){
-                freq = rowList.at(tempFreqIndex).toULongLong();
+                freq = rowList.at(tempFreqIndex).toDouble(); //changed
                 if(freq > 999999999){
                     //use Giga
                     tempEntry->freqUnits.replace(i, "G");
@@ -303,6 +284,7 @@ void Fpcs::import_entries_from_existing_file(){
                     tempEntry->freqUnits.replace(i, "K");
                     freq = freq / 1000;
                 }
+                //emit userMessage("freq " + QString::number(i) + " is: " + QString::number(freq));
                 tempEntry->freqs.replace(i, QString::number(freq));
             }
         }
@@ -313,12 +295,12 @@ void Fpcs::import_entries_from_existing_file(){
         //create the plaintext pattern
         tempEntry->parse_entry_for_plain_text_pattern();
 
-        workingEntryList << *tempEntry;
+        workingEntryList << tempEntry;
     }
 
 }
 
-bool Fpcs::add_entry(Entry &newEntry){
+bool Fpcs::add_entry(Entry *newEntry){
     workingEntryList.append(newEntry); //add a new entry to the fpcs list of entries
     return true;
 }

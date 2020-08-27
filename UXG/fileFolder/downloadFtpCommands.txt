@@ -1,0 +1,7 @@
+user
+keysight
+lcd
+lcd fileFolder/downloads
+cd /USER/BIN
+mget *
+bye

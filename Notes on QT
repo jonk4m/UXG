@@ -72,8 +72,21 @@ how to run a command line process (do ctr F to find the example where it says "F
 how to pass parameters in QT properly, the second option in the article is what I used : https://www.geeksforgeeks.org/parameter-passing-techniques-in-c-cpp/
 Never use QString*, like ever. Just use QString by itself. 
 
+UXG error codes: https://literature.cdn.keysight.com/litweb/pdf/N5191-90010.pdf?id=2554385
+
+convert anything to anything using QVariant: QVariant(3.2).toString();  QVariant("5.2").toDouble();
+
 list of books QT recommends for learning how to program with threading : https://doc.qt.io/archives/qt-4.8/threads.html
 QT Article talking about what most people do wrong with threading and event loops : https://wiki.qt.io/Threads_Events_QObjects
+
+how to give the window an image, and how to give the executable an image : https://doc.qt.io/qt-5/appicon.html use this for converting the png to .ico : https://hnet.com/png-to-ico/
+how to set the cursor to "loading" indicator spinning wheel : https://doc.qt.io/qt-5/qguiapplication.html#setOverrideCursor
+bool ok = false; double valueOfPri = rowList.at(indexes.value("Pri")).toDouble(&ok); works but bool *ok; double valueOfPri = rowList.at(indexes.value("Pri")).toDouble(ok); doesn't work
+double setupTime = (double)0.00000027 * (timeScalingFactor); works but double setupTime = 0.00000027 * (timeScalingFactor); rounds the 0.00000027 to zero
+
+deploy an executable with all the .dll's and platforms and packages with it: 
+
+see all available devices on your local network with cmd command: "arp -a"
 
 networking -----
 network programming and FTP with QT an overview : https://doc.qt.io/qt-5/qtnetwork-programming.html
