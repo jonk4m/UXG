@@ -1728,8 +1728,6 @@ void MainWindow::on_startDroneTestPushButton_clicked()
         serial->write("WG210;",true);
         serial->write("WG210;",false);
     }
-    QList<QString> IPAddressAndPort = ui->UDPIPPortLineEdit->text().split(',');
-    udpSocket->setIPAddress(QHostAddress(IPAddressAndPort.at(0)),IPAddressAndPort.at(1).toInt());
 
 }
 
