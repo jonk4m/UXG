@@ -40,8 +40,6 @@ Range: 4 ns to 4.294967295 s
 Field Resolution: 1 ns
 Resolution: 2 ns
 
-
-
 idea for Mike:
 markers
 triggers
@@ -49,6 +47,8 @@ dynamic streaming
 faster rf switching by checking what band it's in
 
 */
+
+//hKnnd7ip4naY5q6Eiyn6jPG2yU5Yp6lLBGXVrVbHlfClTKvvUw
 
 #include <QMainWindow>
 #include <QObject>
