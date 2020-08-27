@@ -37,6 +37,7 @@ public:
     QTextStream outputFileStreamer;
 
     bool uploadingMultipleFiles = false;
+    const double pdwPadding = 0; //must be in seconds
 
 private:
 
