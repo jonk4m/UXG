@@ -24,6 +24,10 @@ relative power:
 Range: -161.6 dB to 31.07 dB
 Resolution: 0.0085 dB
 
+phase:
+Range: 0 deg – 360 deg
+Resolution: 0.087890625 deg
+
 
 idea for Mike:
 markers
