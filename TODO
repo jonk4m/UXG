@@ -15,17 +15,13 @@ include in manual that a list of pdw files for batch playing should not include 
 TODAY 
 check hangar email
 call simoni 
+log hours 
+have josh take the image out of his help button and put the text in instead like you did
 
 THIS WEEKEND  
 Write-up a project description for Crinion this weekend after looking over other project proposals from other schools (spectrum analyzier using STM32-MP1 dual cortex M4, waterfall plot on lcd screen with storage of data on SSD) motivation: demonstrate capabilities of microcontroller for hanger use by building a reference design
-JOSH	IP on startup is on a textfile 
-help buttons and tooltips 
-Right now the user has to clear the bitpattern manually if they change the number of freq/phases or the type (phase/freq/both) 
-cleanup output to consoles everywhere 
-cleanup todos everywhere 
 cleanup git repo 
-Add josh's instructions on deploying an executable to your qt notes (he emailed you alion email the instructions) 
-In the startup set the deliminator to be comma, also go through SCPI notes to see what you forgot to put in the startup routine
+Add josh's instructions on deploying an executable to your qt notes (he emailed your alion email the instructions) 
 start documentation manual 
 
 MONDAY
@@ -40,6 +36,5 @@ DB to DBM shit https://www.erlang.com/topic/1-7661/
 
 
 
-
-
+This is done by typing in a name for the table and selecting the "Specify Table Name" radio button then clicking the "OK" button, or by using the default table name. The directory for where the file is stored can be selected using the "Change Table Directory" button PRIOR to pressing the "OK" button that creates the file. Once the "OK" button is pressed, the user may begin to edit the table by selecting one of the options in the "Table Visualization" groupbox. 
 

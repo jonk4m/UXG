@@ -242,8 +242,8 @@ void FtpManager::socket_disconnected(){
 
 void FtpManager::socket_errorOccurred(QAbstractSocket::SocketError *error){
     //TODO turn error into string
-    emit userMessage("Socket error occurred : ");
-    qDebug() << "Socket error occurred : ";
+    emit userMessage("Socket error occurred");
+    qDebug() << "Socket error occurred";
     qDebug() << error;
 }
 
@@ -268,6 +268,7 @@ void FtpManager::UXGSetup(){
     case UXGSetup::Phase1 :{
         send_SCPI(":OUTPut OFF");
         send_SCPI("SYST:LOG:SCPI ON"); //turn on scpi logging
+        send_SCPI("SYSTem:ERRor:SCPI ON"); //report SCPI syntax errors in the error log
         send_SCPI("DISPlay:REMote ON");
         send_SCPI("DISPlay:CMAP:DEFault DARK"); //make the mode dark
         send_SCPI(":OUTPut:MODulation ON");
@@ -283,6 +284,8 @@ void FtpManager::UXGSetup(){
         send_SCPI(":STReam:TRIGger:PLAY:SOURce BUS");
         send_SCPI(":POWer:ATTenuation:BYPass 0");
         send_SCPI(":POWer 0");
+        send_SCPI("MEM:IMP:SEP:COL COMMa"); //specifies that the columns are sepperated by commas
+        send_SCPI("MEM:IMP:SEP:DEC DOT"); //specifies that a decimal point will be a dot not a comma
         send_SCPI(":STReam:SETup:TIME:AUTO OFF");
         send_SCPI(":STReam:SETup:TIME 0");
         send_SCPI("STR:STAR:TIME:OFFS:AUTO OFF");

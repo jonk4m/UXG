@@ -4,9 +4,6 @@ YATG::YATG(){
     //constructor
 }
 
-//format for YATG file header is: FREQ (MHZ),PRI (s),PW(s),COUNT,ATTEN (DB),PHASE,MOP,CW,Chirp Shape,Chirp Rate
-//note that chirprate units cannot be changed from (hz/s)
-
 YATG::YATG(FtpManager *ftpManager, QMainWindow *window){
     this->ftp_manager = ftpManager;
     QMainWindow::connect(this, SIGNAL(userMessage(QString)), window, SLOT(output_to_console(QString)));
@@ -42,12 +39,9 @@ bool YATG::upload_file_to_uxg(){
     QFileInfo fileInfo0(workingFile.fileName());
     QString fileNameWithoutDirectory0(fileInfo0.fileName());
     QString fileName0 = fileNameWithoutDirectory0;
-    //emit userMessage("fileName: " + fileName0);
     outputFilePath.append(fileNameWithoutDirectory0);
-    //emit userMessage("data-dump file created: " + outputFilePath);
 
     outputFile.setFileName(outputFilePath); //set this file path to be for the working file
-    //emit userMessage("outputFile set to: " + outputFilePath);
     bool alreadyexists = outputFile.exists(outputFilePath);
     if(alreadyexists){
         emit userMessage("Replacing file in uploads folder now... ");
@@ -71,7 +65,6 @@ bool YATG::upload_file_to_uxg(){
     streamer.seek(0);
     outputFileStreamer.seek(0);
     QStringList readHeader = streamer.readLine().remove("\n").split(QRegExp(","), Qt::SkipEmptyParts);
-    //qDebug() << "header of YATG : " << readHeader;
     QHash<QString,int> indexes;
     QHash<QString,QString> units;
     double timeScalingFactor = 0;
@@ -171,15 +164,12 @@ bool YATG::upload_file_to_uxg(){
     }
     if(indexes.size() < 10){ //the number 10 here came from the number of if statements above
         qDebug() << "Error: Not all columns were defined in Yatg file.";
-        //TODO figure out how to turn hashmap to QString
         emit userMessage("Error: Not all columns were defined in Yatg file.");
         qDebug() << indexes;
         return false;
     }else{
-        //qDebug() << "indexes loaded in correctly: " << indexes;
         emit userMessage("Header parsed...");
     }
-
     QString header = "Operation,Pulse Start Time";
     header.append(units.value("Pri"));
     header.append("Pulse Width");
@@ -190,17 +180,14 @@ bool YATG::upload_file_to_uxg(){
     header.append(units.value("Att"));
     header.append("Pulse Mode,Markers,Band Adjust,Chirp Shape,Freq/Phase Coding Index,Chirp Rate");
     header.append(units.value("Rate"));
-    //emit userMessage("chirp rate units is: " + units.value("Rate") + "-----------------------------------------------------------------------------");
     header.append("Frequency Band Map");
 
     //add the newline character
     header.append("\n");
     //add the header to the output file
-    //emit userMessage("outputting to data-dump file: " + header);
     outputFileStreamer << header;
 
     //Parse through the rest of the entries in the YATG file, ignoring any line that contains "#", and appending to the file for each row
-    //emit userMessage("Begin Parsing through remaining data in file...");
     if(!append_rows_to_uxg_file(indexes,timeScalingFactor)){
         emit userMessage("appending rows to file failed");
         qDebug() << "appending rows to file failed";
@@ -227,7 +214,6 @@ bool YATG::upload_file_to_uxg(){
     emit userMessage(sending);
 
     //now delete the file we have created in the uploads folder since it's on the UXG now
-    //emit userMessage("Removing data-dump file from system...");
     bool removed = outputFile.remove();
     outputFile.close();
 
@@ -235,7 +221,6 @@ bool YATG::upload_file_to_uxg(){
     ftp_manager->send_SCPI("MEMory:DELete:NAME '" + fileName0 + "'");
     sending = "Sending: ";
     sending.append("MEMory:DELete:NAME '" + fileName0 + "'");
-    //emit userMessage(sending);
 
     if(removed){
         return true;
@@ -266,8 +251,6 @@ bool YATG::append_rows_to_uxg_file(QHash<QString,int> indexes, double timeScalin
         }
 
         QStringList rowList = row.split(QRegExp(","), Qt::SkipEmptyParts);
-        //emit userMessage("rowList size = " + QString::number(rowList.size()));
-        //qDebug() << "Read-in pdw row : " << rowList;
 
         //check if we are at the end of the file
         if(rowList.size() == 0){
@@ -286,7 +269,6 @@ bool YATG::append_rows_to_uxg_file(QHash<QString,int> indexes, double timeScalin
 
         //loop through the number of pdw's desired for that row
         int count = (int)(rowList.at(indexes.value("Count")).toDouble() + 0.5);
-        //emit userMessage("Count is : " + QString::number(count));
         for(int i = 0; i < count; i++){
             outputData = "";
             outputData.append(operationVal + ",");
@@ -306,8 +288,6 @@ bool YATG::append_rows_to_uxg_file(QHash<QString,int> indexes, double timeScalin
             outputData.append(rowList.at(indexes.value("Pw")) + ",");
             outputData.append(rowList.at(indexes.value("Freq")) + ",");
             outputData.append("COH,");
-            //emit userMessage("Phase is : " + QString("%1").arg(rowList.at(indexes.value("Phase")).toDouble(), 0, 'g', 3) );
-            //emit userMessage("Att is : " + QString("%1").arg(rowList.at(indexes.value("Att")).toDouble(), 0, 'g', 4));
             outputData.append(QString("%1").arg(rowList.at(indexes.value("Phase")).toDouble(), 0, 'g', 3) + ","); //QString::number( (int)(( rowList.at(indexes.value("Phase")) ).toDouble() + 0.5 )) + ","
             outputData.append(QString("%1").arg(rowList.at(indexes.value("Att")).toDouble(), 0, 'g', 4) + ".1001" + ",");
             if(rowList.at(indexes.value("Cw")) == "1"){
@@ -321,13 +301,11 @@ bool YATG::append_rows_to_uxg_file(QHash<QString,int> indexes, double timeScalin
             outputData.append(QString::number( (int)(( rowList.at(indexes.value("Mop")) ).toDouble() + 0.5 )) + ",");
             QString chirper = rowList.at(indexes.value("Rate")) + ","; //1, 1e0, 1E0, 100
             outputData.append(rowList.at(indexes.value("Rate")) + ",");  //rowList.at(indexes.value("Rate")) + ","
-           // emit userMessage("chirp rate is: " + rowList.at(indexes.value("Rate")) + ",");
             outputData.append("A"); //freqBandMap
 
             //add the newline character
             outputData.append("\n");
             //add to file
-            //emit userMessage("outputting to data-dump file: " + outputData);
             outputFileStreamer << outputData;
 
             //this if statement is placed at the end of the loop so the first iteration will have an operationVal of 1
@@ -356,7 +334,6 @@ bool YATG::append_rows_to_uxg_file(QHash<QString,int> indexes, double timeScalin
 
     //add the newline character
     outputData.append("\n");
-    //emit userMessage("outputting to data-dump file: " + outputData);
     outputFileStreamer << outputData;
 
     return true;

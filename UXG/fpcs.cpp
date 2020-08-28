@@ -2,10 +2,7 @@
 
 /*
  * The Fpcs class has the ability to create it's own csv, edit an existing csv (or the one it created), or delete a csv on the local system and it's corresponding fpcs file on the UXG.
- * The only difference between editing a csv the class has created or editing a csv that's already exists, is that the fpcs class will check that the header of the csv file that already existed matches the conventions of how the fpcs class would create the csv
  * The Fpcs class does not create the fpcs file on the UXG using SCPI commands to accomplish "line by line" patterns, but rather creates or edits an entire csv file that is then imported into the UXG which converts it into the fpcs file format. This is done for added flexibility in editing the fpcs
- *
- * Possible Edit: Fpcs will keep a resource file that will be used to store the names of all previously made csv's so even if the program is exited and reopened, the delete all files method will work by viewing this text file of names
  *
  */
 Fpcs::Fpcs(QMainWindow *window)
@@ -219,7 +216,6 @@ void Fpcs::data_dump_onto_file(){
 
 /*
  * Note that after extensive testing, it never occurred that the units for frequency of an exported file ever deviated from "(Hz)". Thus, this function assumes this static condition
- *
  */
 void Fpcs::import_entries_from_existing_file(){
     //parse through the header to determine mapping of values available to values

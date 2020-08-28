@@ -100,6 +100,9 @@
              <pointsize>10</pointsize>
             </font>
            </property>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This button prompts the user to select a .csv or .txt YATG format file to be the current file. The user can then press the &amp;quot;Upload File(s) to UXG&amp;quot; button to cause this file to be transfered to the UXG over FTP and stored in the /USER/BIN directory of the UXG as a converted PDW file ready to be played. Note, if the user selects the &amp;quot;Select Multiple Files by Folder&amp;quot; button after selecting the &amp;quot;Select File&amp;quot; button, the W.H.O.P.P.E.R. will default to uploading the files in the folder rather than the single file chose before it. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
            <property name="text">
             <string>Select File</string>
            </property>
@@ -111,6 +114,9 @@
             <font>
              <pointsize>10</pointsize>
             </font>
+           </property>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This button prompts the user to select a folder filled with exclusively .csv or .txt YATG format files to be the current folder. The user can then press the &amp;quot;Upload File(s) to UXG&amp;quot; button to cause these files to be transfered to the UXG over FTP one at a time and stored in the /USER/BIN directory of the UXG as a converted PDW file ready to be played. Note, if the user selects the &amp;quot;Select File&amp;quot; button after selecting the Select Multiple Files by Folder&amp;quot; button, the W.H.O.P.P.E.R. will default to uploading the singlular file rather than the folder full of files chosen before it. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="text">
             <string>Select Multiple Files by Folder</string>
@@ -136,6 +142,9 @@
            </property>
            <property name="acceptDrops">
             <bool>false</bool>
+           </property>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This button begins the FTP process of sending the chosen YATG file to the UXG. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="autoFillBackground">
             <bool>false</bool>
@@ -188,6 +197,9 @@
              <pointsize>10</pointsize>
             </font>
            </property>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This plays the PDW file with the name displayed to the right of the button. The name can be changed to whatever file exists on the UXG in the PDW file format that the user wants. Note that if the &amp;quot;Run PDW Continuously&amp;quot; checkbox is checked, the file will play repeatedly until the &amp;quot;Stop PDW&amp;quot; Button is pressed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
            <property name="text">
             <string>Play Single PDW File</string>
            </property>
@@ -195,6 +207,9 @@
          </item>
          <item row="8" column="0">
           <widget class="QPushButton" name="play_multiple_pdws_push_button">
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This plays the PDW files IN ORDER from the file selected by the user when prompted. Each name should be on a new line of the file, with the first file to play starting at the top of the file. Name extensions like &amp;quot;.csv&amp;quot; do not need to be included in the names. Note that the files must already have been uploaded to the UXG for this to work properly. Note that if the &amp;quot;Run PDW Continuously&amp;quot; checkbox is checked, EACH file will play repeatedly until the &amp;quot;Stop PDW&amp;quot; Button is pressed. When it is pressed, the NEXT file on the list will then begin to play repeatedly until the &amp;quot;Stop PDW&amp;quot; button is pressed again. To stop playing the entire list, press the &amp;quot;Stop All Current Processes&amp;quot; button. When the &amp;quot;Run PDW Continuously&amp;quot; checkbox  is not checked, the files will simply play in order one after the other until the last file finishes or the &amp;quot;Stop All Current Processes&amp;quot; button is pressed. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
            <property name="text">
             <string>Play Multiple PDW Files From List</string>
            </property>
@@ -228,6 +243,9 @@
              <pointsize>10</pointsize>
             </font>
            </property>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Insert name of PDW file to play here. (.csv not needed in the name)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
           </widget>
          </item>
          <item row="3" column="0" colspan="2">
@@ -236,6 +254,9 @@
             <font>
              <pointsize>10</pointsize>
             </font>
+           </property>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This downloads all files, including .fpcs, .csv, .txt, etc. from the UXG into /fileFolder/downloads directory next to the W.H.O.P.P.E.R. executable. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="text">
             <string>Download All Files Available on UXG</string>
@@ -253,7 +274,7 @@
             <bool>false</bool>
            </property>
            <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;how long can I make this how long can I make this how long can I make this how long can I make this how long can I make this how long can I make this how long can I make this how long can I make this how long can I make this how long can I make this how long can I make this how long can I make this how long can I make this how long can I make this how long can I make this how long can I make this how long can I make this&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If the UXG is connected, this will request the UXG to identify itself which will be displayed on the output console below. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="whatsThis">
             <string/>
@@ -281,6 +302,9 @@
             <font>
              <pointsize>10</pointsize>
             </font>
+           </property>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This will initialize the UXG self-test. Note that this program does not support feedback from the UXG of the test results, so please use a browser and type in the UXG ip address in the address bar to access the web control to view the results displayed on the UXG's front panel. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="text">
             <string>Initiate UXG Self-Test</string>
@@ -312,6 +336,9 @@
              <pointsize>10</pointsize>
             </font>
            </property>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ends playing the current PDW file playing on the UXG&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
            <property name="text">
             <string>Stop PDW</string>
            </property>
@@ -324,6 +351,9 @@
              <pointsize>10</pointsize>
             </font>
            </property>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This initiates the connection to the UXG over TCP. IF you are having issues, please make sure you have the ethernet cable connected, and use &amp;quot;ipconfig&amp;quot; and &amp;quot;ping &amp;lt;ip address&amp;gt;&amp;quot; in the command line to debug the connection. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
            <property name="text">
             <string>Connect</string>
            </property>
@@ -331,6 +361,9 @@
          </item>
          <item row="4" column="0" colspan="2">
           <widget class="QPushButton" name="create_yatg_template_file_pushbutton">
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This prompts the user to select a directory for the program to create an example YATG format file to use as a reference when creating signals. Note that if the file of the same name &amp;quot;ExampleYATGFile.csv&amp;quot; already exists in that directory, it will fail. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
            <property name="text">
             <string>Create YATG Template File</string>
            </property>
@@ -1526,6 +1559,9 @@
            <height>31</height>
           </rect>
          </property>
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Note that any changes made will not be reflected on the UXG until the file is uploading to the UXG using the &amp;quot;Upload Finished Table to UXG&amp;quot; button.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
          <property name="text">
           <string>Add Pattern To Table</string>
          </property>
@@ -1541,6 +1577,9 @@
            <width>171</width>
            <height>17</height>
           </rect>
+         </property>
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;shows what the data for each pattern in the table will appear on the UXG rather than the &amp;quot;readable&amp;quot; format provided by default.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="text">
           <string>Binary Data View</string>
@@ -4663,6 +4702,9 @@
            <height>31</height>
           </rect>
          </property>
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rows are &amp;quot;selected&amp;quot; by clicking in the Table Visualization. The highlighted row will then be the &amp;quot;selected&amp;quot; row that can be deleted or edited. Note that any changes made will not be reflected on the UXG until the file is uploading to the UXG using the &amp;quot;Upload Finished Table to UXG&amp;quot; button.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
          <property name="text">
           <string>Delete Selected Row</string>
          </property>
@@ -4675,6 +4717,9 @@
            <width>191</width>
            <height>31</height>
           </rect>
+         </property>
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rows are &amp;quot;selected&amp;quot; by clicking in the Table Visualization. The highlighted row will then be the &amp;quot;selected&amp;quot; row that can be deleted or edited. Note that any changes made will not be reflected on the UXG until the file is uploading to the UXG using the &amp;quot;Upload Finished Table to UXG&amp;quot; button.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="text">
           <string>Edit Selected Row</string>
@@ -4690,8 +4735,11 @@
           <height>221</height>
          </rect>
         </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
         <property name="currentIndex">
-         <number>1</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="tab0">
          <attribute name="title">
@@ -4709,8 +4757,14 @@
           <layout class="QFormLayout" name="formLayout">
            <item row="0" column="0">
             <widget class="QRadioButton" name="specify_table_name_radio_button">
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Selects the custom table name to the right of this button as the name for the file. Note that the line editor to the right may not be left blank. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
              <property name="text">
               <string>Specify Table Name</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
@@ -4723,11 +4777,14 @@
            </item>
            <item row="1" column="0">
             <widget class="QRadioButton" name="use_default_name_radio_button">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
              <property name="text">
               <string>Use Default Name</string>
              </property>
              <property name="checked">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
             </widget>
            </item>
@@ -4743,6 +4800,9 @@
            </item>
            <item row="2" column="0">
             <widget class="QPushButton" name="change_table_directory_push_button">
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Prompts the user to choose where in their local system directory they would like to store the file once created by pressing the &amp;quot;OK&amp;quot; button.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
              <property name="text">
               <string>Change Table Directory</string>
              </property>
@@ -4813,6 +4873,9 @@
            </item>
            <item>
             <widget class="QRadioButton" name="select_file_from_uxg_radio_button">
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This sends SCPI commands to the UXG to retrieve the names of all the .fpcs files currently in its /USER/BIN directory so the user can select which file on the UXG they would like to download and edit or just view in the Table Visualization tool on the rightside. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
              <property name="text">
               <string>Select File from UXG</string>
              </property>
@@ -4847,6 +4910,9 @@
             <width>111</width>
             <height>31</height>
            </rect>
+          </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select the table file use edit or just view. After this button is pressed, and a table is selected, press the &amp;quot;Open&amp;quot; button to open the file in the Table Visualization before being able to upload it to the UXG using the &amp;quot;Upload Finished Table to UXG&amp;quot; Button. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="text">
            <string>Select File</string>
@@ -4935,6 +5001,9 @@
           <height>31</height>
          </rect>
         </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Note that the user must select the &amp;quot;OK&amp;quot; button for either creating or loading a valid Table prior to pressing this button to begin the uploading of the file to the UXG via FTP.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
         <property name="text">
          <string>Upload Finished Table to UXG</string>
         </property>
@@ -4945,8 +5014,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>100</width>
-         <height>30</height>
+         <width>1051</width>
+         <height>541</height>
         </rect>
        </property>
        <attribute name="label">
@@ -6718,7 +6787,7 @@
      </font>
     </property>
     <property name="text">
-     <string>Stop all Current Processes</string>
+     <string>Stop All Current Processes</string>
     </property>
    </widget>
   </widget>
