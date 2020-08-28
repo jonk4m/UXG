@@ -10,114 +10,36 @@ include in manual that when you press "ok" on the new table table you can't imme
 include in manual that user should not try to connect to uxg while it is starting up, otherwise a power cycle will be required for the GUI to be able to reach it. reason is unknown
 include in manual that YATG files do not belong in the uploads folder since we will create a file with the identical name in that folder (and then delete it) 
 include in manual that user should NOT put files in the uploads or downloads folders since these are for files created or retrieved by the program only and can delete these files unexpectantly.
+include in manual that a list of pdw files for batch playing should not include the ".csv" in the names
 
+TODAY 
+check hangar email
+call simoni 
 
---------------------------------------incorporate Josh's code with yours 
+THIS WEEKEND  
+Write-up a project description for Crinion this weekend after looking over other project proposals from other schools (spectrum analyzier using STM32-MP1 dual cortex M4, waterfall plot on lcd screen with storage of data on SSD) motivation: demonstrate capabilities of microcontroller for hanger use by building a reference design
+JOSH	IP on startup is on a textfile 
+help buttons and tooltips 
 Right now the user has to clear the bitpattern manually if they change the number of freq/phases or the type (phase/freq/both) 
---------------------------------------Check with a different UXG whether or not setting your network adapter in promiscuous mode is what allows it to connect (opening wireshark sets it into promicuous mode)
---------------------------------------Test that feeding it to the UXG works after all the changes you've made this week
---------------------------------------Barker codes
---------------------------------------Write code for feeding in a YATG file
---------------------------------------implement "delete table from UXG" button 
---------------------------------------decide on what to do about signal creator tab
-go through todo's in the code
---------------------------------------add functionailty to edit previous patterns in a table
---------------------------------------Make table visualization 
---------------------------------------add "clear" button for pattern editing so the current pattern is cleared
-figure out why uniform noise doesn't just happen at the one specified freq
---------------------------------------double check that freq entries are relative not absolute
---------------------------------------make the state of the first pattern be "off"
---------------------------------------fix the hex conversion so it doesn't chop off bits? 
-add in code that lets the user know the max phase value allowed is 180
-add in code that tells the user if they've reached the 512 max patterns for batch file entry
---------------------------------------add a "delete all files on uxg" button to the connect to UXG tab
---------------------------------------figure out how to retrieve and parse diagnostic info from the UXG (prolly using status register) to know how it's doing as well as knowing when a file is finished playing for the rotor to know
---------------------------------------allow user to select a file from the UXG to edit, then add functionality so when they upload it first deletes the old one of that name
---------------------------------------Add these SCPI commands to happen after the ftp process uploads a file:
-Allow user to choose from list of hostnames or IP's in the "connect to UXG" tab for choosing the current UXG
-Using :MEMory:FREE[:ALL]? have the code check if there's enough room on the UXG for the file before uploading it (there's got to be a function with QFile to check the size and make sure there's enough room comparing that size)
-Have a startup function routine that does things like turn the display off, turn Modulation On, etc.
-Add checks for max length of patterns and table
-Add checks for resolution limits of fpcs values (0.01 degree resolution, 1kHz resolution) 
---------------------------------------Add a self-test button on the connect page
---------------------------------------Add a power-off button to the connect page
-Add checks for the user inputs that they're in fact numbers when we expect them to be 
-change all the qDebug()'s to output on the text window at the bottom of the page
---------------------------------------test that the output signal is in fact using the fpcs using spec analyzer  
+cleanup output to consoles everywhere 
+cleanup todos everywhere 
+cleanup git repo 
+Add josh's instructions on deploying an executable to your qt notes (he emailed you alion email the instructions) 
+In the startup set the deliminator to be comma, also go through SCPI notes to see what you forgot to put in the startup routine
+start documentation manual 
 
-add the increment button for that one use-case chris mentioned 
-add the paste a bit pattern shit (just convert it to hex and make that the hex value then signal the slot that gets hit when they click upload to table) 
-fix the db to dbm shit 
-fix the TOA not adding the 270ns shit 
-add loading cursor call to the upload and download portions of the code by calling it right before you call the method to download or upload, then undoing it when it returns from that method 
-take a look at your setup scpi routine (in ftpManager)
-
-QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-QGuiApplication::restoreOverrideCursor();
-CAN I USE THE FREQ/PHASE TABLE WITH PURE STREAMING AKA NOT FILE STREAMING 
+MONDAY
+talk to crinion and hand him the project proposal 
+email IT a list of everything you currently have just to remind them and say Greg Grimes is cool with it. Mention you aren't going to keep the laptops. send it over h4f internal too to ITnotifications
+email them the documentation manual 
+get the code on the network with the filefolder and everything 
 
 
-
-ME		***fix the double rounding shit for attenuation and phase
-ME		***Help buttons and ToolTips
-ME		***DB to DBM shit : https://www.erlang.com/topic/1-7661/
-ME 		make it so they can open a textfile with the bit patterns OR copy and paste a given pattern into a text editor  
-ME		cleanup output_to_console's everywhere
-ME		Cleanup git repo before handing it over
-ME		Add josh's instructions on deploying an executable to your qt notes (he emailed you alion email the instructions) 
-ME		In the startup set the deliminator to be comma, also go through SCPI notes to see what you forgot to put in the startup routine
-
-
-during presentation mention future improvements: ----
-chris's time calculation idea
-chris's increment button idea (say it's partially done)
-Mike's copy paste bit pattern option although it is possible to do it by just changing the hex value in the file before uploading
-multibox sync  
-continuing documentation 
-adding checks for resolution limits on inputted values
-
-
-JOSH 	add help buttons with popup windows to the main window Qt::WindowContextHelpButtonHint  
-JOSH	IP on startup is on a textfile  
-JOSH	User messages  
-
-BOTH 	document partially    
-
-
-
-talk to mike about whether or not they've sent out an email, 
-how many people will come (for setting up chairs), 
-we will turn the code in on friday, 
-what's a cool signal we can create for the demo
-
-
-include on the flash drive we bring in tomorrow:
-
-executable and all the files that need to come with it
-picture of cover of manual (maybe a couple pages from it)
-pdf file of uxg datasheet 
-
-
-
-
-
-Mention in presentation:
-
-tooltips 
-manual 
-future improvements
+DON'T KNOW
+DB to DBM shit https://www.erlang.com/topic/1-7661/
 
 
 
 
 
 
-
-
-
-
-
-
-Laptop username : ABMS1.   Password Goldispower1123
-https://external.mail.af.mil/owa/
-jonathan.kinnard.ctr@us.af.mil

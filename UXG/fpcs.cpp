@@ -64,8 +64,8 @@ bool Fpcs::initialize_existingFile_local(){
     //check header
     bool correctHeader = this->check_file_header();
     if(!correctHeader){
-        emit userMessage("Incorrect Header found on Loaded Table File");
-        qDebug() << "Incorrect Header found on Loaded Table File";
+       // emit userMessage("Incorrect Header found on Loaded Table File");
+       // qDebug() << "Incorrect Header found on Loaded Table File";
     }
 
     //whether the header is incorrect or not, we need to parse through the file and to assign the data to Entry's, write the correct header using "write_header_to_workingFile()" which also clears the file first

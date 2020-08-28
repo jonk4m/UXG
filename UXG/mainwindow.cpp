@@ -493,8 +493,8 @@ void MainWindow::on_qprocess_upload_push_button_clicked()
             QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
             window_ftpManager->start_process(filename);
         }else{
-            output_to_console("Cannot upload to UXG without selecting a file");
-            qDebug() << "Cannot upload to UXG without selecting a file";
+            output_to_console("ERROR: Cannot upload to UXG without selecting a file and clicking the 'Open' Button first to initialize it for uploading");
+            qDebug() << "ERROR: Cannot upload to UXG without selecting a file and clicking the 'Open' Button first to initialize it for uploading";
         }
     }else{
         output_to_console("Cannot upload to UXG without connecting TCPSocket first");
@@ -871,17 +871,10 @@ void MainWindow::on_delete_table_from_uxg_push_button_clicked(){
         QString command = "MEMory:DELete:NAME ";
         command.append('"');
 
-        qDebug() << "Filename at delete slot is: " << window_fpcs->settings.currentTableSelectedThatIsOnTheUxg.remove(".fpcs",Qt::CaseInsensitive).append(".fpcs");
-        output_to_console("Filename at delete slot is: " + window_fpcs->settings.currentTableSelectedThatIsOnTheUxg.remove(".fpcs",Qt::CaseInsensitive).append(".fpcs"));
+        qDebug() << "Filename for delete is: " << window_fpcs->settings.currentTableSelectedThatIsOnTheUxg.remove(".csv",Qt::CaseInsensitive).remove(".fpcs",Qt::CaseInsensitive).append(".fpcs");
+        output_to_console("Filename for delete is: " + window_fpcs->settings.currentTableSelectedThatIsOnTheUxg.remove(".csv",Qt::CaseInsensitive).remove(".fpcs",Qt::CaseInsensitive).append(".fpcs"));
 
-        command.append(window_fpcs->settings.currentTableSelectedThatIsOnTheUxg).remove(".fpcs",Qt::CaseInsensitive).append(".fpcs"); //window_fpcs->settings.existingTableFilePath.append(".fpcs")
-        command.append('"');
-        window_ftpManager->send_SCPI(command);
-        //delete the csv file under that name
-        command.clear();
-        command = "MEMory:DELete:NAME ";
-        command.append('"');
-        command.append(window_fpcs->settings.currentTableSelectedThatIsOnTheUxg.remove(".fpcs",Qt::CaseInsensitive).remove(".csv",Qt::CaseInsensitive).append(".csv"));
+        command.append(window_fpcs->settings.currentTableSelectedThatIsOnTheUxg).remove(".csv",Qt::CaseInsensitive).remove(".fpcs",Qt::CaseInsensitive).append(".fpcs"); //window_fpcs->settings.existingTableFilePath.append(".fpcs")
         command.append('"');
         window_ftpManager->send_SCPI(command);
         //reset the list of available files on the UXG
@@ -2181,12 +2174,54 @@ void MainWindow::on_create_yatg_template_file_pushbutton_clicked()
 
     //loop through the plays
 
-    QString header = "FREQ (MHZ),PRI (s),PW(s),COUNT,ATTEN (DB),PHASE,MOP,CW,Chirp Shape,Chirp Rate";
+    QString header = "FREQ (MHZ),PRI (s),PW(s),COUNT,ATTEN (DB),PHASE,MOP,CW,Chirp Shape,Chirp Rate (Hz/us)";
     header.append("\n");
     streamerForExampleFile << header;
     QString data = "10,1,1,1,-8,0,0,0,RAMP,0.00E+00";
-    header.append("\n");
+    data.append("\n");
     streamerForExampleFile << data;
+    streamerForExampleFile << data;
+    QString comment = "#\n#The '#' symbol is used for comments and ignored by the W.H.O.P.P.E.R. Program.\n#\n";
+    streamerForExampleFile << comment;
+    comment = "#chirp rate:\n";
+    streamerForExampleFile << comment;
+    comment = "#Range: +/- 95.9765625 THz/us\n";
+    streamerForExampleFile << comment;
+    comment = "#Resolution: 21.827872842550278 Hz/us\n#\n";
+    streamerForExampleFile << comment;
+    comment = "#relative power:\n";
+    streamerForExampleFile << comment;
+    comment = "#Range: -161.6 dB to 31.07 dB\n";
+    streamerForExampleFile << comment;
+    comment = "#Resolution: 0.0085 dB\n#\n";
+    streamerForExampleFile << comment;
+    comment = "#phase:\n";
+    streamerForExampleFile << comment;
+    comment = "#Range: 0 deg – 360 deg\n";
+    streamerForExampleFile << comment;
+    comment = "#Resolution: 0.087890625 deg\n#\n";
+    streamerForExampleFile << comment;
+    comment = "#frequency:\n";
+    streamerForExampleFile << comment;
+    comment = "#Range: see model datasheet, package dependant\n";
+    streamerForExampleFile << comment;
+    comment = "#Resolution: 1/1024 Hz\n#\n";
+    streamerForExampleFile << comment;
+    comment = "#PRI:\n";
+    streamerForExampleFile << comment;
+    comment = "#Range: 0 ps to 213.504 days\n";
+    streamerForExampleFile << comment;
+    comment = "#Field Resolution: 1 ps\n#\n";
+    streamerForExampleFile << comment;
+    comment = "#PW:\n";
+    streamerForExampleFile << comment;
+    comment = "#Range: 4 ns to 4.294967295 s\n";
+    streamerForExampleFile << comment;
+    comment = "#Field Resolution: 1 ns\n";
+    streamerForExampleFile << comment;
+    comment = "#Resolution: 2 ns\n";
+    streamerForExampleFile << comment;
+
 
     exampleFile.close();
     output_to_console("ExampleYATGFile.csv created successfully.");

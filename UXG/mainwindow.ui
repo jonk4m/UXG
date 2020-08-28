@@ -1473,7 +1473,7 @@
          <x>0</x>
          <y>0</y>
          <width>1051</width>
-         <height>529</height>
+         <height>541</height>
         </rect>
        </property>
        <attribute name="label">
@@ -5726,7 +5726,7 @@
          <x>0</x>
          <y>0</y>
          <width>1051</width>
-         <height>539</height>
+         <height>551</height>
         </rect>
        </property>
        <attribute name="label">
@@ -6728,7 +6728,7 @@
      <x>0</x>
      <y>0</y>
      <width>1074</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>

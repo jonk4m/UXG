@@ -231,8 +231,8 @@ bool YATG::upload_file_to_uxg(){
     bool removed = outputFile.remove();
     outputFile.close();
 
-    //emit userMessage("Removing extraneous files from UXG...");
-    //ftp_manager->send_SCPI("MEMory:DELete:NAME '" + fileName0 + "'");
+    emit userMessage("Removing extraneous files from UXG...");
+    ftp_manager->send_SCPI("MEMory:DELete:NAME '" + fileName0 + "'");
     sending = "Sending: ";
     sending.append("MEMory:DELete:NAME '" + fileName0 + "'");
     //emit userMessage(sending);
