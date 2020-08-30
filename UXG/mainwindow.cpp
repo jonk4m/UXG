@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "QDebug"
-//Hello Jon,  Rose is really depressing with all of their anti-COVID measures
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -1417,18 +1417,18 @@ void MainWindow::on_elevationMotorSpeedRadioButton_toggled(bool checked)
 {
     serial->getMaxMinAndRampValues(checked);
 }
-
+//clears the line edits that specify positions for the rotor to move to so the user can't accidentally send an offset of 180 degrees or something like that
 void MainWindow::on_positionRadioButton_toggled(bool)
 {
     ui->elevationLineEdit->clear();
     ui->azimuthLineEdit->clear();
 }
-
+//starts the process of fixing the CW limit, CCW limit, and pulse divider for elevation USB
 void MainWindow::on_fixElevationPushButton_clicked()
 {
     serial->write("WK01080;",true);
 }
-
+//starts the process of fixing the CW limit, CCW limit, and pulse divider for azimuth USB
 void MainWindow::on_fixAzimuthPushButton_clicked()
 {
     serial->write("WK01080;",false);
@@ -1452,7 +1452,8 @@ void MainWindow::stopMotion(){
 
 //test functions
 
-//stuff for test, remove later
+//starts the process for a simple test. If the recommended rotor speed radio button is selected
+//
 void MainWindow::on_startTestButton_clicked()
 {
     if(ui->recommendedSpeedRadioButton->isChecked()){
@@ -1465,7 +1466,7 @@ void MainWindow::on_startTestButton_clicked()
         startSimpleTest();
     }
 }
-
+//Takes the comma delimited values from the three line edits above the "start simple test" button and tells the rotorcontrol class to start managing a simple test
 void MainWindow::startSimpleTest(){
     serial->advancedTestStarted=false;
     QList<QString> azimuthValues = ui->MaxMinAzimuthLineEdit->text().split(',');
@@ -1514,7 +1515,7 @@ void MainWindow::on_OpenTestPushButton_clicked()
     }
     ui->openTestLineEdit->setText(filePath);
 }
-
+//determines if the .txt file contains a simple test or advanced test and starts
 void MainWindow::startPositionTest(){
     QFile file(getFileName(true));
 
@@ -1544,7 +1545,6 @@ void MainWindow::startPositionTest(){
                     stepValues = cutLine.split(',');
                 }
             }while(!line.isNull());
-            //simpleTestStarted = true;
             serial->advancedTestStarted=false;
             serial->simpleTestStarted=true;
             serial->startSimpleTest(azimuthValues.at(0).toDouble(),azimuthValues.at(1).toDouble(),elevationValues.at(0).toDouble()
@@ -1577,7 +1577,7 @@ void MainWindow::startPositionTest(){
         qDebug() << error;
     }
 }
-
+//Opens a .txt file of positions and adds every position to the tableWidgetItemList and visualizes it on the table
 void MainWindow::on_openTestFilePushButton_clicked()
 {
     QFile file(getFileName(false));
@@ -1625,7 +1625,7 @@ void MainWindow::on_openTestFilePushButton_clicked()
     }
     file.close();
 }
-
+//Takes all of the positions from the tableWidgetItemList and creates a .txt file containing all of the positions
 void MainWindow::on_createTextFilePushButton_clicked()
 {
     QFile file(getFileName(false));
@@ -1664,7 +1664,7 @@ void MainWindow::on_startDroneTestPushButton_clicked()
     }
 }
 
-//stops any test the is currently running
+//stops any current process, including any PDW playing on the UXG
 void MainWindow::on_stopTestPushButton_clicked()
 {
     output_to_console("Stopping All Processes");
@@ -1691,6 +1691,7 @@ void MainWindow::on_stopTestPushButton_clicked()
 
 //table functions
 
+//Takes the updated resolutions from the line edit next to the push button and resets the table with the new resolutions
 void MainWindow::on_changeTableResolutionPushButton_clicked()
 {
     QList<QString> resolution = ui->tableResolutionLineEdit->text().split(',');
@@ -1703,7 +1704,7 @@ void MainWindow::on_selectBoxesRadioButton_toggled(bool)
 {
     ui->testCreatorTableWidget->clearSelection();
 }
-
+//clears all positions on the table, sets the table headers to their correct values with the given az and el resolutions and adds a black square at the origin
 void MainWindow::resetTable(int azResolution, int elResolution){
     ui->testCreatorTableWidget->blockSignals(true);
     this->tableAzResolution = azResolution;
@@ -1759,7 +1760,7 @@ void MainWindow::resetTable(int azResolution, int elResolution){
     origin->setBackground(Qt::black);
     ui->testCreatorTableWidget->blockSignals(false);
 }
-
+//Filters mouse events.  Specifically left button release events and right button press events
 bool MainWindow::eventFilter(QObject *watched, QEvent *event){
     if(watched == ui->testCreatorTableWidget->viewport()){
         ui->testCreatorTableWidget->blockSignals(true);
@@ -1783,7 +1784,7 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event){
     }
     return false;
 }
-
+//creates a grid of positions based on the table selection from a left mouse click and drag event.
 bool MainWindow::leftMouseButtonReleaseEvent(QMouseEvent*){
     if(ui->selectBoxesRadioButton->isChecked()){
         QList<QTableWidgetItem *> list = ui->testCreatorTableWidget->selectedItems();
@@ -1840,7 +1841,7 @@ bool MainWindow::leftMouseButtonReleaseEvent(QMouseEvent*){
     }
     return false;
 }
-
+//clears all positions on the table and resets it with the current resolutions
 void MainWindow::on_clearTablePushButton_clicked()
 {
     ui->testCreatorTableWidget->blockSignals(true);
@@ -1851,7 +1852,7 @@ void MainWindow::on_clearTablePushButton_clicked()
     currentTableNumber=0;
     ui->testCreatorTableWidget->blockSignals(false);
 }
-
+//When free drawing, this allows mouse tracking and updates each cell the the mouse enters
 void MainWindow::on_testCreatorTableWidget_cellEntered(int row, int column)
 {
     ui->testCreatorTableWidget->blockSignals(true);
@@ -1879,7 +1880,7 @@ void MainWindow::on_testCreatorTableWidget_cellEntered(int row, int column)
     }
     ui->testCreatorTableWidget->blockSignals(false);
 }
-
+//If the user inputs a number into one of the Cells, automatically update all current cell positions
 void MainWindow::on_testCreatorTableWidget_itemChanged(QTableWidgetItem *item)
 {
     if(!tableWidgetItemList.isEmpty()){
@@ -1927,13 +1928,13 @@ void MainWindow::UdpRead(){
         }
     }
 }
-
+//during a position test, this button will turn off the current PDW and allow for the UXG to arm in preparation for the next PDW
 void MainWindow::on_turnStreamOffPushButton_clicked()
 {
     window_ftpManager->send_SCPI(":STReam:STATe OFF");
     window_ftpManager->send_SCPI(":STReam:STATe ON");
 }
-
+//Enables or disables the Rotor group box on the "UXG/Rotor Configuration Settings" Tab
 void MainWindow::on_usingRotorCheckBox_toggled(bool checked)
 {
     if(checked){
@@ -1969,7 +1970,7 @@ void MainWindow::on_usingRotorCheckBox_toggled(bool checked)
         serial->closeSerialPorts();
     }
 }
-
+//if the "recommended rotor speed radio button is selected, set the correct speeds for the controller, otherwise start the position test
 void MainWindow::on_startPositionTestPushButton_clicked()
 {
     serial->advancedTestStarted=true;
@@ -1981,7 +1982,7 @@ void MainWindow::on_startPositionTestPushButton_clicked()
         startPositionTest();
     }
 }
-
+//Opens a file browser that allows the user to select a .txt file to edit in the table creator
 void MainWindow::on_openFilePushButton_clicked()
 {
     QString filePath = QFileDialog::getOpenFileName(this, tr("Open File"),
@@ -2152,7 +2153,7 @@ void MainWindow::on_stopAllCurrentProcessesButton_clicked()
     QGuiApplication::restoreOverrideCursor();
     QGuiApplication::restoreOverrideCursor();
 }
-
+//with only the elevation USB plugged in, this sets the elevation port to elevation mode
 void MainWindow::on_elevationModePushButton_clicked()
 {
     ui->azimuthLCD->display(0);
@@ -2160,7 +2161,7 @@ void MainWindow::on_elevationModePushButton_clicked()
     serial->setElevationMode(true);
     output_to_console("Set to Elevation Mode");
 }
-
+//with only the azimuth USB plugged in, this set the azimuth port to azimuth mode
 void MainWindow::on_notElevationModePushButton_clicked()
 {
     ui->azimuthLCD->display(0);
@@ -2168,15 +2169,16 @@ void MainWindow::on_notElevationModePushButton_clicked()
     serial->setElevationMode(false);
     output_to_console("Set to Standard Mode");
 }
-
+//Opens a text box explaining how to start a test
 void MainWindow::on_testOptionsHelpButton_clicked()
 {
+
     QMessageBox *msgBox = new QMessageBox(this);
     msgBox->setAttribute(Qt::WA_DeleteOnClose);
     msgBox->setStandardButtons(QMessageBox::Ok);
 
-    const QString fileName = QCoreApplication::applicationDirPath() + "/Capture";
-    msgBox->setIconPixmap(QPixmap(fileName));
+    QString helpText = "To run a standard position test with a .txt file already made follow the steps below:\r\n\n 1.   Populate the Line Edit next to the \"Open Position Test File\" with the name/location of the desired file.  This can be achieved by directly typing the file path of the file, or by clicking \"Open Position Test File\" which will bring up a file explorer to browse for the file.\r\n\n 2.   Is the test using one PDW file, or many?  If only one, then check the \"Use Only One PDW\" check box and specify the PDW file name as it appears exactly on the UXG.  If it is unchecked the program assumes that file names follow the convention \"1\", \"2\", etc.\r\n\n 3.   If you want to have a PDW continuously play at a position, check the \"Continuous Trigger\" check box. This gives the user manual control over when to move to the next position by hitting the \"Turn Stream Off\" button.  To move to the next position as soon as a PDW is done playing, leave the \"Continuous Trigger\" box unchecked.  NOTE: This can be toggled in the middle of the test, but only affects the next PDW that plays, not the current one.\r\n\n 4.   To use the recommended rotor speeds for a test, leave the \"Use Recommended Rotor Speed\" radio button selected.  To use the current rotor speed settings instead, select the \"Use Current Rotor Speed\" radio button.\r\n\n 5.   The test is ready to run, check that the program is connected to the UXG, hit the \"Start Position Test\" button and watch the magic happen!";
+    msgBox->setInformativeText(helpText);
     msgBox->open( this, SLOT(msgBoxClosed(QAbstractButton*)));
 }
 

@@ -2,7 +2,9 @@
 
 RotorControl::RotorControl(QMainWindow *window)
 {
+    //userMessage is a custom signal that helps output console message outside of mainwindow.cpp
     QMainWindow::connect(this, SIGNAL(userMessage(QString)), window, SLOT(output_to_console(QString)));
+    //initialize timers
     elResendDataTimer= new QTimer(window);
     azResendDataTimer = new QTimer(window);
     QMainWindow::connect(elResendDataTimer, SIGNAL(timeout()), window, SLOT(resendTimerTimeout()));
@@ -19,10 +21,8 @@ RotorControl::RotorControl(QMainWindow *window)
 }
 
 /*
- * finds the serial ports for elevation and azimuth and sets them accordingly. It checks the length
- * of the CW limit and azimuth  has a length of 4 and elevation has a length of 6. Works perfectly
- * on this computer, but kind of buggy on others.  It will eventually work on other computers
- * but it definitely needs improvement somehow.
+ * finds the serial ports for elevation and azimuth and sets them accordingly. Checks the elevation mode of each port.
+ * The elevation port should have elevation mode set and azimuth port should not have elevation mode set
  * both communication lines are 4800 baud, 8bit data, no parity, one stop, and no flow control
  * returns true if 1 or 2 ports are found, otherwise it returns false
  * */
@@ -30,10 +30,11 @@ bool RotorControl::findSerialPorts(){
     emit userMessage("Finding Serial Ports");
     closeSerialPorts();
     QSerialPort *serialPort = new QSerialPort();
-    const QList<QSerialPortInfo> ports = QSerialPortInfo::availablePorts();//creates a list of serial ports
+    const QList<QSerialPortInfo> ports = QSerialPortInfo::availablePorts();//creates a list of current serial ports
     QString elPort;
     QString azPort;
     if(ports.isEmpty()){
+        //no ports are found so return false
         return false;
     }
     for(const QSerialPortInfo &port : ports){
@@ -48,18 +49,19 @@ bool RotorControl::findSerialPorts(){
 
         bool receivedData=false;
         QByteArray data = "";
-        while(!receivedData){
-            serialPort->write("RT0;");
+        while(!receivedData){          
+            serialPort->write("RT0;"); //asks port whether or not it is in elevation mode
 
             while(serialPort->waitForReadyRead(100)){
+                //message is received in parts so this adds to the buffer until it is completed
                 data+=serialPort->readAll();
                 receivedData=true;
             }
         }
 
-        if(data=="T\0010;"){
+        if(data=="T\0010;"){//not in elevation mode
             azPort = s;
-        }else if(data=="T\0018;"){
+        }else if(data=="T\0018;"){//is in elevation mode
             elPort = s;
         }
         serialPort->close();
@@ -80,11 +82,15 @@ bool RotorControl::findSerialPorts(){
     el->setStopBits(QSerialPort::OneStop);
     el->setFlowControl(QSerialPort::NoFlowControl);
     el->open(QIODevice::ReadWrite);
+    //asks for speeds
     getMaxMinAndRampValues(true);
     emit userMessage("Serial Ports Found");
     return true;
 }
 
+/*Must be used when only one USB is plugged in.  If isElevation is true, then set the port to elevation mode.
+ * Else turn off elevation mode
+ * */
 void RotorControl::setElevationMode(bool isElevation){
     closeSerialPorts();
     QSerialPort *serialPort = new QSerialPort();
@@ -119,6 +125,8 @@ void RotorControl::setElevationMode(bool isElevation){
     }
     serialPort->close();
 }
+
+//Helps setElevationMode to split up the code a bit, checks whether the elevation setting is correct
 bool RotorControl::setModeHelper(QByteArray command, QSerialPort *serialPort, bool isElevation){
     serialPort->write(command);
     QString data = "";
@@ -133,46 +141,13 @@ bool RotorControl::setModeHelper(QByteArray command, QSerialPort *serialPort, bo
     }
     return false;
 }
-//        bool isCorrectCWlimit=false;
-//        while(!isCorrectCWlimit){
-//            serialPort->write("WI00;");
-//            QByteArray data = "";
-//            while(serialPort->waitForReadyRead(100)){
-//                data+=serialPort->readAll();
 
-//            }
-//            isCorrectCWlimit = setModeHelper("RI0;", serialPort);
-//        }
-
-//        bool isCorrectCCWLimit=false;
-//        while(!isCorrectCCWLimit){
-//            serialPort->write("WH00;");
-//            QByteArray data = "";
-//            while(serialPort->waitForReadyRead(100)){
-//                data+=serialPort->readAll();
-
-//            }
-//            isCorrectCCWLimit = setModeHelper("RH0;", serialPort);
-//        }
-
-//        bool isCorrectPulseDivider=false;
-//        while(!isCorrectPulseDivider){
-//            serialPort->write("WK01080;");
-//            QByteArray data = "";
-//            while(serialPort->waitForReadyRead(100)){
-//                data+=serialPort->readAll();
-
-//            }
-//            isCorrectPulseDivider = setModeHelper("RK0;", serialPort);
-//        }
-//        serialPort->close();
-//    }
-//}
 
 
 
 //writes to the serial ports to read the position
 void RotorControl::getPosition(){
+    //requests position with decimal
     el->write("BI0;");
     az->write("BI0;");
 }
@@ -180,14 +155,16 @@ void RotorControl::getPosition(){
 /*
  * takes three parameters, moveValue: which is taken from the ui lineEdit, isElevation: which
  * checks if the elevation radio button is check, and isPosition, which takes if the position
- * radio button is checked.  For example: is isElevation is true and isPosition is false, then the
+ * radio button is checked.  For example: if isElevation is true and isPosition is false, then the
  * elevation is moved by an offset of moveValue. So if the elevation is at 120 and moveValue is 5
  * then elevation will move to 125
  * */
 void RotorControl::moveRotor(QString moveValue, bool isElevation, bool isPosition){
     if(!moveValue.isEmpty()){
+        //moves to absolute position
         if(isPosition){
-            QString commandValue = RotorControl::createRotorCommand(moveValue);
+            QString commandValue = RotorControl::createRotorCommand(moveValue);//takes the string from the line edit and turns it
+                                                                               //into a string usable for the controller
             QString serialWrite = "AP0" + commandValue+ "\r;";
             if(isElevation){
                 elevationHeading= commandValue.toDouble();
@@ -197,10 +174,11 @@ void RotorControl::moveRotor(QString moveValue, bool isElevation, bool isPositio
                 azimuthHeading= commandValue.toDouble();
                 az->write(serialWrite.toUtf8());
             }
+        //moves to an offset of current position
         }else{
             if(isElevation){
-                elevationHeading = elevationHeading + moveValue.toDouble();//turns the string into a double
-                QString offsetString = QString::number(elevationHeading);//turns the double back into a string
+                elevationHeading = elevationHeading + moveValue.toDouble();
+                QString offsetString = QString::number(elevationHeading);
                 QString commandValue = RotorControl::createRotorCommand(offsetString);
                 QString serialWrite = "AP0" + commandValue + "\r;";
                 el->write(serialWrite.toUtf8());
@@ -263,7 +241,8 @@ void RotorControl::closeSerialPorts(){
 //the length of the integer part of the command is always 3 bytes
 //so this function just adds some extra zeroes on the front if necessary
 QString RotorControl::createRotorCommand(QString moveValue){
-    QString fixedValue = fixHeadings(moveValue);
+    QString fixedValue = fixHeadings(moveValue);//the rotor can only take values up to a third of a degree
+                                                //this function takes moveValue and rounds it to the closest value the rotor can use
     if(fixedValue.toDouble()<0){
         return "";
     }
@@ -303,6 +282,9 @@ void RotorControl::stopMotion(){
     az->write(";");
 }
 
+/* Used when new information is received over serial. Based on the received value, returns an enum
+ * that holds the type of information received
+ * */
 RotorControl::ParameterAndWriteNumber RotorControl::parseReceivedRotorData(QByteArray receivedData){
 
     receivedData.chop(1);
@@ -350,9 +332,9 @@ RotorControl::ParameterAndWriteNumber RotorControl::serialRead(bool isElevation)
         serial= az;
     }
     if(true){
-        QByteArray elevation = serial->peek(100);
+        QByteArray elevation = serial->peek(100);//check what is in the buffer without clearing it
         QString elString = QString(elevation);
-        if(elevation.endsWith(';')){
+        if(elevation.endsWith(';')){//everything received from the rotor ends in ';'
             if(elevation.startsWith('G')){
                 QByteArray maxSpeed = serial->read(4);
                 if(!maxSpeed.endsWith(';')){
@@ -403,45 +385,7 @@ RotorControl::ParameterAndWriteNumber RotorControl::serialRead(bool isElevation)
                 return returnValue;
             }
         }
-    }/*else{
-        QByteArray azimuth = az->peek(100);
-        if(azimuth.endsWith(';')){
-            if(azimuth.startsWith('G')){
-                QByteArray maxSpeed = az->read(4);
-                if(!maxSpeed.endsWith(';')){
-                    maxSpeed = maxSpeed+az->read(1);
-                }
-                return parseSerialRead(controllerParameter::maxSpeed, maxSpeed);
-            }else if(azimuth.startsWith('F')){
-                QByteArray minSpeed = az->read(4);
-                if(!minSpeed.endsWith(';')){
-                    minSpeed = minSpeed+az->read(1);
-                }
-                return parseSerialRead(controllerParameter::minSpeed, minSpeed);
-            }else if(azimuth.startsWith('N')){
-                return parseSerialRead(controllerParameter::ramp, az->read(4));
-            }else if(azimuth.startsWith('\006')){
-                azResendDataTimer->stop();
-                return parseReceivedRotorData(az->read(3));
-            }else if(azimuth.startsWith('T')){
-                return parseSerialRead(controllerParameter::elevationMode, az->read(4));
-            }else if(azimuth.startsWith('I')){
-                return parseSerialRead(controllerParameter::CWLimit, az->read(4));
-            }else if(azimuth.startsWith('H')){
-                return parseSerialRead(controllerParameter::CCWLimit, az->read(4));
-            }else if(azimuth.startsWith('K')){
-                return parseSerialRead(controllerParameter::pulseDivider, az->read(7));
-            }else{
-                ParameterAndWriteNumber returnValue = parseSerialRead(controllerParameter::position, az->readAll());
-                azimuthPosition=returnValue.writeNumber;
-                if(!azimuthHeadingCreated&&azimuthPosition != 0){
-                    azimuthHeading=azimuthPosition;
-                    azimuthHeadingCreated=true;
-                }
-                return returnValue;
-            }
-        }
-    }*/
+    }
     QByteArray notReady = "-1";
     return parseSerialRead(controllerParameter::notReady,notReady);
 }
@@ -524,6 +468,9 @@ void RotorControl::getMaxMinAndRampValues(bool isElevation){
 
 }
 
+/* sets the correct fields for the simple test and moves the rotor to its first position
+ * */
+
 void RotorControl::startSimpleTest(double minAzimuth, double maxAzimuth, double minElevation, double maxElevation, double azResolution,double elResolution){
     this->maxAzimuth=maxAzimuth;
     this->minAzimuth=minAzimuth;
@@ -538,10 +485,11 @@ void RotorControl::startSimpleTest(double minAzimuth, double maxAzimuth, double 
     emit userMessage("Starting Simple Test");
 }
 
+//Takes in a raw value that will be commanded to the rotor and rounds it to the nearest value
+//that the controller can input
 QString RotorControl::fixHeadings(QString moveValue){
 
-    //    QString moveValue = QString::number(azimuthHeading);
-    //    QString elString = QString::number(elevationHeading);
+
 
     if(moveValue.contains('.')){
         bool roundUp =false;
@@ -572,30 +520,10 @@ QString RotorControl::fixHeadings(QString moveValue){
         }
     }
     return moveValue;
-    //    if(elString.contains('.')&&!elString.endsWith('0')&&!elString.endsWith('3')&&!elString.endsWith('6')){
-    //        bool roundUp =false;
-    //        //remove any numbers past the tenth place
-    //        int decimalIndex = elString.indexOf('.');
-    //        moveValue.chop(elString.length()-decimalIndex-2);
-    //        //force rounding to ".3" ".6" or ".0"
-    //       QString lastChar = elString.right(1);
-    //        int elDecimal = lastChar.toInt();
-    //        if(elDecimal==1){
-    //            elDecimal = 0;
-    //        }else if(elDecimal==2||elDecimal==4){
-    //            elDecimal =3;
-    //        }else if(elDecimal == 5||elDecimal ==7){
-    //            elDecimal = 6;
-    //        }
-    //        elString.chop(1);
-    //        if(roundUp){
-    //           elString = QString::number(elString.toDouble()+1);
-    //        }
-    //        elString = elString + QString::number(elDecimal);
-    //        elevationHeading = elString.toDouble();
-    //    }
-}
 
+}
+//if the heading (position the rotor is moving to) is equal to the current position, return true
+//otherwise return false
 bool RotorControl::headingEqualsPosition(){
     //sometimes rotor ignores command for some reason, so this makes
     //the code keep sending the same command until it gets there
@@ -615,7 +543,8 @@ bool RotorControl::headingEqualsPosition(){
     return azimuthAtPosition&&elevationAtPosition;
 }
 
-//returns true if test is finished
+//when a simple test is called, this steps the rotor through each position using the fields that were
+//setup in the startSimpleTest function
 bool RotorControl::manageSimpleGridTest(){
     if(elevationPosition>=maxElevation&&(azimuthPosition>=maxAzimuth||azimuthPosition<=minAzimuth)&&lastAzimuthRun){
         lastAzimuthRun=false;
@@ -649,13 +578,14 @@ bool RotorControl::manageSimpleGridTest(){
 
     return false;
 }
-
+//Takes in a list of positions from a .txt file and sets RotorControl's position list equal to it.
+//moves the rotor to it's first position
 void RotorControl::startAdvancedTest(QList<QString> positionList){
     positionListIndex = 0;
     this->positionList=positionList;
     manageAdvancedTest();
 }
-
+//runs through each position from positionList, returns true when the last position is reached.
 bool RotorControl::manageAdvancedTest(){
     if(positionListIndex==positionList.size()){
         positionList.clear();
@@ -697,7 +627,7 @@ bool RotorControl::manageDroneTest(double az, double el, double refreshRate){
     }
 
 }
-
+//writes the command to the correct port and starts a timer that, if it times out, will resend the last instruction
 void RotorControl::write(QByteArray command, bool isElevation){
     if(isElevation){
         el->write(command);
@@ -709,7 +639,7 @@ void RotorControl::write(QByteArray command, bool isElevation){
         azResendDataTimer->start(200);
     }
 }
-
+//all of these timeout functions resend data if their respective timers timeout
 void RotorControl::timerTimeout(bool isElevation){
     if(isElevation){
         elLastCommand.chop(1);
