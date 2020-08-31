@@ -16,8 +16,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->table_or_pattern_toolbox->setCurrentIndex(0);
     ui->table_or_pattern_toolbox->setItemEnabled(1,false);
     ui->host_name_edit_line->setText(window_ftpManager->hostName);
-    output_to_console("Program started.");
-    qDebug() << "Program started.";
+    output_to_console("Program started. Version 3, built by Jonathan Kinnard and Joshua Giambatista 2020");
+    qDebug() << "Program started. Version 3, built by Jonathan Kinnard and Joshua Giambatista 2020";
     setup();
 }
 
