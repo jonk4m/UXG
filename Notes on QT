@@ -84,7 +84,7 @@ how to set the cursor to "loading" indicator spinning wheel : https://doc.qt.io/
 bool ok = false; double valueOfPri = rowList.at(indexes.value("Pri")).toDouble(&ok); works but bool *ok; double valueOfPri = rowList.at(indexes.value("Pri")).toDouble(ok); doesn't work
 double setupTime = (double)0.00000027 * (timeScalingFactor); works but double setupTime = 0.00000027 * (timeScalingFactor); rounds the 0.00000027 to zero
 
-deploy an executable with all the .dll's and platforms and packages with it: 
+deploy an executable with all the .dll's and platforms and packages with it: C:\Qt\5.15.0\msvc2015_64\bin\windeployqt.exe --quick --release UXG.exe
 
 see all available devices on your local network with cmd command: "arp -a"
 
