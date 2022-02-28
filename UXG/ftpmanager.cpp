@@ -231,8 +231,6 @@ void FtpManager::abortTcpSocket(){
 void FtpManager::socket_connected(){
     emit userMessage("Socket connected");
     qDebug() << "Socket connected";
-    send_SCPI("DISPlay:REMote ON");
-    //send_SCPI("INSTrument STReaming");
     UXGSetupFinished=false;
     UXGSetup();
 }
@@ -244,8 +242,8 @@ void FtpManager::socket_disconnected(){
 
 void FtpManager::socket_errorOccurred(QAbstractSocket::SocketError *error){
     //TODO turn error into string
-    emit userMessage("Socket error occurred : ");
-    qDebug() << "Socket error occurred : ";
+    emit userMessage("Socket error occurred");
+    qDebug() << "Socket error occurred";
     qDebug() << error;
 }
 
@@ -269,11 +267,14 @@ void FtpManager::UXGSetup(){
     switch (setup){
     case UXGSetup::Phase1 :{
         send_SCPI(":OUTPut OFF");
-        send_SCPI(":OUTPut:MODulation OFF");
+        send_SCPI("SYST:LOG:SCPI ON"); //turn on scpi logging
+        send_SCPI("SYSTem:ERRor:SCPI ON"); //report SCPI syntax errors in the error log
+        send_SCPI("DISPlay:REMote ON");
+        send_SCPI("DISPlay:CMAP:DEFault DARK"); //make the mode dark
+        send_SCPI(":OUTPut:MODulation ON");
         send_SCPI(":INSTrument:SELect STReaming");
         send_SCPI("*OPC?");
         setup = UXGSetup::Phase2;
-
         break;
     }
     case UXGSetup::Phase2 :{
@@ -283,8 +284,12 @@ void FtpManager::UXGSetup(){
         send_SCPI(":STReam:TRIGger:PLAY:SOURce BUS");
         send_SCPI(":POWer:ATTenuation:BYPass 0");
         send_SCPI(":POWer 0");
+        send_SCPI("MEM:IMP:SEP:COL COMMa"); //specifies that the columns are sepperated by commas
+        send_SCPI("MEM:IMP:SEP:DEC DOT"); //specifies that a decimal point will be a dot not a comma
         send_SCPI(":STReam:SETup:TIME:AUTO OFF");
         send_SCPI(":STReam:SETup:TIME 0");
+        send_SCPI("STR:STAR:TIME:OFFS:AUTO OFF");
+        send_SCPI("STR:STAR:TIME:OFFS 270ns");
         send_SCPI(":STReam:STATe OFF");
         send_SCPI("*OPC?");
         setup = UXGSetup::Phase1;

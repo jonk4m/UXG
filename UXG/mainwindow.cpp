@@ -16,8 +16,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->table_or_pattern_toolbox->setCurrentIndex(0);
     ui->table_or_pattern_toolbox->setItemEnabled(1,false);
     ui->host_name_edit_line->setText(window_ftpManager->hostName);
-    output_to_console("Program started.");
-    qDebug() << "Program started.";
+    output_to_console("Program started. Version 3, built by Jonathan Kinnard and Joshua Giambatista 2020");
+    qDebug() << "Program started. Version 3, built by Jonathan Kinnard and Joshua Giambatista 2020";
     setup();
 }
 
@@ -85,16 +85,6 @@ void MainWindow::on_specify_table_name_radio_button_clicked()
     window_fpcs->settings.usingCustomTableName = true;
     output_to_console("usingCustomTableName = true");
 }
-
-/*void MainWindow::on_specified_table_name_line_edit_textChanged(const QString &arg1)
-{
-    if(window_fpcs->settings.usingCustomTableName == true){
-        //if they checked the radio button for using a custom table name, let's go ahead and change our Table name to whatever they typed in
-        window_fpcs->settings.customTableName = arg1;
-    }else{
-        output_to_console("Please click 'Specify Table Name' to enter a custom name");
-    }
-}*/
 
 /*
  * When the "use default name" button is pressed, our settings for which name to use is updated, and the default name is shown as well as the default
@@ -170,12 +160,24 @@ void MainWindow::on_create_new_table_button_box_accepted()
 
 void MainWindow::on_create_new_table_button_box_helpRequested()
 {
-    //TODO open a help pop-up
+    //open a help pop-up
+    QMessageBox *msgBox = new QMessageBox(this);
+    msgBox->setAttribute(Qt::WA_DeleteOnClose);
+    msgBox->setStandardButtons(QMessageBox::Ok);
+    QString helpText = "How to Create a new Frequency Phase Coding Setup Table for use-cases like Barker codes, Modulation On Pulse, etc. : \n\n   This is done by typing in a name for the table and selecting the 'Specify Table Name' radio button then clicking the 'OK' button, or by using the default table name. The directory for where the file is stored can be selected using the 'Change Table Directory' button PRIOR to pressing the 'OK' button that creates the file. Once the 'OK' button is pressed, the user may begin to edit the table by selecting one of the options in the 'Table Visualization' groupbox.";
+    msgBox->setInformativeText(helpText);
+    msgBox->open( this, SLOT(msgBoxClosed(QAbstractButton*)));
 }
 
 void MainWindow::on_select_existing_table_button_box_helpRequested()
 {
-    //TODO open a help pop-up
+    //open a help pop-up
+    QMessageBox *msgBox = new QMessageBox(this);
+    msgBox->setAttribute(Qt::WA_DeleteOnClose);
+    msgBox->setStandardButtons(QMessageBox::Ok);
+    QString helpText = "How to Load a Frequency Phase Coding Setup Table for use-cases like Barker codes, Modulation On Pulse, etc. : \n\n   This is done by either selecting the 'Select Local File' radio button or the 'Select File from UXG' radio button to start. If the user is selecting from the local system, they will click the 'Select File' button to browse their directories until finding the file, then click 'Open' to open that file for editing. Only after pressing the 'Open' button can the file then be uploaded to the UXG by pressing the 'Upload Finished Table to UXG' button. If the user is selecting a file from the UXG, the dropdown menu will allow them to choose available files on the UXG. Once a name is selected (The top name is selected by default) the rest of the process follows the same as selecting from their local directory.";
+    msgBox->setInformativeText(helpText);
+    msgBox->open( this, SLOT(msgBoxClosed(QAbstractButton*)));
 }
 
 //allow the user to select a preexisting file
@@ -245,13 +247,6 @@ void MainWindow::on_add_another_pattern_to_this_table_push_button_clicked()
         return;
     }
 }
-
-//TODO when an existing pattern is selected by checking the checkbox in it's row of the visualizer, a function is called that updates the fields of window_fpcs's workingEntry-> the streamer's
-//position is then updated to be the start of that row on the file. The widgets in the "Edit Pattern" groupbox simply reflect the field values or change them if the widget is edited. This way
-//a row is selected, the streamer position is moved, workingEntry has its fields updated with the values of that row read in by the streamer, the streamer's position is AGAIN to the beginning
-//of that row, the widgets on the edit pattern page are updated to reflect workingEntry's fields, the widgets are edited by the user which changes workingEntry's fields, and finally when the
-//pushbutton to update the table is clicked the streamer writes the values of the workingEntry just as it would if it were a new entry being added, the only difference being that the position
-//of streamer is at the beginning of that row rather than the end of the table.
 
 /*
  * This radio button shows the phase pattern column and hides the freq pattern column
@@ -462,19 +457,6 @@ void MainWindow::on_remove_last_entry_pushbutton_clicked()
     ui->pattern_nonBinary_values_shown_text_editor->insertPlainText(window_fpcs->workingEntry->plainTextRepresentation);
 }
 
-//TODO
-/*void MainWindow::uploadProgress(qint64 bytesSent, qint64 bytesTotal)
-{
-    // Display the progress of the upload
-    ui->progressBar->setValue(100 * bytesSent/bytesTotal);
-}*/
-
-/*
- * An important part of the functionality of this function is that window_fpcs->workingFile.fileName() is the filename and directory whereas we set
- * the uploadingFileOrFolderName field to just be the name of the file without the directory. The reason behind this is so that the included directory
- * is needed for the ftp process (since it utilizes windows's ftp client routine and has no idea what the "current directory" is) whereas when the
- * ftp process is finished we send scpi commands to the UXG that only need the fileName (since it's on the UXG now that the ftp process is finished).
- */
 void MainWindow::on_qprocess_upload_push_button_clicked()
 {
     if(window_ftpManager->tcpSocket->state() == QAbstractSocket::ConnectedState){
@@ -493,8 +475,8 @@ void MainWindow::on_qprocess_upload_push_button_clicked()
             QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
             window_ftpManager->start_process(filename);
         }else{
-            output_to_console("Cannot upload to UXG without selecting a file");
-            qDebug() << "Cannot upload to UXG without selecting a file";
+            output_to_console("ERROR: Cannot upload to UXG without selecting a file and clicking the 'Open' Button first to initialize it for uploading");
+            qDebug() << "ERROR: Cannot upload to UXG without selecting a file and clicking the 'Open' Button first to initialize it for uploading";
         }
     }else{
         output_to_console("Cannot upload to UXG without connecting TCPSocket first");
@@ -619,7 +601,6 @@ void MainWindow::on_delete_all_files_on_uxg_push_button_clicked()
 void MainWindow::on_binary_data_view_push_button_clicked(bool checked)
 {
     window_fpcs->settings.usingBinaryDataView = checked;
-    //TODO call a method window_fpcs->updateTableVisualizer(); which will check that bool and update the table view to be either binary bits or the layman's [phase,freq],... view
 }
 
 void MainWindow::on_socket_readyRead(){
@@ -793,7 +774,6 @@ void MainWindow::on_uxg_fpcs_files_combo_box_currentTextChanged(const QString &a
 /*
  * Dialog Buttons for loading Table
  * Assumes a file name has been chosen before pressed, but also checks if that's the case.
- *
  */
 void MainWindow::on_select_existing_table_button_box_accepted()
 {
@@ -871,17 +851,10 @@ void MainWindow::on_delete_table_from_uxg_push_button_clicked(){
         QString command = "MEMory:DELete:NAME ";
         command.append('"');
 
-        qDebug() << "Filename at delete slot is: " << window_fpcs->settings.currentTableSelectedThatIsOnTheUxg.remove(".fpcs",Qt::CaseInsensitive).append(".fpcs");
-        output_to_console("Filename at delete slot is: " + window_fpcs->settings.currentTableSelectedThatIsOnTheUxg.remove(".fpcs",Qt::CaseInsensitive).append(".fpcs"));
+        qDebug() << "Filename for delete is: " << window_fpcs->settings.currentTableSelectedThatIsOnTheUxg.remove(".csv",Qt::CaseInsensitive).remove(".fpcs",Qt::CaseInsensitive).append(".fpcs");
+        output_to_console("Filename for delete is: " + window_fpcs->settings.currentTableSelectedThatIsOnTheUxg.remove(".csv",Qt::CaseInsensitive).remove(".fpcs",Qt::CaseInsensitive).append(".fpcs"));
 
-        command.append(window_fpcs->settings.currentTableSelectedThatIsOnTheUxg).remove(".fpcs",Qt::CaseInsensitive).append(".fpcs"); //window_fpcs->settings.existingTableFilePath.append(".fpcs")
-        command.append('"');
-        window_ftpManager->send_SCPI(command);
-        //delete the csv file under that name
-        command.clear();
-        command = "MEMory:DELete:NAME ";
-        command.append('"');
-        command.append(window_fpcs->settings.currentTableSelectedThatIsOnTheUxg.remove(".fpcs",Qt::CaseInsensitive).remove(".csv",Qt::CaseInsensitive).append(".csv"));
+        command.append(window_fpcs->settings.currentTableSelectedThatIsOnTheUxg).remove(".csv",Qt::CaseInsensitive).remove(".fpcs",Qt::CaseInsensitive).append(".fpcs"); //window_fpcs->settings.existingTableFilePath.append(".fpcs")
         command.append('"');
         window_ftpManager->send_SCPI(command);
         //reset the list of available files on the UXG
@@ -1168,34 +1141,6 @@ void MainWindow::on_select_multiple_files_by_folder_push_button_clicked()
 
 }
 
-/*void MainWindow::on_upload_yatg_file_to_uxg_push_button_clicked()
-{
-    timer.start();
-
-    QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-    bool success = true;
-    if(window_yatg->uploadingMultipleFiles){
-        success = window_yatg->upload_multiple_files_to_uxg();
-    }else{
-        success = window_yatg->upload_file_to_uxg();
-    }
-    if(!success){
-        output_to_console("File unable to upload to UXG : ERROR");
-        qDebug() << "File unable to upload to UXG : ERROR";
-    }
-
-     // If you send 5 SCPI's in a row, then send an *OPC? you will know when it's done with those 5 scpi commands because once it gets to the *OPC? it
-     // immediately responds with "1". The uxg's scpi queue is FIFO so in the ready Read we know that if it sent back "1", it is finished uploading the
-     // pdw data we sent over SCPI.
-
-
-    //this breakpoint marks when our program is done sending SCPI's
-    output_to_console("time is took to create and send all scpi's : " + QString::number(timer.elapsed()) + " milliseconds");
-
-    window_ftpManager->waitingForPdwUpload = true;
-    window_ftpManager->send_SCPI("*OPC?");
-}*/
-
 void MainWindow::on_upload_yatg_file_to_uxg_push_button_clicked()
 {
     timer.start();
@@ -1262,9 +1207,6 @@ void MainWindow::on_elevationPushButton_clicked()
     QString el_value= ui->elevationLineEdit->text();
     bool isPosition = ui->positionRadioButton->isChecked();
     serial->moveRotor(el_value, true, isPosition);//the true is for the isElevation boolean
-
-
-
 }
 
 /*same as the elevation slot above but for azimuth
@@ -1274,7 +1216,6 @@ void MainWindow::on_azimuthPushButton_clicked()
     QString az_value= ui->azimuthLineEdit->text();
     bool isPosition = ui->positionRadioButton->isChecked();
     serial->moveRotor(az_value, false, isPosition);//the false is for the isElevation boolean (it's not elevation, its azimuth)
-
 }
 
 //if both line edits have a value then they will both change
@@ -1294,7 +1235,6 @@ void MainWindow::on_connectUSBPushButton_clicked()
     ui->azimuthMotorSpeedRadioButton->setChecked(false);
     serial->closeSerialPorts();
     serial->findSerialPorts();
-
 }
 
 //when the max speed slider is released, the value of the slider is sent to the
@@ -1321,7 +1261,6 @@ void MainWindow::on_rampSlider_sliderReleased()
 
 //updates the positions on the LCDs
 void MainWindow::updatePositions(){
-
     serial->getPosition();
     bool isHeadingEqualtoPosition =false;
     if(!udpSocket->isBound){
@@ -1372,9 +1311,6 @@ void MainWindow::updatePositions(){
             }
         }
     }
-
-
-
 }
 
 /*called when the ready Read signal goes off.  reads the data and then takes the will update
@@ -1481,18 +1417,18 @@ void MainWindow::on_elevationMotorSpeedRadioButton_toggled(bool checked)
 {
     serial->getMaxMinAndRampValues(checked);
 }
-
+//clears the line edits that specify positions for the rotor to move to so the user can't accidentally send an offset of 180 degrees or something like that
 void MainWindow::on_positionRadioButton_toggled(bool)
 {
     ui->elevationLineEdit->clear();
     ui->azimuthLineEdit->clear();
 }
-
+//starts the process of fixing the CW limit, CCW limit, and pulse divider for elevation USB
 void MainWindow::on_fixElevationPushButton_clicked()
 {
     serial->write("WK01080;",true);
 }
-
+//starts the process of fixing the CW limit, CCW limit, and pulse divider for azimuth USB
 void MainWindow::on_fixAzimuthPushButton_clicked()
 {
     serial->write("WK01080;",false);
@@ -1516,7 +1452,8 @@ void MainWindow::stopMotion(){
 
 //test functions
 
-//stuff for test, remove later
+//starts the process for a simple test. If the recommended rotor speed radio button is selected
+//
 void MainWindow::on_startTestButton_clicked()
 {
     if(ui->recommendedSpeedRadioButton->isChecked()){
@@ -1529,7 +1466,7 @@ void MainWindow::on_startTestButton_clicked()
         startSimpleTest();
     }
 }
-
+//Takes the comma delimited values from the three line edits above the "start simple test" button and tells the rotorcontrol class to start managing a simple test
 void MainWindow::startSimpleTest(){
     serial->advancedTestStarted=false;
     QList<QString> azimuthValues = ui->MaxMinAzimuthLineEdit->text().split(',');
@@ -1578,7 +1515,7 @@ void MainWindow::on_OpenTestPushButton_clicked()
     }
     ui->openTestLineEdit->setText(filePath);
 }
-
+//determines if the .txt file contains a simple test or advanced test and starts
 void MainWindow::startPositionTest(){
     QFile file(getFileName(true));
 
@@ -1608,7 +1545,6 @@ void MainWindow::startPositionTest(){
                     stepValues = cutLine.split(',');
                 }
             }while(!line.isNull());
-            //simpleTestStarted = true;
             serial->advancedTestStarted=false;
             serial->simpleTestStarted=true;
             serial->startSimpleTest(azimuthValues.at(0).toDouble(),azimuthValues.at(1).toDouble(),elevationValues.at(0).toDouble()
@@ -1635,15 +1571,13 @@ void MainWindow::startPositionTest(){
             testPositions.clear();
         }
         file.close();
-
-
     }else{
         QString error = file.errorString();
         output_to_console(error);
         qDebug() << error;
     }
 }
-
+//Opens a .txt file of positions and adds every position to the tableWidgetItemList and visualizes it on the table
 void MainWindow::on_openTestFilePushButton_clicked()
 {
     QFile file(getFileName(false));
@@ -1691,7 +1625,7 @@ void MainWindow::on_openTestFilePushButton_clicked()
     }
     file.close();
 }
-
+//Takes all of the positions from the tableWidgetItemList and creates a .txt file containing all of the positions
 void MainWindow::on_createTextFilePushButton_clicked()
 {
     QFile file(getFileName(false));
@@ -1728,10 +1662,9 @@ void MainWindow::on_startDroneTestPushButton_clicked()
         serial->write("WG210;",true);
         serial->write("WG210;",false);
     }
-
 }
 
-//stops any test the is currently running
+//stops any current process, including any PDW playing on the UXG
 void MainWindow::on_stopTestPushButton_clicked()
 {
     output_to_console("Stopping All Processes");
@@ -1754,11 +1687,11 @@ void MainWindow::on_stopTestPushButton_clicked()
     }
     serial->lastDroneAzPosition=0;
     serial->lastDroneElPosition=0;
-
 }
 
 //table functions
 
+//Takes the updated resolutions from the line edit next to the push button and resets the table with the new resolutions
 void MainWindow::on_changeTableResolutionPushButton_clicked()
 {
     QList<QString> resolution = ui->tableResolutionLineEdit->text().split(',');
@@ -1771,7 +1704,7 @@ void MainWindow::on_selectBoxesRadioButton_toggled(bool)
 {
     ui->testCreatorTableWidget->clearSelection();
 }
-
+//clears all positions on the table, sets the table headers to their correct values with the given az and el resolutions and adds a black square at the origin
 void MainWindow::resetTable(int azResolution, int elResolution){
     ui->testCreatorTableWidget->blockSignals(true);
     this->tableAzResolution = azResolution;
@@ -1827,7 +1760,7 @@ void MainWindow::resetTable(int azResolution, int elResolution){
     origin->setBackground(Qt::black);
     ui->testCreatorTableWidget->blockSignals(false);
 }
-
+//Filters mouse events.  Specifically left button release events and right button press events
 bool MainWindow::eventFilter(QObject *watched, QEvent *event){
     if(watched == ui->testCreatorTableWidget->viewport()){
         ui->testCreatorTableWidget->blockSignals(true);
@@ -1851,7 +1784,7 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event){
     }
     return false;
 }
-
+//creates a grid of positions based on the table selection from a left mouse click and drag event.
 bool MainWindow::leftMouseButtonReleaseEvent(QMouseEvent*){
     if(ui->selectBoxesRadioButton->isChecked()){
         QList<QTableWidgetItem *> list = ui->testCreatorTableWidget->selectedItems();
@@ -1875,22 +1808,17 @@ bool MainWindow::leftMouseButtonReleaseEvent(QMouseEvent*){
                         ui->testCreatorTableWidget->item(i,changedColumn)->setText(QString::number(currentTableNumber));
                         tableWidgetItemList.append(ui->testCreatorTableWidget->item(i,changedColumn));
                         currentTableNumber++;
-
                     }
                     columnOffset-=2;
                 }
             }
             rowChange = !rowChange;
         }
-        //return true;
-
     }else if(ui->eraseBoxesRadioButton->isChecked()){
         QList<QTableWidgetItem *> list = ui->testCreatorTableWidget->selectedItems();
         int firstChangedIndex = list.last()->text().toInt();
-
         for(int i=0; i<list.length() ;i++){
             if(list.at(i)->background().color()==QColor(243,112,33)){
-
                 tableWidgetItemList.removeOne(list.at(i));
                 if(list.at(i)==ui->testCreatorTableWidget->item(90/tableElResolution,90/tableAzResolution)){
                     list.at(i)->setBackground(Qt::black);
@@ -1899,7 +1827,6 @@ bool MainWindow::leftMouseButtonReleaseEvent(QMouseEvent*){
                     list.at(i)->setBackground(*brush);
                 }
                 list.at(i)->setText("");
-
             }
             if(list.at(i)->text().toInt()<firstChangedIndex){
                 firstChangedIndex = list.at(i)->text().toInt();
@@ -1911,12 +1838,10 @@ bool MainWindow::leftMouseButtonReleaseEvent(QMouseEvent*){
             }
         }
         currentTableNumber = tableWidgetItemList.length();
-        //return true;
     }
-
     return false;
 }
-
+//clears all positions on the table and resets it with the current resolutions
 void MainWindow::on_clearTablePushButton_clicked()
 {
     ui->testCreatorTableWidget->blockSignals(true);
@@ -1927,7 +1852,7 @@ void MainWindow::on_clearTablePushButton_clicked()
     currentTableNumber=0;
     ui->testCreatorTableWidget->blockSignals(false);
 }
-
+//When free drawing, this allows mouse tracking and updates each cell the the mouse enters
 void MainWindow::on_testCreatorTableWidget_cellEntered(int row, int column)
 {
     ui->testCreatorTableWidget->blockSignals(true);
@@ -1955,7 +1880,7 @@ void MainWindow::on_testCreatorTableWidget_cellEntered(int row, int column)
     }
     ui->testCreatorTableWidget->blockSignals(false);
 }
-
+//If the user inputs a number into one of the Cells, automatically update all current cell positions
 void MainWindow::on_testCreatorTableWidget_itemChanged(QTableWidgetItem *item)
 {
     if(!tableWidgetItemList.isEmpty()){
@@ -1966,8 +1891,6 @@ void MainWindow::on_testCreatorTableWidget_itemChanged(QTableWidgetItem *item)
             msgBox->setAttribute(Qt::WA_DeleteOnClose);
             msgBox->setStandardButtons(QMessageBox::Ok);
             msgBox->setText("Invalid Number");
-//            const QString fileName = QCoreApplication::applicationDirPath() + "/images";
-//            msgBox->setIconPixmap(QPixmap("C:/Qt/images"));
             msgBox->open( this, SLOT(msgBoxClosed(QAbstractButton*)));
             tableWidgetItemList.at(indexChanged)->setText(QString::number(indexChanged));
             return;
@@ -2004,19 +1927,14 @@ void MainWindow::UdpRead(){
             ui->console_text_editor->appendPlainText("Drone Test Finished");
         }
     }
-
-
 }
-
+//during a position test, this button will turn off the current PDW and allow for the UXG to arm in preparation for the next PDW
 void MainWindow::on_turnStreamOffPushButton_clicked()
 {
     window_ftpManager->send_SCPI(":STReam:STATe OFF");
     window_ftpManager->send_SCPI(":STReam:STATe ON");
-
 }
-
-
-
+//Enables or disables the Rotor group box on the "UXG/Rotor Configuration Settings" Tab
 void MainWindow::on_usingRotorCheckBox_toggled(bool checked)
 {
     if(checked){
@@ -2033,7 +1951,6 @@ void MainWindow::on_usingRotorCheckBox_toggled(bool checked)
             ui->usingRotorCheckBox->setChecked(false);
             output_to_console("No Serial Port Found");
         }
-
         QGuiApplication::restoreOverrideCursor();
     }else{
 
@@ -2053,21 +1970,19 @@ void MainWindow::on_usingRotorCheckBox_toggled(bool checked)
         serial->closeSerialPorts();
     }
 }
-
+//if the "recommended rotor speed radio button is selected, set the correct speeds for the controller, otherwise start the position test
 void MainWindow::on_startPositionTestPushButton_clicked()
 {
     serial->advancedTestStarted=true;
     if(ui->recommendedSpeedRadioButton->isChecked()){
         mainTimer->stop();
-        //simpleTestStarted=true;
-        //tcpSocket->UXGSetup();
         serial->write("WG24;",true);
         serial->write("WG24;",false);
     }else{
         startPositionTest();
     }
 }
-
+//Opens a file browser that allows the user to select a .txt file to edit in the table creator
 void MainWindow::on_openFilePushButton_clicked()
 {
     QString filePath = QFileDialog::getOpenFileName(this, tr("Open File"),
@@ -2080,7 +1995,6 @@ void MainWindow::on_openFilePushButton_clicked()
 }
 
 /*
- * TODO not finished
  * This method parses through a .txt or .csv file filled with names of PDW files to play.
  * Every new line in the file is assumed to be a new pdw file name to be played.
  */
@@ -2096,7 +2010,6 @@ void MainWindow::on_play_multiple_pdws_push_button_clicked()
         output_to_console("cancelled selecting file");
         return;
     }
-
     ui->play_multiple_pdws_line_edit->setText(filePath);
     output_to_console("File Chosen: " + filePath);
 
@@ -2119,13 +2032,11 @@ void MainWindow::on_play_multiple_pdws_push_button_clicked()
         qDebug() << "Batch File Not Found in Local System : " << filePath;
         return;
     }
-
     //create the QTextStreamer to operate on this file until further notice
     streamerForBatchFile.setDevice(&fileForBatchPlay);
     streamerForBatchFile.seek(0); //make sure the TextStream starts at the beginning of the file
 
     //loop through the plays
-
     QString line;
     do{
         line = streamerForBatchFile.readLine();
@@ -2155,7 +2066,6 @@ void MainWindow::on_create_yatg_template_file_pushbutton_clicked()
         output_to_console("cancelled selecting folder");
         return;
     }
-
     QFile exampleFile;
     QTextStream streamerForExampleFile;
 
@@ -2181,12 +2091,53 @@ void MainWindow::on_create_yatg_template_file_pushbutton_clicked()
 
     //loop through the plays
 
-    QString header = "FREQ (MHZ),PRI (s),PW(s),COUNT,ATTEN (DB),PHASE,MOP,CW,Chirp Shape,Chirp Rate";
+    QString header = "FREQ (MHZ),PRI (s),PW(s),COUNT,ATTEN (DB),PHASE,MOP,CW,Chirp Shape,Chirp Rate (Hz/us)";
     header.append("\n");
     streamerForExampleFile << header;
     QString data = "10,1,1,1,-8,0,0,0,RAMP,0.00E+00";
-    header.append("\n");
+    data.append("\n");
     streamerForExampleFile << data;
+    streamerForExampleFile << data;
+    QString comment = "#\n#The '#' symbol is used for comments and ignored by the W.H.O.P.P.E.R. Program.\n#\n";
+    streamerForExampleFile << comment;
+    comment = "#chirp rate:\n";
+    streamerForExampleFile << comment;
+    comment = "#Range: +/- 95.9765625 THz/us\n";
+    streamerForExampleFile << comment;
+    comment = "#Resolution: 21.827872842550278 Hz/us\n#\n";
+    streamerForExampleFile << comment;
+    comment = "#relative power:\n";
+    streamerForExampleFile << comment;
+    comment = "#Range: -161.6 dB to 31.07 dB\n";
+    streamerForExampleFile << comment;
+    comment = "#Resolution: 0.0085 dB\n#\n";
+    streamerForExampleFile << comment;
+    comment = "#phase:\n";
+    streamerForExampleFile << comment;
+    comment = "#Range: 0 deg – 360 deg\n";
+    streamerForExampleFile << comment;
+    comment = "#Resolution: 0.087890625 deg\n#\n";
+    streamerForExampleFile << comment;
+    comment = "#frequency:\n";
+    streamerForExampleFile << comment;
+    comment = "#Range: see model datasheet, package dependant\n";
+    streamerForExampleFile << comment;
+    comment = "#Resolution: 1/1024 Hz\n#\n";
+    streamerForExampleFile << comment;
+    comment = "#PRI:\n";
+    streamerForExampleFile << comment;
+    comment = "#Range: 0 ps to 213.504 days\n";
+    streamerForExampleFile << comment;
+    comment = "#Field Resolution: 1 ps\n#\n";
+    streamerForExampleFile << comment;
+    comment = "#PW:\n";
+    streamerForExampleFile << comment;
+    comment = "#Range: 4 ns to 4.294967295 s\n";
+    streamerForExampleFile << comment;
+    comment = "#Field Resolution: 1 ns\n";
+    streamerForExampleFile << comment;
+    comment = "#Resolution: 2 ns\n";
+    streamerForExampleFile << comment;
 
     exampleFile.close();
     output_to_console("ExampleYATGFile.csv created successfully.");
@@ -2202,7 +2153,7 @@ void MainWindow::on_stopAllCurrentProcessesButton_clicked()
     QGuiApplication::restoreOverrideCursor();
     QGuiApplication::restoreOverrideCursor();
 }
-
+//with only the elevation USB plugged in, this sets the elevation port to elevation mode
 void MainWindow::on_elevationModePushButton_clicked()
 {
     ui->azimuthLCD->display(0);
@@ -2210,7 +2161,7 @@ void MainWindow::on_elevationModePushButton_clicked()
     serial->setElevationMode(true);
     output_to_console("Set to Elevation Mode");
 }
-
+//with only the azimuth USB plugged in, this set the azimuth port to azimuth mode
 void MainWindow::on_notElevationModePushButton_clicked()
 {
     ui->azimuthLCD->display(0);
@@ -2218,16 +2169,27 @@ void MainWindow::on_notElevationModePushButton_clicked()
     serial->setElevationMode(false);
     output_to_console("Set to Standard Mode");
 }
-
+//Opens a text box explaining how to start a test
 void MainWindow::on_testOptionsHelpButton_clicked()
 {
+
     QMessageBox *msgBox = new QMessageBox(this);
     msgBox->setAttribute(Qt::WA_DeleteOnClose);
     msgBox->setStandardButtons(QMessageBox::Ok);
 
-    const QString fileName = QCoreApplication::applicationDirPath() + "/Capture";
-    msgBox->setIconPixmap(QPixmap(fileName));
+    QString helpText = "To run a standard position test with a .txt file already made follow the steps below:\r\n\n 1.   Populate the Line Edit next to the \"Open Position Test File\" with the name/location of the desired file.  This can be achieved by directly typing the file path of the file, or by clicking \"Open Position Test File\" which will bring up a file explorer to browse for the file.\r\n\n 2.   Is the test using one PDW file, or many?  If only one, then check the \"Use Only One PDW\" check box and specify the PDW file name as it appears exactly on the UXG.  If it is unchecked the program assumes that file names follow the convention \"1\", \"2\", etc.\r\n\n 3.   If you want to have a PDW continuously play at a position, check the \"Continuous Trigger\" check box. This gives the user manual control over when to move to the next position by hitting the \"Turn Stream Off\" button.  To move to the next position as soon as a PDW is done playing, leave the \"Continuous Trigger\" box unchecked.  NOTE: This can be toggled in the middle of the test, but only affects the next PDW that plays, not the current one.\r\n\n 4.   To use the recommended rotor speeds for a test, leave the \"Use Recommended Rotor Speed\" radio button selected.  To use the current rotor speed settings instead, select the \"Use Current Rotor Speed\" radio button.\r\n\n 5.   The test is ready to run, check that the program is connected to the UXG, hit the \"Start Position Test\" button and watch the magic happen!";
+    msgBox->setInformativeText(helpText);
     msgBox->open( this, SLOT(msgBoxClosed(QAbstractButton*)));
 }
 
 
+void MainWindow::on_help_editing_pattern_push_button_clicked()
+{
+    //open a help pop-up
+    QMessageBox *msgBox = new QMessageBox(this);
+    msgBox->setAttribute(Qt::WA_DeleteOnClose);
+    msgBox->setStandardButtons(QMessageBox::Ok);
+    QString helpText = "How to Load a Frequency Phase Coding Setup Table for use-cases like Barker codes, Modulation On Pulse, etc. : \n\n   In this segment view, you are only editing one pattern (row) of the current table. You can cancel all the work on the current pattern by clicking the 'Cancel' button or press the 'Update/Add Pattern to Current Table' button when you are finished to add this pattern to the table. Note that the length of the pattern is how many subpulses the signal it is applied to will be broken up into. \n\n   In other words, if you have a 10ms PW, and add five entries from the table on the left the the pattern, your resulting signal will be split into 5 subpulses each 2ms long with the phase or frequency shift of each subpulse applied to their corresponding segments. \n\n   The number of Phases/Frequencies is the first value to choose since once the editing of the pattern begins, this value should not be changed. The number of different Frequencies/Phases only matters if you are concerned with the size of your pattern/table of patterns. See the Keysight documentation for the UXG to understand the binary limitations on the size of a .fpcs file. \n\n   Adding a Barker Code using the dropdown menu will apply that sequence using the first two entries in the table on the left as the template. The first entry at the top of the table serves as the '0' in the barker code. \n\n   The phases and frequencies for each entry can be changed as well as the units. See the Keysight documentation for the UXG to reference limitations of these values.";
+    msgBox->setInformativeText(helpText);
+    msgBox->open( this, SLOT(msgBoxClosed(QAbstractButton*)));
+}

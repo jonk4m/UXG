@@ -53,7 +53,7 @@ public:
     bool waitingForPdwUpload = false;
     bool downloadingAllFiles = false;
     DownloadState downloadState = finished;
-    QString hostName = "192.168.10.100"; //default hostname
+    QString hostName = "169.254.24.85"; //default hostname
 
     void start_process(QString);
     void send_SCPI(QString);

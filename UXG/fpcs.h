@@ -22,19 +22,13 @@ Q_OBJECT
 public:
 
     struct fpcs_settings{
-        bool usingCustomTableName = false;
-        //bool usingCustomFilePath = false;
-        //bool usingExistingTable = false;
+        bool usingCustomTableName = true;
         bool usingExistingTableLocal = true;
-        bool usingBinaryDataView = true;
-        //this fileInPlay checkflag is true when a file has either been created or opened, AND the header has been created/checked AND the streamer is in the right position using that file
+        bool usingBinaryDataView = false;
         bool fileInPlay = false;
         int defaultTableNumber = 0;
         QString defaultFilePath = QDir::currentPath() + "/fileFolder/uploads"; //note that the "fileFolder" and "uploads" folders needs to be created next to the executable on deployment
         QString defaultTableName = "Table0"; //TODO this will be incremented each time using: "Table" + QString::number(defaultTableNumber);
-        //QString customFilePath;
-        //QString customTableName;
-        //QString existingTableFilePath; //contains the path and name, unlike the others in this struct
         int preferredFormat = 0;
         QString currentTableSelectedThatIsOnTheUxg;
 

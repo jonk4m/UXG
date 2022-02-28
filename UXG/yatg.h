@@ -24,7 +24,6 @@ public:
     YATG(FtpManager*,QMainWindow *window);
     bool upload_file_to_uxg();
     bool upload_multiple_files_to_uxg();
-    //bool append_rows_to_uxg_file(QHash<QString,int>,QString,double);
     bool append_rows_to_uxg_file(QHash<QString,int>,double);
 
     QFile workingFile;
@@ -37,6 +36,7 @@ public:
     QTextStream outputFileStreamer;
 
     bool uploadingMultipleFiles = false;
+    const double pdwPadding = 0; //must be in seconds
 
 private:
 

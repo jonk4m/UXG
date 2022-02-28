@@ -249,10 +249,9 @@ private slots:
 
     void on_testOptionsHelpButton_clicked();
 
+    void on_help_editing_pattern_push_button_clicked();
+
 private:
-
-    //bool pre_initialize_uxg_file();
-
     //These functions are specifically for table visualization purposes
     void update_table_visualization();
 

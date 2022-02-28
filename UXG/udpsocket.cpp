@@ -4,10 +4,10 @@ UdpSocket::UdpSocket(QMainWindow *window)
 {
     socket = new QUdpSocket(window);
 
-//    socket->bind(QHostAddress("169.254.83.245"),50344);
+
     QMainWindow::connect(socket, SIGNAL(readyRead()), window, SLOT(UdpRead()));
 }
-
+//Finds the current IPv4 address of the ethernet port on the computer and binds the UDP socket to it on port 5005
 QList<QString>* UdpSocket::getIPAddressAndPort(){
     bool ethernetFound=false;
     foreach (const QHostAddress &address, QNetworkInterface::allAddresses()) {

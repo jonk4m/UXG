@@ -1,9 +1,11 @@
 #ifndef ENTRY_H
 #define ENTRY_H
 
-//Josh is gay
-//for sure
-//gg
+/*
+show mike how if you are looking at a file, then try to upload a file with the same name, it crashes the uxg
+*/
+
+//hKnnd7ip4naY5q6Eiyn6jPG2yU5Yp6lLBGXVrVbHlfClTKvvUw
 
 #include <QMainWindow>
 #include <QObject>

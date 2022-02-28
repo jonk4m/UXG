@@ -3,24 +3,9 @@
 Entry::Entry(QMainWindow *window){
     QMainWindow::connect(this, SIGNAL(userMessage(QString)), window, SLOT(output_to_console(QString)));
 }
-//Entry::Entry(const Entry &obj){
-//    this->comment=obj.comment;
-//    this->freqs= obj.freqs;
-//    this->state= obj.state;
-//    this->length=obj.length;
-//    this->phases = obj.phases;
-//    this->freqUnits = obj.freqUnits;
-//    this->bitPattern=obj.bitPattern;
-//    this->codingType=obj.codingType;
-//    this->hexPattern=obj.hexPattern;
-//    this->bitsPerSubpulse=obj.bitsPerSubpulse;
-//    this->numOfPhasesOrFreqs=obj.numOfPhasesOrFreqs;
-//    this->plainTextRepresentation=obj.plainTextRepresentation;
-//}
 
 /*
  * This takes the entire binaryPattern and parses through it to rewrite the plain text pattern of this entry
- *
  * Assumes the binaryPattern has no padded zeros on the end
  */
 void Entry::parse_entry_for_plain_text_pattern(){
